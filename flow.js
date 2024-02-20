@@ -10,6 +10,7 @@ export function renderGraph({
   onRemoveModule,
   onMove,
   onMoveEnd,
+  onModuleResize,
   onModuleSelect,
 }) {
   const graph = Graph()
@@ -102,14 +103,17 @@ export function renderGraph({
     onAddModule({ x, y })
   }
 
-  const onModuleDrag = (node, x, y) => {
+  const updateEdges = (node) => {
     const { id, inputs, output } = node
-
     const movedEdges = findEdges(inputs, output)
-
     movedEdges.forEach((edge) => {
       edge.edge.render({ fromEl: edge.fromEl, toEl: edge.toEl })
     })
+  }
+
+  const onModuleDrag = (node, x, y) => {
+    const { id } = node
+    updateEdges(node)
 
     onMove(id, x, y)
 
@@ -120,7 +124,7 @@ export function renderGraph({
   }
 
   const api = {
-    renderModule: ({ id, x, y, inputsCount, label, children }) => {
+    renderModule: ({ id, x, y, width, height, inputsCount, label, children }) => {
       const node = Node()
 
       const nodeItem = {
@@ -135,12 +139,16 @@ export function renderGraph({
         id,
         x,
         y,
+        width,
+        height,
         label,
         inputsCount,
         children,
         onClick: (e) => onModuleClick(nodeItem, e),
         onDrag: (x, y) => onModuleDrag(nodeItem, x, y),
-        onDragEnd: () => onMoveEnd(),
+        onDragEnd: onMoveEnd,
+        onResize: () => updateEdges(nodeItem),
+        onResizeEnd: (width, height) => onModuleResize(id, width, height),
       })
 
       graph.render({ node: nodeContainer })

@@ -12,6 +12,10 @@ export function Text() {
   return {
     container,
 
+    get data() {
+      return container.innerText
+    },
+
     render: ({ text }) => {
       container.innerText = text
       return container

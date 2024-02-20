@@ -1,5 +1,8 @@
 import { makeDraggable } from '../draggable.js'
 
+const WIDTH = 100
+const HEIGHT = 50
+
 function makeNodeDraggable(el, onDrag, onDragEnd) {
   let left = null
   let top = null
@@ -29,6 +32,13 @@ export function Node() {
   const div = document.createElement('div')
   div.className = 'module'
 
+  Object.assign(div.style, {
+    position: 'absolute',
+    zIndex: 2,
+    width: `${WIDTH}px`,
+    height: `${HEIGHT}px`,
+  })
+
   const outputButton = document.createElement('button')
   Object.assign(outputButton.style, {
     left: '100%',
@@ -37,6 +47,17 @@ export function Node() {
   })
 
   const inputs = []
+
+  const resizeHandle = document.createElement('div')
+  Object.assign(resizeHandle.style, {
+    position: 'absolute',
+    right: 0,
+    bottom: 0,
+    width: '10px',
+    height: '10px',
+    background: 'linear-gradient(135deg, #fff 0%, #fff 50%, #999 50%, #999 100%)',
+    cursor: 'nwse-resize',
+  })
 
   return {
     container: div,
@@ -49,19 +70,24 @@ export function Node() {
       id,
       x,
       y,
+      width = WIDTH,
+      height = HEIGHT,
       label,
       children = null,
       inputsCount = 0,
       onClick = null,
       onDrag = null,
       onDragEnd = null,
+      onResize = null,
+      onResizeEnd = null,
     }) => {
-      div.innerHTML = ''
       div.setAttribute('id', id)
 
       Object.assign(div.style, {
         left: `${x}px`,
         top: `${y}px`,
+        width: `${width}px`,
+        height: `${height}px`,
       })
 
       // Render label
@@ -101,6 +127,24 @@ export function Node() {
 
       if (onDrag) {
         makeNodeDraggable(div, onDrag, onDragEnd)
+      }
+
+      if (onResize) {
+        makeDraggable(
+          resizeHandle,
+          (dx, dy) => {
+            width = Math.max(WIDTH, width + dx)
+            height = Math.max(HEIGHT, height + dy)
+            Object.assign(div.style, {
+              width: `${width}px`,
+              height: `${height}px`,
+            })
+            onResize(width, height)
+          },
+          undefined,
+          () => onResizeEnd && onResizeEnd(width, height),
+        )
+        div.appendChild(resizeHandle)
       }
 
       return div

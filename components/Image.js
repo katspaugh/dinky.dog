@@ -3,6 +3,7 @@ export function Image() {
   Object.assign(container.style, {
     width: '100%',
     height: '100%',
+    overflow: 'hidden',
   })
 
   const img = document.createElement('img')
@@ -10,7 +11,6 @@ export function Image() {
     display: 'block',
     width: '100%',
     height: 'auto',
-    maxHeight: '100%',
     cursor: 'pointer',
   })
 
@@ -43,6 +43,10 @@ export function Image() {
 
   return {
     container,
+
+    get data() {
+      return img.src
+    },
 
     render: ({ src }) => {
       img.src = src

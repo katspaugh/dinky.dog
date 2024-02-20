@@ -14,7 +14,7 @@ async function renderApp(initialData) {
 
   const findModule = (id) => _modules.find((m) => m.id === id)
 
-  const createModule = ({ type, data, x, y, id = `${type}-${Date.now()}` }) => {
+  const createModule = ({ type, data, x, y, width, height, id = `${type}-${Date.now()}` }) => {
     let module, children
 
     if (type === Image.name) {
@@ -29,6 +29,8 @@ async function renderApp(initialData) {
       id,
       x,
       y,
+      width,
+      height,
       label: '',
       inputsCount: 1,
       children,
@@ -37,18 +39,30 @@ async function renderApp(initialData) {
     return {
       ...module,
       type,
-      get description() {
-        return module.container.cloneNode(true)
-      },
       id,
       x,
       y,
+      width,
+      height,
+      get description() {
+        return module.container.cloneNode(true)
+      },
     }
   }
 
   const updateUrl = () => {
     const data = {
-      modules: _modules.map(({ id, type, x, y }) => ({ id, type, x, y })),
+      modules: _modules.map(({ id, type, x, y, data, width, height }) => {
+        const moduleData = { id, x, y, data }
+        if (type !== Text.name) {
+          moduleData.type = type
+        }
+        if (width && height) {
+          moduleData.width = width
+          moduleData.height = height
+        }
+        return moduleData
+      }),
       connections: _connections,
     }
     setHashData(data)
@@ -78,8 +92,8 @@ async function renderApp(initialData) {
     updateConnection(inputId, outputId, true)
   }
 
-  const onAddModule = ({ x, y, id, type = 'Text', data = '' }) => {
-    const mod = createModule({ x, y, id, type, data })
+  const onAddModule = ({ id, x, y, width, height, type = 'Text', data = '' }) => {
+    const mod = createModule({ id, x, y, type, data, width, height })
     _modules.push(mod)
     updateUrl()
     return mod
@@ -109,6 +123,13 @@ async function renderApp(initialData) {
     sidebar.render(module)
   }
 
+  const onModuleResize = (id, width, height) => {
+    const module = findModule(id)
+    module.width = width
+    module.height = height
+    updateUrl()
+  }
+
   const graph = renderGraph({
     appContainer,
     onConnect,
@@ -118,6 +139,7 @@ async function renderApp(initialData) {
     onMove,
     onMoveEnd,
     onModuleSelect,
+    onModuleResize,
   })
 
   _modules = await Promise.all(initialData.modules.map(onAddModule))
@@ -147,10 +169,12 @@ async function renderApp(initialData) {
 }
 
 // Initialize app
-renderApp({
-  modules: [
-    { id: 'text-0', x: 600, y: 50, type: 'Text', data: 'Hello' },
-    { id: 'text-1', x: 800, y: 150, type: 'Text', data: 'world' },
-  ],
-  connections: [{ from: 'text-0-output', to: 'text-1-input-0' }],
-})
+renderApp(
+  getHashData() || {
+    modules: [
+      { id: 'text-0', x: 600, y: 50, data: 'Hello' },
+      { id: 'text-1', x: 800, y: 150, data: 'world' },
+    ],
+    connections: [{ from: 'text-0-output', to: 'text-1-input-0' }],
+  },
+)
