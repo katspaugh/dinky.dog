@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Dinky Dog: shareable flow diagrams</title>
+    <style>
+      html,
+      body {
+        min-height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      #app {
+        height: 100vh;
+        width: 100vw;
+        display: flex;
+        flex-wrap: nowrap;
+      }
+      .module {
+        width: 100px;
+        height: 50px;
+        background-color: #fafafa;
+        border-radius: 4px;
+        padding: 10px;
+        position: absolute;
+        z-index: 2;
+        border: 1px solid #aaa;
+      }
+      .module.active,
+      .module:hover {
+        border: 1px solid #aaf;
+      }
+      .module button {
+        display: block;
+        position: absolute;
+        z-index: 3;
+        border-radius: 100%;
+        padding: 0;
+        width: 16px;
+        height: 16px;
+        margin-left: -8px;
+        border: none;
+        background-color: #faa;
+      }
+      .module button:hover {
+        background-color: #aaf;
+      }
+      .module button.active {
+        background-color: #f00;
+      }
+      .module input {
+        width: 90%;
+        margin-top: 12px;
+      }
+      svg {
+        position: absolute;
+        z-index: 2;
+        pointer-events: none;
+      }
+      path {
+        fill: none;
+        stroke: #dfdfdf;
+        stroke-width: 4px;
+        pointer-events: all;
+        cursor: pointer;
+      }
+      path:hover {
+        stroke: #aaf;
+      }
+      .graph {
+        position: relative;
+        flex: 1;
+        height: 100vh;
+        background-size: 30px 30px;
+        background-image: radial-gradient(circle, #ddd 1px, transparent 1px);
+      }
+      .sidebar {
+        order: 1;
+        flex: 0 0 10vw;
+        background-color: #eee;
+        padding: 0 2rem;
+        overflow-y: scroll;
+        position: relative;
+        z-index: 3;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="app"></div>
+    <script type="module" src="./index.js"></script>
+  </body>
+</html>
