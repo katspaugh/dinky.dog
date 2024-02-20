@@ -1,7 +1,7 @@
 import { makeDraggable } from '../draggable.js'
 
-const WIDTH = 100
-const HEIGHT = 50
+export const WIDTH = 100
+export const HEIGHT = 50
 
 function makeNodeDraggable(el, onDrag, onDragEnd) {
   let left = null
@@ -21,7 +21,7 @@ function makeNodeDraggable(el, onDrag, onDragEnd) {
         left: `${left}px`,
         top: `${top}px`,
       })
-      onDrag(left, top)
+      onDrag(Math.round(left), Math.round(top))
     },
     undefined,
     onDragEnd,
@@ -142,7 +142,7 @@ export function Node() {
             onResize(width, height)
           },
           undefined,
-          () => onResizeEnd && onResizeEnd(width, height),
+          () => onResizeEnd && onResizeEnd(Math.round(width), Math.round(height)),
         )
         div.appendChild(resizeHandle)
       }

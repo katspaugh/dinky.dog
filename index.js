@@ -2,6 +2,7 @@ import { renderGraph } from './flow.js'
 import { Sidebar } from './components/Sidebar.js'
 import { Text } from './components/Text.js'
 import { Image } from './components/Image.js'
+import { WIDTH, HEIGHT } from './components/Node.js'
 import { getHashData, setHashData } from './hash.js'
 
 async function renderApp(initialData) {
@@ -154,8 +155,8 @@ async function renderApp(initialData) {
   // Make the app container a drop zone for images
   appContainer.addEventListener('drop', (e) => {
     e.preventDefault()
-    const x = e.clientX - 50
-    const y = e.clientY - 25
+    const x = e.clientX - WIDTH / 2
+    const y = e.clientY - HEIGHT / 2
     const file = e.dataTransfer.files[0]
     if (file.type.startsWith('image/')) {
       const reader = new FileReader()
