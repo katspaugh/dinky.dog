@@ -1,7 +1,6 @@
 export function Text() {
   const container = document.createElement('div')
   container.contentEditable = 'true'
-  container.autofocus = true
   Object.assign(container.style, {
     width: '100%',
     height: '100%',
@@ -18,6 +17,11 @@ export function Text() {
 
     render: ({ text }) => {
       container.innerText = text
+      if (!text) {
+        setTimeout(() => {
+          container.focus()
+        }, 100)
+      }
       return container
     },
   }

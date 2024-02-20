@@ -91,11 +91,8 @@ export function renderGraph({
     )
   }
 
-  let _isAdding
   const onGraphClick = (e) => {
     if (e.target !== graph.container) return
-    if (_isAdding) return
-    _isAdding = true
 
     const x = e.clientX - appContainer.offsetLeft
     const y = e.clientY - appContainer.offsetTop
@@ -104,7 +101,7 @@ export function renderGraph({
   }
 
   const updateEdges = (node) => {
-    const { id, inputs, output } = node
+    const { inputs, output } = node
     const movedEdges = findEdges(inputs, output)
     movedEdges.forEach((edge) => {
       edge.edge.render({ fromEl: edge.fromEl, toEl: edge.toEl })
