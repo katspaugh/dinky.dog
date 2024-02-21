@@ -91,8 +91,16 @@ export function renderGraph({
     )
   }
 
+  let clicks = 0
   const onGraphClick = (e) => {
     if (e.target !== graph.container) return
+
+    // Skip every second click
+    clicks += 1
+    if (clicks >= 2) {
+      clicks = 0
+      return
+    }
 
     const x = e.clientX - appContainer.offsetLeft
     const y = e.clientY - appContainer.offsetTop
