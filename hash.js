@@ -1,13 +1,12 @@
-export function setHashData(data) {
-  window.location.hash = btoa(JSON.stringify(data))
+import { compressObjectToString, decompressStringToObject } from './compress.js'
+
+export async function setHashData(data) {
+  const hash = await compressObjectToString(data)
+  window.location.hash = hash
 }
 
-export function getHashData() {
+export async function getHashData() {
   const hash = window.location.hash.slice(1)
   if (!hash) return
-  try {
-    return JSON.parse(atob(hash))
-  } catch {
-    return
-  }
+  return decompressStringToObject(hash)
 }

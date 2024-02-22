@@ -1,7 +1,6 @@
 import { renderGraph } from './flow.js'
 import { Sidebar } from './components/Sidebar.js'
-import { Text } from './components/Text.js'
-import { Image } from './components/Image.js'
+import * as Operators from './operators/index.js'
 import { WIDTH, HEIGHT } from './components/Node.js'
 import { getHashData, setHashData } from './hash.js'
 
@@ -15,16 +14,18 @@ async function renderApp(initialData) {
 
   const findModule = (id) => _modules.find((m) => m.id === id)
 
-  const createModule = ({ type, data, x, y, width, height, id = `${type}-${Date.now()}` }) => {
-    let module, children
-
-    if (type === Image.name) {
-      module = Image()
-      children = module.render({ src: data })
-    } else {
-      module = Text()
-      children = module.render({ text: data })
-    }
+  const createModule = ({
+    type = Operators.Text.name,
+    data,
+    note,
+    x,
+    y,
+    width,
+    height,
+    id = `${type}-${Date.now()}`,
+  }) => {
+    const module = Operators[type](data)
+    const container = module.render()
 
     graph.renderModule({
       id,
@@ -32,10 +33,18 @@ async function renderApp(initialData) {
       y,
       width,
       height,
-      label: '',
-      inputsCount: 1,
-      children,
+      inputsCount: module.inputs.length,
+      children: container,
     })
+
+    // Focus
+    if (container && type === Operators.Text.name && !data) {
+      setTimeout(() => {
+        container.focus()
+      }, 100)
+    }
+
+    module.output.subscribe(updateUrl)
 
     return {
       ...module,
@@ -45,28 +54,33 @@ async function renderApp(initialData) {
       y,
       width,
       height,
-      get description() {
-        return module.container.cloneNode(true)
-      },
+      note,
     }
   }
 
+  let _updateUrlTimeout
   const updateUrl = () => {
-    const data = {
-      modules: _modules.map(({ id, type, x, y, data, width, height }) => {
-        const moduleData = { id, x, y, data }
-        if (type !== Text.name) {
-          moduleData.type = type
-        }
-        if (width && height) {
-          moduleData.width = width
-          moduleData.height = height
-        }
-        return moduleData
-      }),
-      connections: _connections,
-    }
-    setHashData(data)
+    if (_updateUrlTimeout) clearTimeout(_updateUrlTimeout)
+    _updateUrlTimeout = setTimeout(() => {
+      const data = {
+        modules: _modules.map(({ id, type, x, y, width, height, note, serialize }) => {
+          const moduleData = { id, x, y, data: serialize() }
+          if (type !== Text.name) {
+            moduleData.type = type
+          }
+          if (width && height) {
+            moduleData.width = width
+            moduleData.height = height
+          }
+          if (note) {
+            moduleData.note = note
+          }
+          return moduleData
+        }),
+        connections: _connections,
+      }
+      setHashData(data)
+    }, 500)
   }
 
   const updateConnection = (inputId, outputId, disconnect = false) => {
@@ -77,11 +91,18 @@ async function renderApp(initialData) {
     if (!inputModule || !outputModule) {
       throw new Error(`Module not found: ${inputModuleId} or ${outputModuleId}`)
     }
+
+    const output = outputModule.output
+    const input = inputModule.inputs[inputIndex]
+
     if (disconnect) {
       _connections = _connections.filter((c) => c.from !== outputId || c.to !== inputId)
+      output.disconnect(input)
     } else {
       _connections.push({ from: outputId, to: inputId })
+      output.connect(input)
     }
+
     updateUrl()
   }
 
@@ -93,8 +114,8 @@ async function renderApp(initialData) {
     updateConnection(inputId, outputId, true)
   }
 
-  const onAddModule = ({ id, x, y, width, height, type = 'Text', data = '' }) => {
-    const mod = createModule({ id, x, y, type, data, width, height })
+  const onAddModule = ({ id, type, data, note, x, y, width, height }) => {
+    const mod = createModule({ id, type, data, note, x, y, width, height })
     _modules.push(mod)
     updateUrl()
     return mod
@@ -103,8 +124,15 @@ async function renderApp(initialData) {
   const onRemoveModule = (id) => {
     const module = findModule(id)
     if (!module) return
+
+    _connections
+      .filter((c) => c.from.split('-output')[0] === id || c.to.split('-input')[0] === id)
+      .forEach((c) => {
+        onDisconnect(c.to, c.from)
+      })
+
+    module.destroy()
     _modules = _modules.filter((m) => m.id !== id)
-    _connections = _connections.filter((c) => c.from.split('-output')[0] !== id && c.to.split('-input')[0] !== id)
     updateUrl()
   }
 
@@ -121,7 +149,16 @@ async function renderApp(initialData) {
 
   const onModuleSelect = (id) => {
     const module = findModule(id)
-    sidebar.render(module)
+    if (module) {
+      sidebar.render({
+        description: module.output.get(),
+        note: module.note,
+        onNoteEdit: (note) => {
+          module.note = note
+          updateUrl()
+        },
+      })
+    }
   }
 
   const onModuleResize = (id, width, height) => {
@@ -161,7 +198,7 @@ async function renderApp(initialData) {
     if (file.type.startsWith('image/')) {
       const reader = new FileReader()
       reader.onload = (e) => {
-        onAddModule({ x, y, type: Image.name, data: e.target.result, id: `image-${Date.now()}` })
+        onAddModule({ x, y, type: Operators.Image.name, data: e.target.result, id: `image-${Date.now()}` })
       }
       reader.readAsDataURL(file)
     }
@@ -170,12 +207,14 @@ async function renderApp(initialData) {
 }
 
 // Initialize app
-renderApp(
-  getHashData() || {
-    modules: [
-      { id: 'text-0', x: 600, y: 50, data: 'Hello' },
-      { id: 'text-1', x: 800, y: 150, data: 'world' },
-    ],
-    connections: [{ from: 'text-0-output', to: 'text-1-input-0' }],
-  },
-)
+getHashData().then((data) => {
+  renderApp(
+    data || {
+      modules: [
+        { id: 'text-0', x: 600, y: 50, data: 'Hello' },
+        { id: 'text-1', x: 800, y: 150, data: 'world' },
+      ],
+      connections: [{ from: 'text-0-output', to: 'text-1-input-0' }],
+    },
+  )
+})

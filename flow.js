@@ -129,7 +129,7 @@ export function renderGraph({
   }
 
   const api = {
-    renderModule: ({ id, x, y, width, height, inputsCount, label, children }) => {
+    renderModule: ({ id, x, y, width, height, inputsCount, children }) => {
       const node = Node()
 
       const nodeItem = {
@@ -146,7 +146,6 @@ export function renderGraph({
         y,
         width,
         height,
-        label,
         inputsCount,
         children,
         onClick: (e) => onModuleClick(nodeItem, e),

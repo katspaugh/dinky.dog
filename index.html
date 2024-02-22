@@ -9,6 +9,7 @@
         min-height: 100%;
         margin: 0;
         padding: 0;
+        font-family: sans-serif;
       }
       #app {
         height: 100vh;
@@ -21,6 +22,9 @@
         border-radius: 4px;
         padding: 10px;
         border: 1px solid #aaa;
+      }
+      .module > div[contenteditable] {
+        margin: -10px;
       }
       .module.active,
       .module:hover {
@@ -72,12 +76,32 @@
       }
       .sidebar {
         order: 1;
-        flex: 0 0 10vw;
+        flex: 0 0 200px;
         background-color: #eee;
         padding: 0 2rem;
         overflow-y: scroll;
         position: relative;
         z-index: 3;
+      }
+      .sidebar:before {
+        content: '';
+        display: block;
+        width: 150px;
+        height: 100px;
+        margin: 10px 0 -30px;
+        background: url('/logo.svg') no-repeat center center;
+      }
+      .sidebar div[contenteditable] {
+        border: 1px solid #aaa;
+        background-color: #fff;
+        min-height: 30vh;
+        margin: 20px 0;
+        box-sizing: border-box;
+      }
+      @media (max-width: 1024px) {
+        .sidebar {
+          display: none;
+        }
       }
     </style>
   </head>
