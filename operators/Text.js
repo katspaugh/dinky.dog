@@ -1,5 +1,5 @@
-import { Stream } from '../stream.js'
-import { Fns } from '../fns/index.js'
+import { Stream } from '../utils/stream.js'
+import { Fns } from '../expressions/index.js'
 import { EditableText } from '../components/EditableText.js'
 
 const getFn = (value) => {
@@ -58,12 +58,19 @@ export function Text(initialValue) {
 
     output: outputStream,
 
-    serialize: () => {
-      return lastInput || ''
-    },
+    serialize: () => lastInput || '',
 
     render: () => {
-      return component.render({ text: initialValue || '' })
+      const container = component.render({ text: initialValue || '' })
+
+      // Autofocus if there's no initial value
+      if (!initialValue) {
+        setTimeout(() => {
+          container.focus()
+        }, 100)
+      }
+
+      return container
     },
 
     destroy: () => {

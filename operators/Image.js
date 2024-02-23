@@ -1,4 +1,4 @@
-import { Stream } from '../stream.js'
+import { Stream } from '../utils/stream.js'
 import { ImagePreview } from '../components/ImagePreview.js'
 
 export function Image(src = '') {
@@ -14,13 +14,9 @@ export function Image(src = '') {
 
     output: stream,
 
-    serialize: () => {
-      return src
-    },
+    serialize: () => src,
 
-    render: () => {
-      return component.render({ src })
-    },
+    render: () => component.render({ src }),
 
     destroy: () => {
       unsub()

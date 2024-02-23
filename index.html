@@ -3,28 +3,31 @@
   <head>
     <meta charset="UTF-8">
     <title>Dinky Dog: shareable flow diagrams</title>
+    <link rel="icon" href="/logo.svg" type="image/svg+xml">
     <style>
       html,
       body {
-        min-height: 100%;
         margin: 0;
         padding: 0;
         font-family: sans-serif;
       }
-      #app {
+      * {
+        box-sizing: border-box;
+      }
+      .app {
         height: 100vh;
         width: 100vw;
         display: flex;
         flex-wrap: nowrap;
+        overflow: hidden;
       }
       .module {
+        position: absolute;
+        z-index: 2;
         background-color: #fafafa;
         border-radius: 4px;
-        padding: 10px;
         border: 1px solid #aaa;
-      }
-      .module > div[contenteditable] {
-        margin: -10px;
+        transform: translate(-50%, -50%);
       }
       .module.active,
       .module:hover {
@@ -48,9 +51,23 @@
       .module button.active {
         background-color: #f00;
       }
-      .module input {
-        width: 90%;
-        margin-top: 12px;
+      .module div[contenteditable] {
+        width: 100%;
+        height: 100%;
+      }
+      .module input[type="color"] {
+        position: absolute;
+        z-index: 3;
+        top: -25px;
+        right: 0;
+        width: 50px;
+        height: 20px;
+        border: none;
+        opacity: 0;
+        transition: opacity 0.2s;
+      }
+      .module:hover input[type="color"] {
+        opacity: 1;
       }
       svg {
         position: absolute;
@@ -68,35 +85,55 @@
         stroke: #aaf;
       }
       .graph {
-        position: relative;
         flex: 1;
         height: 100vh;
+        overflow: auto;
+      }
+      .pan {
+        position: relative;
+        width: 200vw;
+        height: 200vh;
         background-size: 30px 30px;
         background-image: radial-gradient(circle, #ddd 1px, transparent 1px);
       }
       .sidebar {
         order: 1;
-        flex: 0 0 200px;
+        flex: 0 0 300px;
         background-color: #eee;
         padding: 0 2rem;
-        overflow-y: scroll;
         position: relative;
         z-index: 3;
+        padding-bottom: 100px;
+        height: 100vh;
+        overflow-y: auto;
+      }
+      .sidebar h1 {
+        text-align: center;
       }
       .sidebar:before {
         content: '';
         display: block;
-        width: 150px;
+        width: 100%;
         height: 100px;
         margin: 10px 0 -30px;
-        background: url('/logo.svg') no-repeat center center;
+        background: url('/logo.svg') no-repeat center top;
+        background-size: contain;
       }
       .sidebar div[contenteditable] {
         border: 1px solid #aaa;
         background-color: #fff;
-        min-height: 30vh;
+        height: 300px;
+        width: 100%;
         margin: 20px 0;
         box-sizing: border-box;
+        border-radius: 4px;
+      }
+      .sidebar footer {
+        background-color: #eee;
+        position: fixed;
+        bottom: 0;
+        right: 0;
+        padding: 20px;
       }
       @media (max-width: 1024px) {
         .sidebar {
@@ -107,7 +144,6 @@
   </head>
 
   <body>
-    <div id="app"></div>
     <script type="module" src="./index.js"></script>
   </body>
 </html>

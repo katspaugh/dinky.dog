@@ -2,7 +2,7 @@ import { Graph } from './components/Graph.js'
 import { Node } from './components/Node.js'
 import { Edge } from './components/Edge.js'
 
-export function renderGraph({
+export function renderFlow({
   appContainer,
   onConnect,
   onDisconnect,
@@ -12,9 +12,10 @@ export function renderGraph({
   onMoveEnd,
   onModuleResize,
   onModuleSelect,
+  onModuleBackgroundChange,
+  isLocked,
 }) {
-  const graph = Graph()
-
+  let graph
   let _nodes = []
   let _edges = []
   let currentMouseEdge
@@ -34,6 +35,8 @@ export function renderGraph({
     currentModule = node
     currentModule.container.classList.add('active')
     onModuleSelect(node.id)
+
+    if (isLocked()) return
 
     const id = e.target.getAttribute('id')
     if (!id) return
@@ -93,7 +96,7 @@ export function renderGraph({
 
   let clicks = 0
   const onGraphClick = (e) => {
-    if (e.target !== graph.container) return
+    if (isLocked()) return
 
     // Skip every second click
     clicks += 1
@@ -128,8 +131,15 @@ export function renderGraph({
     }
   }
 
+  const onEdgeClick = ({ edge, toEl, fromEl }) => {
+    if (isLocked()) return
+    edge.container.remove()
+    _edges = _edges.filter((item) => item.edge !== edge)
+    onDisconnect(toEl.id, fromEl.id)
+  }
+
   const api = {
-    renderModule: ({ id, x, y, width, height, inputsCount, children }) => {
+    renderModule: ({ id, x, y, width, height, background, inputsCount, children }) => {
       const node = Node()
 
       const nodeItem = {
@@ -153,6 +163,8 @@ export function renderGraph({
         onDragEnd: onMoveEnd,
         onResize: () => updateEdges(nodeItem),
         onResizeEnd: (width, height) => onModuleResize(id, width, height),
+        background,
+        onBackgroundChange: (color) => onModuleBackgroundChange(id, color),
       })
 
       graph.render({ node: nodeContainer })
@@ -161,23 +173,19 @@ export function renderGraph({
     renderPatchCable: (fromEl, toEl) => {
       const edge = Edge()
 
-      graph.render({
-        edge: edge.render({
-          fromEl,
-          toEl,
-          onClick: () => {
-            edge.container.remove()
-            _edges = _edges.filter((item) => item.edge !== edge)
-            onDisconnect(toEl.id, fromEl.id)
-          },
-        }),
-      })
-
       const edgeItem = {
         fromEl,
         toEl,
         edge,
       }
+
+      graph.render({
+        edge: edge.render({
+          fromEl,
+          toEl,
+          onClick: () => onEdgeClick(edgeItem),
+        }),
+      })
 
       _edges.push(edgeItem)
 
@@ -201,10 +209,11 @@ export function renderGraph({
     },
   }
 
-  graph.container.addEventListener('click', onGraphClick, { capture: true })
+  graph = Graph({ onClick: onGraphClick })
   appContainer.appendChild(graph.container)
 
   document.addEventListener('mousemove', (e) => {
+    if (isLocked()) return
     if (!currentMouseEdge) return
     currentMouseEdge.edge.render({
       fromEl: currentMouseEdge.fromEl,

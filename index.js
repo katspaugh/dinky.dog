@@ -1,87 +1,68 @@
-import { renderGraph } from './flow.js'
+import { renderFlow } from './flow.js'
 import { Sidebar } from './components/Sidebar.js'
+import { DropContainer } from './components/DropContainer.js'
 import * as Operators from './operators/index.js'
-import { WIDTH, HEIGHT } from './components/Node.js'
-import { getHashData, setHashData } from './hash.js'
+import { getHashData, setHashData } from './utils/hash.js'
+import { debounce } from './utils/debounce.js'
 
-async function renderApp(initialData) {
-  const appContainer = document.querySelector('#app')
-  const sidebar = Sidebar()
-  appContainer.appendChild(sidebar.container)
-
+function renderApp(initialData) {
+  let _sidebar
+  let _flow
+  let _isLocked = initialData.locked || false
   let _modules = []
   let _connections = []
 
   const findModule = (id) => _modules.find((m) => m.id === id)
 
-  const createModule = ({
-    type = Operators.Text.name,
-    data,
-    note,
-    x,
-    y,
-    width,
-    height,
-    id = `${type}-${Date.now()}`,
-  }) => {
-    const module = Operators[type](data)
-    const container = module.render()
+  const createModule = ({ type = Operators.Text.name, id = `${type}-${Date.now()}`, ...moduleData }) => {
+    const op = Operators[type](moduleData.data)
+    const container = op.render()
 
-    graph.renderModule({
+    _flow.renderModule({
       id,
-      x,
-      y,
-      width,
-      height,
-      inputsCount: module.inputs.length,
+      x: moduleData.x,
+      y: moduleData.y,
+      width: moduleData.width,
+      height: moduleData.height,
+      background: moduleData.background,
+      inputsCount: op.inputs.length,
       children: container,
     })
 
-    // Focus
-    if (container && type === Operators.Text.name && !data) {
-      setTimeout(() => {
-        container.focus()
-      }, 100)
-    }
-
-    module.output.subscribe(updateUrl)
+    op.output.subscribe(updateUrl)
 
     return {
-      ...module,
+      ...moduleData,
       type,
       id,
-      x,
-      y,
-      width,
-      height,
-      note,
+      operator: op,
     }
   }
 
-  let _updateUrlTimeout
-  const updateUrl = () => {
-    if (_updateUrlTimeout) clearTimeout(_updateUrlTimeout)
-    _updateUrlTimeout = setTimeout(() => {
-      const data = {
-        modules: _modules.map(({ id, type, x, y, width, height, note, serialize }) => {
-          const moduleData = { id, x, y, data: serialize() }
-          if (type !== Text.name) {
-            moduleData.type = type
-          }
-          if (width && height) {
-            moduleData.width = width
-            moduleData.height = height
-          }
-          if (note) {
-            moduleData.note = note
-          }
-          return moduleData
-        }),
-        connections: _connections,
-      }
-      setHashData(data)
-    }, 500)
-  }
+  let _wasLocked
+  const updateUrl = debounce(() => {
+    if (_isLocked && _wasLocked) return
+    _wasLocked = _isLocked
+
+    // Serialize the list of modules and connections
+    const data = {
+      modules: _modules.map(({ operator, ...moduleData }) => {
+        const serializedData = { ...moduleData }
+        if (serializedData.type === Operators.Text.name) {
+          delete serializedData.type
+        }
+        const data = operator.serialize()
+        if (data !== undefined) {
+          serializedData.data = data
+        }
+        return serializedData
+      }),
+      connections: _connections,
+      locked: _isLocked,
+    }
+
+    setHashData(data)
+  }, 500)
 
   const updateConnection = (inputId, outputId, disconnect = false) => {
     const [inputModuleId, inputIndex] = inputId.split('-input-')
@@ -92,8 +73,8 @@ async function renderApp(initialData) {
       throw new Error(`Module not found: ${inputModuleId} or ${outputModuleId}`)
     }
 
-    const output = outputModule.output
-    const input = inputModule.inputs[inputIndex]
+    const output = outputModule.operator.output
+    const input = inputModule.operator.inputs[inputIndex]
 
     if (disconnect) {
       _connections = _connections.filter((c) => c.from !== outputId || c.to !== inputId)
@@ -114,8 +95,8 @@ async function renderApp(initialData) {
     updateConnection(inputId, outputId, true)
   }
 
-  const onAddModule = ({ id, type, data, note, x, y, width, height }) => {
-    const mod = createModule({ id, type, data, note, x, y, width, height })
+  const onAddModule = (module) => {
+    const mod = createModule(module)
     _modules.push(mod)
     updateUrl()
     return mod
@@ -131,7 +112,7 @@ async function renderApp(initialData) {
         onDisconnect(c.to, c.from)
       })
 
-    module.destroy()
+    module.operator.destroy()
     _modules = _modules.filter((m) => m.id !== id)
     updateUrl()
   }
@@ -150,8 +131,8 @@ async function renderApp(initialData) {
   const onModuleSelect = (id) => {
     const module = findModule(id)
     if (module) {
-      sidebar.render({
-        description: module.output.get(),
+      _sidebar.render({
+        description: module.operator.output.get(),
         note: module.note,
         onNoteEdit: (note) => {
           module.note = note
@@ -168,42 +149,69 @@ async function renderApp(initialData) {
     updateUrl()
   }
 
-  const graph = renderGraph({
-    appContainer,
-    onConnect,
-    onDisconnect,
-    onAddModule,
-    onRemoveModule,
-    onMove,
-    onMoveEnd,
-    onModuleSelect,
-    onModuleResize,
-  })
+  const onModuleBackgroundChange = (id, background) => {
+    const module = findModule(id)
+    module.background = background
+    updateUrl()
+  }
 
-  _modules = await Promise.all(initialData.modules.map(onAddModule))
+  const onImageDrop = (x, y, data) => {
+    if (_isLocked) return
+    onAddModule({ x, y, type: Operators.Image.name, data, id: `image-${Date.now()}` })
+  }
 
-  initialData.connections.forEach((cable) => {
-    const fromEl = document.querySelector(`#${cable.from}`)
-    const toEl = document.querySelector(`#${cable.to}`)
-    graph.renderPatchCable(fromEl, toEl)
-    onConnect(cable.to, cable.from)
-  })
+  const init = async () => {
+    // Initialize app container
+    const appContainer = DropContainer().render({
+      className: 'app',
+      fileType: 'image/',
+      onDrop: onImageDrop,
+    })
+    document.body.appendChild(appContainer)
 
-  // Make the app container a drop zone for images
-  appContainer.addEventListener('drop', (e) => {
-    e.preventDefault()
-    const x = e.clientX - WIDTH / 2
-    const y = e.clientY - HEIGHT / 2
-    const file = e.dataTransfer.files[0]
-    if (file.type.startsWith('image/')) {
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        onAddModule({ x, y, type: Operators.Image.name, data: e.target.result, id: `image-${Date.now()}` })
-      }
-      reader.readAsDataURL(file)
+    // Initialize flow
+    _flow = renderFlow({
+      isLocked: () => _isLocked,
+      appContainer,
+      onConnect,
+      onDisconnect,
+      onAddModule,
+      onRemoveModule,
+      onMove,
+      onMoveEnd,
+      onModuleSelect,
+      onModuleResize,
+      onModuleBackgroundChange,
+    })
+
+    // Initialize modules and connections
+    {
+      _modules = await Promise.all(initialData.modules.map(createModule))
+
+      initialData.connections.forEach((cable) => {
+        const fromEl = document.querySelector(`#${cable.from}`)
+        const toEl = document.querySelector(`#${cable.to}`)
+        _flow.renderPatchCable(fromEl, toEl)
+        onConnect(cable.to, cable.from)
+      })
     }
-  })
-  appContainer.addEventListener('dragover', (e) => e.preventDefault())
+
+    // Initial sidebar render
+    {
+      _sidebar = Sidebar()
+      appContainer.appendChild(
+        _sidebar.render({
+          isLocked: _isLocked,
+          setLocked: (isLocked) => {
+            _isLocked = isLocked
+            updateUrl()
+          },
+        }),
+      )
+    }
+  }
+
+  init()
 }
 
 // Initialize app
