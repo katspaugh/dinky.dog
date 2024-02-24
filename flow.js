@@ -1,5 +1,6 @@
 import { Graph } from './components/Graph.js'
-import { Node } from './components/Node.js'
+import { DropContainer } from './components/DropContainer.js'
+import { Node, WIDTH, HEIGHT } from './components/Node.js'
 import { Edge } from './components/Edge.js'
 
 const REMOVE_THRESHOLD_X = -70
@@ -10,19 +11,12 @@ let _nodes = {}
 let _edges = []
 let _currentInput = null
 let _currentOutput = null
-
+let _callbacks = {}
 let _isLocked = () => false
-
-let _onClick = () => {}
-let _onRemove = () => {}
-let _onSelect = () => {}
-let _onConnect = () => {}
-let _onDisconnect = () => {}
-let _onUpdate = () => {}
 
 function onGraphClick(x, y) {
   if (_isLocked()) return
-  _onClick(x, y)
+  _callbacks.onClick(x, y)
 }
 
 function connectNodes(outputId, inputId, inputIndex) {
@@ -32,9 +26,10 @@ function connectNodes(outputId, inputId, inputIndex) {
     fromEl: _nodes[outputId].node.output,
     toEl: _nodes[inputId].node.inputs[inputIndex],
     onClick: () => {
+      if (_isLocked()) return
       _edges = _edges.filter((e) => e !== edge)
       edge.destroy()
-      _onDisconnect(outputId, inputId, inputIndex)
+      _callbacks.onDisconnect(outputId, inputId, inputIndex)
     },
   })
 
@@ -46,7 +41,7 @@ function connectNodes(outputId, inputId, inputIndex) {
     inputId,
   })
 
-  _onConnect(outputId, inputId, inputIndex)
+  _callbacks.onConnect(outputId, inputId, inputIndex)
 }
 
 function onNodeConnect(outputId, inputId, inputIndex) {
@@ -69,7 +64,7 @@ function onNodeRemove(id) {
 
   delete _nodes[id]
 
-  _onRemove(id)
+  _callbacks.onRemove(id)
 }
 
 function updateEdges(id) {
@@ -117,10 +112,10 @@ function createNode({ id, ...nodeProps }) {
       updateEdges(id)
     },
 
-    onClick: () => _onSelect(id),
-    onDragEnd: (x, y) => _onUpdate(id, { x: Math.round(x), y: Math.round(y) }),
-    onResizeEnd: (width, height) => _onUpdate(id, { width, height }),
-    onBackgroundChange: (background) => _onUpdate(id, { background }),
+    onClick: () => _callbacks.onSelect(id),
+    onDragEnd: (x, y) => _callbacks.onUpdate(id, { x: Math.round(x), y: Math.round(y) }),
+    onResizeEnd: (width, height) => _callbacks.onUpdate(id, { width, height }),
+    onBackgroundChange: (background) => _callbacks.onUpdate(id, { background }),
   })
 
   _nodes[id] = {
@@ -180,20 +175,34 @@ function initGraph() {
   return graph
 }
 
-export function initFlow(isLocked, callbacks) {
-  _onClick = callbacks.onClick
-  _onRemove = callbacks.onRemove
-  _onSelect = callbacks.onSelect
-  _onConnect = callbacks.onConnect
-  _onDisconnect = callbacks.onDisconnect
-  _onUpdate = callbacks.onUpdate
+function initDropcontainer() {
+  const drop = DropContainer()
 
+  drop.render({
+    fileTypes: /image\//,
+    onDrop: (params) => {
+      _callbacks.onDrop({
+        ...params,
+        x: params.x - WIDTH / 2,
+        y: params.y - HEIGHT / 2,
+      })
+    },
+  })
+
+  return drop
+}
+
+export function initFlow(isLocked, callbacks) {
+  _callbacks = callbacks
   _isLocked = isLocked
 
   _graph = initGraph()
 
+  const drop = initDropcontainer()
+  drop.container.appendChild(_graph.container)
+
   return {
-    container: _graph.container,
+    container: drop.container,
 
     render: ({ node, edge }) => {
       if (node) {
@@ -202,7 +211,7 @@ export function initFlow(isLocked, callbacks) {
       if (edge) {
         connectNodes(edge.outputId, edge.inputId, edge.inputIndex)
       }
-      return _graph.container
+      return drop.container
     },
   }
 }

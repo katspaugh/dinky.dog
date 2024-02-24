@@ -1,28 +1,31 @@
 import { Sidebar } from './components/Sidebar.js'
-import { DropContainer } from './components/DropContainer.js'
 import { initFlow } from './flow.js'
 import * as Operators from './operators/index.js'
 import { saveState, loadState } from './persist.js'
 import { debounce } from './utils/debounce.js'
 
-let _isLocked = false
+let state = {
+  isLocked: false,
+  title: '',
+  lastBackground: undefined,
+  nodes: {},
+}
 let _sidebar = null
 let _graph = null
-let _nodes = {}
 
 const persist = debounce(() => {
-  const nodes = Object.entries(_nodes).reduce((acc, [id, node]) => {
+  const nodes = Object.entries(state.nodes).reduce((acc, [id, node]) => {
     acc[id] = {
       props: node.props,
+      connections: node.connections,
       data: {
         ...node.data,
         operatorData: node.operator.serialize(),
       },
-      connections: node.connections,
     }
     return acc
   }, {})
-  saveState({ nodes, isLocked: _isLocked })
+  saveState({ ...state, nodes })
 }, 500)
 
 function randomId() {
@@ -32,7 +35,7 @@ function randomId() {
 function createNode(id, props, data) {
   const operator = Operators[data.operatorType](data.operatorData)
 
-  _nodes[id] = {
+  state.nodes[id] = {
     props,
     data,
     operator,
@@ -41,6 +44,7 @@ function createNode(id, props, data) {
 
   _graph.render({
     node: {
+      background: state.lastBackground,
       ...props,
       id,
       inputsCount: operator.inputs.length,
@@ -51,8 +55,6 @@ function createNode(id, props, data) {
   operator.output.subscribe(() => {
     persist()
   })
-
-  persist()
 }
 
 function connectNodes(outputId, inputId, inputIndex) {
@@ -68,20 +70,22 @@ function connectNodes(outputId, inputId, inputIndex) {
 function onClick(x, y) {
   const id = randomId()
   createNode(id, { x, y }, { operatorType: Operators.Text.name })
+  persist()
 }
 
 function onDrop({ x, y, fileType, data }) {
   const id = randomId() + fileType
   createNode(id, { x, y }, { operatorType: Operators.Image.name, operatorData: data })
+  persist()
 }
 
 function onRemove(id) {
-  delete _nodes[id]
+  delete state.nodes[id]
   persist()
 }
 
 function onSelect(id) {
-  const node = _nodes[id]
+  const node = state.nodes[id]
   if (!node) return
 
   _sidebar.render({
@@ -95,64 +99,71 @@ function onSelect(id) {
 }
 
 function onConnect(outputId, inputId, inputIndex) {
-  const output = _nodes[outputId].operator.output
-  const input = _nodes[inputId].operator.inputs[inputIndex]
+  const output = state.nodes[outputId].operator.output
+  const input = state.nodes[inputId].operator.inputs[inputIndex]
   output.connect(input)
 
-  _nodes[outputId].connections.push({ inputId, inputIndex })
+  state.nodes[outputId].connections.push({ inputId, inputIndex })
   persist()
 }
 
 function onDisconnect(outputId, inputId, inputIndex) {
-  const output = _nodes[outputId].operator.output
-  const input = _nodes[inputId].operator.inputs[inputIndex]
+  const output = state.nodes[outputId].operator.output
+  const input = state.nodes[inputId].operator.inputs[inputIndex]
   output.disconnect(input)
 
-  _nodes[outputId].connections = _nodes[outputId].connections.filter(
+  state.nodes[outputId].connections = state.nodes[outputId].connections.filter(
     (c) => c.inputId !== inputId && c.inputIndex !== inputIndex,
   )
   persist()
 }
 
 function onUpdate(id, nodeProps) {
-  if (!_nodes[id]) return
-  Object.assign(_nodes[id].props, nodeProps)
+  if (!state.nodes[id]) return
+
+  Object.assign(state.nodes[id].props, nodeProps)
+
+  if (nodeProps.background) {
+    state.lastBackground = nodeProps.background
+  }
+
   persist()
 }
 
-function initSidebar() {
-  const sidebar = Sidebar()
+function initSidebar(onLockChange) {
+  const sidebar = Sidebar({
+    title: state.title,
 
-  sidebar.render({
-    isLocked: _isLocked,
+    setTitle: (title) => {
+      state.title = title
+      persist()
+    },
+
+    isLocked: state.isLocked,
+
     setLocked: (isLocked) => {
-      _isLocked = isLocked
+      state.isLocked = isLocked
+      onLockChange()
       persist()
     },
   })
 
+  onLockChange()
+
   return sidebar
 }
 
-function initDropcontainer() {
-  const drop = DropContainer()
+function init(appContainer, initialState) {
+  state.isLocked = initialState.isLocked
+  state.title = initialState.title
 
-  drop.render({
-    fileTypes: /image\//,
-    onDrop,
+  const sidebar = initSidebar(() => {
+    appContainer.className = state.isLocked ? 'locked' : ''
   })
 
-  return drop
-}
-
-function init(appContainer, initialState) {
-  _isLocked = initialState.isLocked || false
-
-  const drop = initDropcontainer()
-  const sidebar = initSidebar(appContainer)
-
-  const graph = initFlow(() => _isLocked, {
+  const graph = initFlow(() => state.isLocked, {
     onClick,
+    onDrop,
     onRemove,
     onSelect,
     onConnect,
@@ -160,14 +171,9 @@ function init(appContainer, initialState) {
     onUpdate,
   })
 
-  appContainer.appendChild(drop.container)
-  drop.container.appendChild(sidebar.container)
-  drop.container.appendChild(graph.container)
+  appContainer.appendChild(graph.container)
+  appContainer.appendChild(sidebar.container)
   document.body.appendChild(appContainer)
-
-  if (_isLocked) {
-    appContainer.className = 'locked'
-  }
 
   _sidebar = sidebar
   _graph = graph
@@ -184,7 +190,7 @@ function init(appContainer, initialState) {
   }
 }
 
-loadState().then((state = {}) => {
-  console.log('Initial state', state)
-  init(document.querySelector('#app'), state)
+loadState().then((initialState = {}) => {
+  console.log('Initial state', initialState)
+  init(document.querySelector('#app'), initialState)
 })

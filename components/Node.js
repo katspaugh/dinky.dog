@@ -3,8 +3,8 @@ import { ConnectorPoint } from './ConnectorPoint.js'
 import { ResizeHandle } from './ResizeHandle.js'
 import { Colorwheel } from './Colorwheel.js'
 
-const WIDTH = 120
-const HEIGHT = 60
+export const WIDTH = 120
+export const HEIGHT = 60
 const DEFAULT_BACKGROUND = '#fafafa'
 
 const noop = () => {}
