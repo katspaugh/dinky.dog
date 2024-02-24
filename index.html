@@ -43,7 +43,7 @@
       .module button.active {
         background-color: #f00;
       }
-      .module div[contenteditable] {
+      .module [contenteditable] {
         width: 100%;
         height: 100%;
       }
@@ -103,16 +103,15 @@
         overflow-y: auto;
       }
       .sidebar h1 {
-        display: flex;
-        gap: 10px;
+        padding-bottom: 10px;
       }
-      .sidebar h1:before {
+      .sidebar:before {
         content: '';
         display: block;
-        width: 50px;
-        height: 50px;
-        margin-top: -3px;
-        background: url('/logo.svg') no-repeat center top;
+        width: 100px;
+        height: 100px;
+        margin: 20px 25px -20px;
+        background: url('/logo.svg') no-repeat 0 0;
         background-size: contain;
       }
       .sidebar [contenteditable] {
@@ -139,11 +138,6 @@
       .sidebar h2 [contenteditable]:empty::before {
         content: 'Untitled flow';
         color: #aaa;
-      }
-      .sidebar h3 {
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
       }
       .locked .sidebar details {
         display: none;

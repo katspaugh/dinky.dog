@@ -43,8 +43,9 @@ export function Node(id) {
       y,
       width = WIDTH,
       height = HEIGHT,
-      inputsCount = 0,
       background = DEFAULT_BACKGROUND,
+
+      inputsCount = 0,
       children = null,
 
       onClick = noop,
@@ -55,6 +56,7 @@ export function Node(id) {
       onResize = noop,
       onResizeEnd = noop,
       onBackgroundChange = noop,
+      onLockChange = noop,
     }) => {
       // Position & size
       setPosition(x, y)
