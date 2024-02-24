@@ -4,6 +4,7 @@ export function makeDroppable({ container, fileTypes, onDrop }) {
 
     const file = e.dataTransfer.files[0]
     if (fileTypes.test(file.type)) {
+      // TODO: account for scroll
       const x = e.clientX
       const y = e.clientY
 

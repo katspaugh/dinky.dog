@@ -10,12 +10,16 @@ export function Edge() {
       lastFromEl = fromEl
       lastToEl = toEl
 
+      const parentBbox = fromEl.parentElement.parentElement.getBoundingClientRect()
+      const x = -parentBbox.left
+      const y = -parentBbox.top
+
       const fromPoint = fromEl.getBoundingClientRect()
       const toPoint = toEl.getBoundingClientRect()
-      const fromX = fromPoint.left + fromPoint.width / 2
-      const fromY = fromPoint.top + fromPoint.height / 2
-      const toX = toPoint.left + toPoint.width / 2
-      const toY = toPoint.top + toPoint.height / 2
+      const fromX = x + fromPoint.left + fromPoint.width / 2
+      const fromY = y + fromPoint.top + fromPoint.height / 2
+      const toX = x + toPoint.left + toPoint.width / 2
+      const toY = y + toPoint.top + toPoint.height / 2
 
       container.setAttribute('d', `M ${fromX} ${fromY} C ${fromX + 100} ${fromY} ${toX - 100} ${toY} ${toX} ${toY}`)
 

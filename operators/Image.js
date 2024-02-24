@@ -14,7 +14,7 @@ export function Image(src = '') {
 
     output: stream,
 
-    serialize: () => src,
+    serialize: () => src.toString(),
 
     render: () => component.render({ src }),
 

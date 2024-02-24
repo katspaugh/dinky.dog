@@ -23,7 +23,8 @@ export function Graph({ onClick, onPointerMove }) {
     'click',
     (e) => {
       if (e.target !== pan) return
-      onClick(e.clientX, e.clientY)
+      const bbox = pan.getBoundingClientRect()
+      onClick(e.clientX - bbox.x, e.clientY - bbox.y)
     },
     { capture: true },
   )
