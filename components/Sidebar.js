@@ -17,14 +17,16 @@ export function Sidebar() {
 
   const info = document.createElement('div')
   info.innerHTML = `
-    <h2>Instructions</h2>
+    <details>
+    <summary>Instructions</summary>
     <p>Click anywhere to add a node.</p>
     <p>Drag a node off screen to remove.</p>
     <p>Drag-n-drop images.</p>
     <p>Copy the URL to share.</p>
-    <h2>Functions</h2>
+    <h4>Functions</h4>
     <p>Use these functions in the nodes:</p>
     <ul>${fnNames}</ul>
+    </details>
   `
   div.appendChild(info)
 
@@ -38,7 +40,7 @@ export function Sidebar() {
     container: div,
 
     render: ({ description, note = '', onNoteEdit, isLocked, setLocked }) => {
-      content.innerHTML = sanitizeHtml(description)
+      content.innerHTML = `<h2>${sanitizeHtml(description)}</h2>`
 
       if (onNoteEdit) {
         const editableText = EditableText({ onInput: onNoteEdit })

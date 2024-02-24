@@ -149,7 +149,7 @@ function init(appContainer, initialState) {
   _isLocked = initialState.isLocked || false
 
   const drop = initDropcontainer()
-  const sidebar = initSidebar()
+  const sidebar = initSidebar(appContainer)
 
   const graph = initFlow(() => _isLocked, {
     onClick,
@@ -164,6 +164,10 @@ function init(appContainer, initialState) {
   drop.container.appendChild(sidebar.container)
   drop.container.appendChild(graph.container)
   document.body.appendChild(appContainer)
+
+  if (_isLocked) {
+    appContainer.className = 'locked'
+  }
 
   _sidebar = sidebar
   _graph = graph
