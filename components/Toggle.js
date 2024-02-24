@@ -24,5 +24,7 @@ export function Toggle(label = '') {
       }
       return container
     },
+
+    destroy: () => container.remove(),
   }
 }

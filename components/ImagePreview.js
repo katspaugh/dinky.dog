@@ -22,5 +22,7 @@ export function ImagePreview() {
       img.src = src
       return container
     },
+
+    destroy: () => container.remove(),
   }
 }

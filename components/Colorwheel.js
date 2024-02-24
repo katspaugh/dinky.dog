@@ -42,5 +42,7 @@ export function Colorwheel() {
       }
       return container
     },
+
+    destroy: () => container.remove(),
   }
 }

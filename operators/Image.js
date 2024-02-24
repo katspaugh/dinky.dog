@@ -20,6 +20,7 @@ export function Image(src = '') {
 
     destroy: () => {
       unsub()
+      component.destroy()
     },
   }
 }

@@ -2,19 +2,20 @@ import { makeDroppable } from '../utils/droppable.js'
 
 export function DropContainer() {
   const container = document.createElement('div')
+  container.className = 'drop'
 
   return {
     container,
 
-    render: ({ className, fileType, onDrop }) => {
-      container.className = className
-
+    render: ({ fileTypes, onDrop }) => {
       makeDroppable({
         container,
-        fileType,
+        fileTypes,
         onDrop,
       })
       return container
     },
+
+    destroy: () => container.remove(),
   }
 }

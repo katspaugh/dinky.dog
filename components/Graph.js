@@ -1,4 +1,4 @@
-export function Graph({ onClick }) {
+export function Graph({ onClick, onPointerMove }) {
   const container = document.createElement('div')
   container.className = 'graph'
 
@@ -23,25 +23,30 @@ export function Graph({ onClick }) {
     'click',
     (e) => {
       if (e.target !== pan) return
-      onClick(e)
+      onClick(e.clientX, e.clientY)
     },
     { capture: true },
   )
+
+  pan.addEventListener('pointermove', (e) => {
+    onPointerMove(e.clientX, e.clientY)
+  })
 
   return {
     container,
 
     render: ({ node = null, edge = null }) => {
-      onResize()
-
       if (node) {
         pan.appendChild(node)
       }
       if (edge) {
+        onResize()
         svg.appendChild(edge)
       }
 
       return container
     },
+
+    destroy: () => container.remove(),
   }
 }

@@ -5,68 +5,70 @@ import { Colorwheel } from './Colorwheel.js'
 
 const WIDTH = 120
 const HEIGHT = 60
+const DEFAULT_BACKGROUND = '#fafafa'
 
-export function Node() {
+const noop = () => {}
+
+export function Node(id) {
   const container = document.createElement('div')
   container.className = 'module'
 
-  Object.assign(container.style, {
-    width: `${WIDTH}px`,
-    height: `${HEIGHT}px`,
-  })
+  const setSize = (width, height) => {
+    container.style.width = `${width}px`
+    container.style.height = `${height}px`
+  }
 
-  const outputButton = ConnectorPoint()
-  const inputs = []
+  const setPosition = (x, y) => {
+    container.style.left = `${x}px`
+    container.style.top = `${y}px`
+  }
+
+  const setBackground = (color) => {
+    container.style.backgroundColor = color
+  }
+
   const colorwheel = Colorwheel()
+  const output = ConnectorPoint('100%', '50%').render()
+  const inputs = []
 
   return {
     container: container,
 
     inputs,
 
-    output: outputButton.container,
+    output,
 
     render: ({
-      id,
       x,
       y,
       width = WIDTH,
       height = HEIGHT,
-      children = null,
       inputsCount = 0,
-      onClick = null,
-      onDrag = null,
-      onDragEnd = null,
-      onResize = null,
-      onResizeEnd = null,
-      background = null,
-      onBackgroundChange = null,
-    }) => {
-      container.setAttribute('id', id)
+      background = DEFAULT_BACKGROUND,
+      children = null,
 
+      onClick = noop,
+      onInputClick = noop,
+      onOutputClick = noop,
+      onDrag = noop,
+      onDragEnd = noop,
+      onResize = noop,
+      onResizeEnd = noop,
+      onBackgroundChange = noop,
+    }) => {
       // Position & size
-      Object.assign(container.style, {
-        left: `${x}px`,
-        top: `${y}px`,
-        width: `${width}px`,
-        height: `${height}px`,
-      })
+      setPosition(x, y)
+      setSize(width, height)
 
       // Render inputs
       for (let i = 0; i < inputsCount; i++) {
-        const connector = ConnectorPoint()
-        const button = connector.render({
-          id: `${id}-input-${i}`,
-          style: { left: '0', top: `${((i + 1) / (inputsCount + 1)) * 100}%`, transform: 'translateY(-50%)' },
-        })
+        const button = ConnectorPoint('0', `${((i + 1) / (inputsCount + 1)) * 100}%`).render()
         container.appendChild(button)
         inputs.push(button)
       }
 
       // Render output
-      container.appendChild(
-        outputButton.render({ id: `${id}-output`, style: { left: '100%', top: '50%', transform: 'translateY(-50%)' } }),
-      )
+      container.appendChild(output)
 
       // Children
       if (children) {
@@ -75,58 +77,56 @@ export function Node() {
       }
 
       // Event listeners
-      container.onclick = onClick
+      container.addEventListener('click', (e) => {
+        if (e.target === output) {
+          onOutputClick()
+        } else if (inputs.includes(e.target)) {
+          onInputClick(inputs.indexOf(e.target))
+        }
+        onClick()
+      })
 
       // Drag
-      if (onDrag) {
-        let left = x
-        let top = y
+      {
         makeDraggable(
           container,
           (dx, dy) => {
-            left += dx
-            top += dy
-            Object.assign(container.style, {
-              left: `${left}px`,
-              top: `${top}px`,
-            })
-            onDrag(Math.round(left), Math.round(top))
+            x += dx
+            y += dy
+            setPosition(x, y)
+            onDrag(Math.round(x), Math.round(y))
           },
           undefined,
-          onDragEnd,
+          () => onDragEnd(x, y),
         )
       }
 
       // Resize
-      if (onResize) {
+      {
         const resizeHandle = ResizeHandle({
           onResize: (dx, dy) => {
             width = Math.max(WIDTH, width + dx)
             height = Math.max(HEIGHT, height + dy)
-            Object.assign(container.style, {
-              width: `${width}px`,
-              height: `${height}px`,
-            })
+            setSize(width, height)
             onResize(width, height)
           },
 
           onResizeEnd: () => {
-            onResizeEnd && onResizeEnd(Math.round(width), Math.round(height))
+            onResizeEnd(Math.round(width), Math.round(height))
           },
         })
         container.appendChild(resizeHandle.render())
       }
 
       // Background color
-      if (background) {
-        container.style.backgroundColor = background
-      }
-      if (onBackgroundChange) {
+      {
+        setBackground(background)
+
         container.appendChild(
           colorwheel.render({
-            color: background || '#fafafa',
+            color: background,
             onChange: (color) => {
-              container.style.backgroundColor = color
+              setBackground(color)
               onBackgroundChange(color)
             },
           }),
@@ -135,5 +135,7 @@ export function Node() {
 
       return container
     },
+
+    destroy: () => container.remove(),
   }
 }

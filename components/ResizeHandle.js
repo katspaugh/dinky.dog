@@ -21,5 +21,7 @@ export function ResizeHandle({ onResize, onResizeEnd }) {
     container,
 
     render: () => container,
+
+    destroy: () => container.remove(),
   }
 }

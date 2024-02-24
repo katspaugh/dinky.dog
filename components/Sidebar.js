@@ -51,5 +51,7 @@ export function Sidebar() {
 
       return div
     },
+
+    destroy: () => container.remove(),
   }
 }

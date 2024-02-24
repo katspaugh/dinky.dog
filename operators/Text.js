@@ -76,6 +76,7 @@ export function Text(initialValue) {
     destroy: () => {
       unsubOutput()
       unsubInput()
+      component.destroy()
     },
   }
 }

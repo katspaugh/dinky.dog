@@ -1,13 +1,24 @@
-export function ConnectorPoint() {
-  const button = document.createElement('button')
+export function ConnectorPoint(left, top) {
+  const container = document.createElement('button')
+
+  Object.assign(container.style, {
+    borderRadius: '100%',
+    padding: 0,
+    width: '16px',
+    height: '16px',
+    marginLeft: '-8px',
+    transform: 'translateY(-50%)',
+    position: 'absolute',
+    zIndex: 3,
+    left,
+    top,
+  })
 
   return {
-    container: button,
+    container,
 
-    render: ({ id, style }) => {
-      button.setAttribute('id', id)
-      Object.assign(button.style, style)
-      return button
-    },
+    render: () => container,
+
+    destroy: () => container.remove(),
   }
 }

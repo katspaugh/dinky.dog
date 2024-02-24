@@ -1,228 +1,186 @@
-import { renderFlow } from './flow.js'
 import { Sidebar } from './components/Sidebar.js'
 import { DropContainer } from './components/DropContainer.js'
+import { initFlow } from './flow.js'
 import * as Operators from './operators/index.js'
-import { getHashData, setHashData } from './utils/hash.js'
+import { saveState, loadState } from './persist.js'
 import { debounce } from './utils/debounce.js'
 
-function renderApp(initialData) {
-  let _sidebar
-  let _flow
-  let _isLocked = initialData.locked || false
-  let _modules = []
-  let _connections = []
+let _isLocked = false
+let _sidebar = null
+let _graph = null
+let _nodes = {}
 
-  const findModule = (id) => _modules.find((m) => m.id === id)
-
-  const createModule = ({ type = Operators.Text.name, id = `${type}-${Date.now()}`, ...moduleData }) => {
-    const op = Operators[type](moduleData.data)
-    const container = op.render()
-
-    _flow.renderModule({
-      id,
-      x: moduleData.x,
-      y: moduleData.y,
-      width: moduleData.width,
-      height: moduleData.height,
-      background: moduleData.background,
-      inputsCount: op.inputs.length,
-      children: container,
-    })
-
-    op.output.subscribe(updateUrl)
-
-    return {
-      ...moduleData,
-      type,
-      id,
-      operator: op,
+const persist = debounce(() => {
+  const nodes = Object.entries(_nodes).reduce((acc, [id, node]) => {
+    acc[id] = {
+      props: node.props,
+      data: {
+        ...node.data,
+        operatorData: node.operator.serialize(),
+      },
+      connections: node.connections,
     }
-  }
+    return acc
+  }, {})
+  saveState({ nodes, isLocked: _isLocked })
+}, 500)
 
-  let _wasLocked
-  const updateUrl = debounce(() => {
-    if (_isLocked && _wasLocked) return
-    _wasLocked = _isLocked
-
-    // Serialize the list of modules and connections
-    const data = {
-      modules: _modules.map(({ operator, ...moduleData }) => {
-        const serializedData = { ...moduleData }
-        if (serializedData.type === Operators.Text.name) {
-          delete serializedData.type
-        }
-        const data = operator.serialize()
-        if (data !== undefined) {
-          serializedData.data = data
-        }
-        return serializedData
-      }),
-      connections: _connections,
-      locked: _isLocked,
-    }
-
-    setHashData(data)
-  }, 500)
-
-  const updateConnection = (inputId, outputId, disconnect = false) => {
-    const [inputModuleId, inputIndex] = inputId.split('-input-')
-    const outputModuleId = outputId.split('-output')[0]
-    const inputModule = findModule(inputModuleId)
-    const outputModule = findModule(outputModuleId)
-    if (!inputModule || !outputModule) {
-      throw new Error(`Module not found: ${inputModuleId} or ${outputModuleId}`)
-    }
-
-    const output = outputModule.operator.output
-    const input = inputModule.operator.inputs[inputIndex]
-
-    if (disconnect) {
-      _connections = _connections.filter((c) => c.from !== outputId || c.to !== inputId)
-      output.disconnect(input)
-    } else {
-      _connections.push({ from: outputId, to: inputId })
-      output.connect(input)
-    }
-
-    updateUrl()
-  }
-
-  const onConnect = (inputId, outputId) => {
-    updateConnection(inputId, outputId)
-  }
-
-  const onDisconnect = (inputId, outputId) => {
-    updateConnection(inputId, outputId, true)
-  }
-
-  const onAddModule = (module) => {
-    const mod = createModule(module)
-    _modules.push(mod)
-    updateUrl()
-    return mod
-  }
-
-  const onRemoveModule = (id) => {
-    const module = findModule(id)
-    if (!module) return
-
-    _connections
-      .filter((c) => c.from.split('-output')[0] === id || c.to.split('-input')[0] === id)
-      .forEach((c) => {
-        onDisconnect(c.to, c.from)
-      })
-
-    module.operator.destroy()
-    _modules = _modules.filter((m) => m.id !== id)
-    updateUrl()
-  }
-
-  const onMove = (id, x, y) => {
-    const module = findModule(id)
-    if (!module) return
-    module.x = x
-    module.y = y
-  }
-
-  const onMoveEnd = () => {
-    updateUrl()
-  }
-
-  const onModuleSelect = (id) => {
-    const module = findModule(id)
-    if (module) {
-      _sidebar.render({
-        description: module.operator.output.get(),
-        note: module.note,
-        onNoteEdit: (note) => {
-          module.note = note
-          updateUrl()
-        },
-      })
-    }
-  }
-
-  const onModuleResize = (id, width, height) => {
-    const module = findModule(id)
-    module.width = width
-    module.height = height
-    updateUrl()
-  }
-
-  const onModuleBackgroundChange = (id, background) => {
-    const module = findModule(id)
-    module.background = background
-    updateUrl()
-  }
-
-  const onImageDrop = (x, y, data) => {
-    if (_isLocked) return
-    onAddModule({ x, y, type: Operators.Image.name, data, id: `image-${Date.now()}` })
-  }
-
-  const init = async () => {
-    // Initialize app container
-    const appContainer = DropContainer().render({
-      className: 'app',
-      fileType: 'image/',
-      onDrop: onImageDrop,
-    })
-    document.body.appendChild(appContainer)
-
-    // Initialize flow
-    _flow = renderFlow({
-      isLocked: () => _isLocked,
-      appContainer,
-      onConnect,
-      onDisconnect,
-      onAddModule,
-      onRemoveModule,
-      onMove,
-      onMoveEnd,
-      onModuleSelect,
-      onModuleResize,
-      onModuleBackgroundChange,
-    })
-
-    // Initialize modules and connections
-    {
-      _modules = await Promise.all(initialData.modules.map(createModule))
-
-      initialData.connections.forEach((cable) => {
-        const fromEl = document.querySelector(`#${cable.from}`)
-        const toEl = document.querySelector(`#${cable.to}`)
-        _flow.renderPatchCable(fromEl, toEl)
-        onConnect(cable.to, cable.from)
-      })
-    }
-
-    // Initial sidebar render
-    {
-      _sidebar = Sidebar()
-      appContainer.appendChild(
-        _sidebar.render({
-          isLocked: _isLocked,
-          setLocked: (isLocked) => {
-            _isLocked = isLocked
-            updateUrl()
-          },
-        }),
-      )
-    }
-  }
-
-  init()
+function randomId() {
+  return Math.random().toString(32).slice(2)
 }
 
-// Initialize app
-getHashData().then((data) => {
-  renderApp(
-    data || {
-      modules: [
-        { id: 'text-0', x: 600, y: 50, data: 'Hello' },
-        { id: 'text-1', x: 800, y: 150, data: 'world' },
-      ],
-      connections: [{ from: 'text-0-output', to: 'text-1-input-0' }],
+function createNode(id, props, data) {
+  const operator = Operators[data.operatorType](data.operatorData)
+
+  _nodes[id] = {
+    props,
+    data,
+    operator,
+    connections: [],
+  }
+
+  _graph.render({
+    node: {
+      ...props,
+      id,
+      inputsCount: operator.inputs.length,
+      children: operator.render(),
     },
+  })
+
+  operator.output.subscribe(() => {
+    persist()
+  })
+
+  persist()
+}
+
+function connectNodes(outputId, inputId, inputIndex) {
+  _graph.render({
+    edge: {
+      outputId,
+      inputId,
+      inputIndex,
+    },
+  })
+}
+
+function onClick(x, y) {
+  const id = randomId()
+  createNode(id, { x, y }, { operatorType: Operators.Text.name })
+}
+
+function onDrop({ x, y, fileType, data }) {
+  const id = randomId() + fileType
+  createNode(id, { x, y }, { operatorType: Operators.Image.name, operatorData: data })
+}
+
+function onRemove(id) {
+  delete _nodes[id]
+  persist()
+}
+
+function onSelect(id) {
+  const node = _nodes[id]
+  if (!node) return
+
+  _sidebar.render({
+    description: node.operator.serialize(),
+    note: node.data.note,
+    onNoteEdit: (value) => {
+      node.data.note = value
+      persist()
+    },
+  })
+}
+
+function onConnect(outputId, inputId, inputIndex) {
+  const output = _nodes[outputId].operator.output
+  const input = _nodes[inputId].operator.inputs[inputIndex]
+  output.connect(input)
+
+  _nodes[outputId].connections.push({ inputId, inputIndex })
+  persist()
+}
+
+function onDisconnect(outputId, inputId, inputIndex) {
+  const output = _nodes[outputId].operator.output
+  const input = _nodes[inputId].operator.inputs[inputIndex]
+  output.disconnect(input)
+
+  _nodes[outputId].connections = _nodes[outputId].connections.filter(
+    (c) => c.inputId !== inputId && c.inputIndex !== inputIndex,
   )
+  persist()
+}
+
+function onUpdate(id, nodeProps) {
+  if (!_nodes[id]) return
+  Object.assign(_nodes[id].props, nodeProps)
+  persist()
+}
+
+function initSidebar() {
+  const sidebar = Sidebar()
+
+  sidebar.render({
+    isLocked: _isLocked,
+    setLocked: (isLocked) => {
+      _isLocked = isLocked
+      persist()
+    },
+  })
+
+  return sidebar
+}
+
+function initDropcontainer() {
+  const drop = DropContainer()
+
+  drop.render({
+    fileTypes: /image\//,
+    onDrop,
+  })
+
+  return drop
+}
+
+function init(appContainer, initialState) {
+  _isLocked = initialState.isLocked || false
+
+  const drop = initDropcontainer()
+  const sidebar = initSidebar()
+
+  const graph = initFlow(() => _isLocked, {
+    onClick,
+    onRemove,
+    onSelect,
+    onConnect,
+    onDisconnect,
+    onUpdate,
+  })
+
+  appContainer.appendChild(drop.container)
+  drop.container.appendChild(sidebar.container)
+  drop.container.appendChild(graph.container)
+  document.body.appendChild(appContainer)
+
+  _sidebar = sidebar
+  _graph = graph
+
+  // Re-create nodes and connections
+  if (initialState.nodes) {
+    Object.entries(initialState.nodes).forEach(([id, item]) => {
+      createNode(id, item.props, item.data)
+
+      Promise.resolve().then(() => {
+        item.connections.forEach(({ inputId, inputIndex }) => connectNodes(id, inputId, inputIndex))
+      })
+    })
+  }
+}
+
+loadState().then((state = {}) => {
+  console.log('Initial state', state)
+  init(document.querySelector('#app'), state)
 })

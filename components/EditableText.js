@@ -26,5 +26,7 @@ export function EditableText({ onInput = null }) {
       }
       return container
     },
+
+    destroy: () => container.remove(),
   }
 }
