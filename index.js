@@ -80,6 +80,7 @@ function onDrop({ x, y, fileType, data }) {
 }
 
 function onRemove(id) {
+  if (state.isLocked) return
   delete state.nodes[id]
   persist()
 }
@@ -135,6 +136,7 @@ function initSidebar(onLockChange) {
     title: state.title,
 
     setTitle: (title) => {
+      if (state.isLocked) return
       state.title = title
       persist()
     },
