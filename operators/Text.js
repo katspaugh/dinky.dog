@@ -46,7 +46,7 @@ export function Text(initialValue) {
       outputStream.next(runFn())
     } else {
       if (!lastInput) {
-        outputStream.next(value instanceof Object ? JSON.stringify(value, null, 2) : value)
+        outputStream.next(typeof value === 'string' ? value : JSON.stringify(value, null, 2))
       }
     }
   })

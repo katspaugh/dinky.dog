@@ -10,7 +10,9 @@ export function Edge() {
       lastFromEl = fromEl
       lastToEl = toEl
 
-      const parentBbox = fromEl.parentElement.parentElement.getBoundingClientRect()
+      const parent = fromEl.parentElement.parentElement
+      if (!parent) return
+      const parentBbox = parent.getBoundingClientRect()
       const x = -parentBbox.left
       const y = -parentBbox.top
 
