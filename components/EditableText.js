@@ -1,4 +1,3 @@
-import snarkdown from 'https://cdnjs.cloudflare.com/ajax/libs/snarkdown/2.0.0/snarkdown.es.min.js'
 import { sanitizeHtml } from '../utils/parse-text.js'
 
 export function EditableText({ onInput = null }) {
@@ -17,11 +16,11 @@ export function EditableText({ onInput = null }) {
     }
 
     container.onblur = () => {
-      const html = sanitizeHtml(snarkdown(container.innerHTML))
+      const html = sanitizeHtml(container.innerHTML)
       if (html !== container.innerHTML) {
         container.innerHTML = html
+        onInput(html)
       }
-      onInput(html)
     }
   }
 

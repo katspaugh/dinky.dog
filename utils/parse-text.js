@@ -1,26 +1,4 @@
-const allowedTags = [
-  'b',
-  'i',
-  'u',
-  's',
-  'p',
-  'br',
-  'h1',
-  'h2',
-  'h3',
-  'h4',
-  'h5',
-  'h6',
-  'em',
-  'strong',
-  'ul',
-  'ol',
-  'li',
-  'blockquote',
-  'code',
-  'pre',
-  'hr',
-]
+const allowedTags = ['b', 'i', 'u', 's', 'p', 'br']
 
 const isLink = (tag) => {
   return !!tag.match(/^a href="[^"]+"$/)

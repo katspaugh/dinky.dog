@@ -50,14 +50,6 @@
         width: 100%;
         height: 100%;
       }
-      .module [contenteditable] h1,
-      .module [contenteditable] h2,
-      .module [contenteditable] h3,
-      .module [contenteditable] h4,
-      .module [contenteditable] h5,
-      .module [contenteditable] h6 {
-        margin-top: 0;
-      }
       .module input[type="color"] {
         position: absolute;
         z-index: 3;
@@ -104,7 +96,8 @@
       }
       .sidebar {
         order: 1;
-        flex: 0 0 300px;
+        flex: 0 0 20vw;
+        min-width: 230px;
         background-color: #eee;
         padding: 0 2rem;
         position: relative;
@@ -164,7 +157,7 @@
         right: 0;
         padding: 20px;
       }
-      @media (max-width: 1024px) {
+      @media (max-width: 900px) {
         .sidebar {
           display: none;
         }
