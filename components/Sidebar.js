@@ -1,7 +1,7 @@
 import { EditableText } from '../components/EditableText.js'
 import { Toggle } from '../components/Toggle.js'
 import { Fns } from '../expressions/index.js'
-import { sanitizeHtml } from '../utils/sanitize-html.js'
+import { sanitizeHtml } from '../utils/parse-text.js'
 
 export function Sidebar({ title, setTitle, isLocked, setLocked }) {
   const div = document.createElement('div')

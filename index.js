@@ -1,8 +1,10 @@
 import { Sidebar } from './components/Sidebar.js'
 import { initFlow } from './flow.js'
+import { HEIGHT } from './components/Node.js'
 import * as Operators from './operators/index.js'
 import { saveState, loadState } from './persist.js'
 import { debounce } from './utils/debounce.js'
+import { parseUrl } from '../utils/parse-text.js'
 
 let state = {
   isLocked: false,
@@ -52,9 +54,12 @@ function createNode(id, props, data) {
     },
   })
 
-  operator.output.subscribe(() => {
-    persist()
-  })
+  if (data.operatorType === Operators.Text.name) {
+    operator.output.subscribe((value) => {
+      persist()
+      onTextInput(id, value)
+    })
+  }
 }
 
 function connectNodes(outputId, inputId, inputIndex) {
@@ -77,6 +82,18 @@ function onDrop({ x, y, fileType, data }) {
   const id = randomId() + fileType
   createNode(id, { x, y }, { operatorType: Operators.Image.name, operatorData: data })
   persist()
+}
+
+function onTextInput(id, value) {
+  const node = state.nodes[id]
+  const newId = id + '-preview'
+  if (!node || state.nodes[newId]) return
+
+  if (parseUrl(value)) {
+    const props = { x: node.props.x, y: node.props.y + (node.props.height || HEIGHT) + 10, width: 300, height: 190 }
+    createNode(newId, props, { operatorType: Operators.LinkPreview.name, operatorData: value })
+    connectNodes(id, newId, 0)
+  }
 }
 
 function onRemove(id) {

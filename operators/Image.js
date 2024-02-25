@@ -1,11 +1,13 @@
 import { Stream } from '../utils/stream.js'
 import { ImagePreview } from '../components/ImagePreview.js'
 
-export function Image(src = '') {
+export function Image(initialSrc = '') {
+  let src = initialSrc
   const component = ImagePreview()
   const stream = new Stream(src)
 
-  const unsub = stream.subscribe((src) => {
+  const unsub = stream.subscribe((newSrc) => {
+    src = newSrc
     component.render({ src })
   })
 

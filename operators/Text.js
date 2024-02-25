@@ -46,7 +46,7 @@ export function Text(initialValue) {
       outputStream.next(runFn())
     } else {
       if (!lastInput) {
-        outputStream.next(value)
+        outputStream.next(value instanceof Object ? JSON.stringify(value, null, 2) : value)
       }
     }
   })
@@ -58,7 +58,7 @@ export function Text(initialValue) {
 
     output: outputStream,
 
-    serialize: () => lastInput || '',
+    serialize: () => lastInput || '', // Only user input, not the result of a function
 
     render: () => {
       const container = component.render({ text: initialValue || '' })

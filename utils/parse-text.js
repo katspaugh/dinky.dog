@@ -5,3 +5,8 @@ export const sanitizeHtml = (html = '') => {
     return allowedTags.includes(tag) ? str : ''
   })
 }
+
+export const parseUrl = (text) => {
+  const match = text.match(/^(https?:\/\/\S+\.\S{2,})$/)
+  return match ? match[1] || '' : ''
+}
