@@ -56,7 +56,6 @@ export function Node(id) {
       onResize = noop,
       onResizeEnd = noop,
       onBackgroundChange = noop,
-      onLockChange = noop,
     }) => {
       // Position & size
       setPosition(x, y)

@@ -14,11 +14,6 @@ let _currentOutput = null
 let _callbacks = {}
 let _isLocked = () => false
 
-function onGraphClick(x, y) {
-  if (_isLocked()) return
-  _callbacks.onClick(x, y)
-}
-
 function connectNodes(outputId, inputId, inputIndex) {
   const edge = Edge()
 
@@ -124,26 +119,31 @@ function createNode({ id, ...nodeProps }) {
   }
 
   _graph.render({ node: container })
+
+  // Immediately connect to the current input/output
+  if (_currentOutput) {
+    _currentInput = {
+      id,
+      index: 0,
+    }
+    onConnect()
+  } else if (_currentInput) {
+    _currentOutput = {
+      id,
+    }
+    onConnect()
+  }
 }
 
 function initGraph() {
-  let clicked = false
   let mouseEdge = null
 
   const graph = Graph({
     onClick: (x, y) => {
-      clicked = !clicked
-      if (clicked) {
-        onGraphClick(x, y)
-      }
-
-      if (mouseEdge) {
-        mouseEdge.destroy()
-        mouseEdge = null
-        _currentInput = null
-        _currentOutput = null
-      }
+      if (_isLocked()) return
+      _callbacks.onClick(x, y)
     },
+
     onPointerMove: (x, y) => {
       if (_isLocked()) return
 
@@ -157,18 +157,22 @@ function initGraph() {
       }
 
       if (!mouseEdge) {
-        mouseEdge = Edge()
+        mouseEdge = Edge({ inactive: true })
         graph.render({ edge: mouseEdge.container })
       }
 
-      const fromEl = _currentOutput
+      const start = _currentOutput
         ? _nodes[_currentOutput.id].node.output
         : _nodes[_currentInput.id].node.inputs[_currentInput.index]
+      const end = { getBoundingClientRect: () => ({ left: x, top: y, width: 0, height: 0 }) }
 
-      mouseEdge.render({
-        fromEl,
-        toEl: { getBoundingClientRect: () => ({ left: x - 1, top: y - 1, width: 0, height: 0 }) },
-      })
+      mouseEdge.render({ fromEl: _currentOutput ? start : end, toEl: _currentOutput ? end : start })
+    },
+    onPointerUp: () => {
+      if (mouseEdge) {
+        mouseEdge.destroy()
+        mouseEdge = null
+      }
     },
   })
 

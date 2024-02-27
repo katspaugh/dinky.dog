@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8">
     <title>Dinky Dog: shareable flow diagrams</title>
-    <link rel="icon" href="/logo.svg" type="image/svg+xml">
+    <link rel="icon" href="/favicon.ico" />
     <style>
       html,
       body {
@@ -30,6 +30,7 @@
         z-index: 2;
         border-radius: 4px;
         border: 1px solid #aaa;
+        transition: border 0.2s;
       }
       .module.active,
       .module:hover {
@@ -39,6 +40,7 @@
         margin-left: -8px;
         border: none;
         background-color: #faa;
+        transition: background-color 0.2s;
       }
       .module button:hover {
         background-color: #aaf;
@@ -78,6 +80,8 @@
         stroke-width: 4px;
         pointer-events: all;
         cursor: pointer;
+        opacity: 0.9;
+        transition: stroke 0.2s;
       }
       path:hover {
         stroke: #aaf;
@@ -107,16 +111,21 @@
         overflow-y: auto;
       }
       .sidebar h1 {
-        padding-bottom: 10px;
+        padding: 10px 0;
+        display: flex;
+        align-items: center;
+        margin: 0 -9px;
+        gap: 10px;
+        line-height: 29px;
       }
-      .sidebar:before {
+      .sidebar h1:before {
         content: '';
         display: block;
         width: 100px;
         height: 100px;
-        margin: 20px 25px -20px;
-        background: url('/logo.svg') no-repeat 0 0;
+        background: url('/dinky-small.png') no-repeat left center;
         background-size: contain;
+        margin-top: -1px;
       }
       .sidebar [contenteditable] {
         border: 1px solid #aaa;

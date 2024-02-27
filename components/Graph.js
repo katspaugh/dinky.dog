@@ -1,4 +1,4 @@
-export function Graph({ onClick, onPointerMove }) {
+export function Graph({ onClick, onPointerUp, onPointerMove }) {
   const container = document.createElement('div')
   container.className = 'graph'
 
@@ -31,6 +31,10 @@ export function Graph({ onClick, onPointerMove }) {
 
   pan.addEventListener('pointermove', (e) => {
     onPointerMove(e.clientX, e.clientY)
+  })
+
+  pan.addEventListener('pointerup', (e) => {
+    onPointerUp()
   })
 
   return {

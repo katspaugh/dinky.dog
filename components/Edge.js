@@ -1,5 +1,8 @@
-export function Edge() {
+export function Edge({ inactive = false } = {}) {
   const container = document.createElementNS('http://www.w3.org/2000/svg', 'path')
+  if (inactive) {
+    container.style.pointerEvents = 'none'
+  }
   let lastFromEl = null
   let lastToEl = null
 
@@ -10,7 +13,7 @@ export function Edge() {
       lastFromEl = fromEl
       lastToEl = toEl
 
-      const parent = fromEl.parentElement.parentElement
+      const parent = (fromEl.parentElement || toEl.parentElement).parentElement
       if (!parent) return
       const parentBbox = parent.getBoundingClientRect()
       const x = -parentBbox.left

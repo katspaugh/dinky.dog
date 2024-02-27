@@ -12,7 +12,7 @@ export function Image(initialSrc = '') {
   })
 
   return {
-    inputs: [stream],
+    inputs: [new Stream()],
 
     output: stream,
 
