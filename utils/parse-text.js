@@ -5,9 +5,11 @@ const isLink = (tag) => {
 }
 
 export const sanitizeHtml = (html = '') => {
-  return String(html).replace(/<\?([^>]+)>/g, (str, tag) => {
-    return allowedTags.includes(tag) || isLink(tag) ? str : ''
-  })
+  return String(html)
+    .replace(/<\/?([^>]+?)>/g, (str, tag) => {
+      return allowedTags.includes(tag) || isLink(tag) ? str : '\n'
+    })
+    .trim()
 }
 
 export const parseUrl = (text) => {

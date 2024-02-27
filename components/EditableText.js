@@ -5,7 +5,6 @@ export function EditableText({ onInput = null }) {
   Object.assign(container.style, {
     padding: '10px',
     overflow: 'auto',
-    whiteSpace: 'pre-line',
   })
 
   if (onInput) {
