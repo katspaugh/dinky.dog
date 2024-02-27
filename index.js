@@ -209,7 +209,18 @@ function init(appContainer, initialState) {
   }
 }
 
-loadState().then((initialState = {}) => {
+const DEMO = {
+  nodes: {
+    jnnnjq2uvic: { props: { x: 287, y: 69 }, connections: [], data: { operatorType: 'Text', operatorData: 'world' } },
+    q6jjaugt7vg: {
+      props: { x: 79, y: 114 },
+      connections: [{ inputId: 'jnnnjq2uvic', inputIndex: 0 }],
+      data: { operatorType: 'Text', operatorData: 'Hello' },
+    },
+  },
+}
+
+loadState().then((initialState = DEMO) => {
   console.log('Initial state', initialState)
   init(document.querySelector('#app'), initialState)
 })
