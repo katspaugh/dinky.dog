@@ -43,7 +43,7 @@ export function Text(initialValue) {
       if (value === undefined) {
         delete combinedInputs[from]
       }
-      outputStream.next(runFn())
+      outputStream.next(String(runFn()))
     } else {
       if (!lastInput) {
         outputStream.next(typeof value === 'string' ? value : JSON.stringify(value, null, 2))

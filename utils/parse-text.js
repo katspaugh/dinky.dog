@@ -12,7 +12,7 @@ export const sanitizeHtml = (html = '') => {
     .trim()
 }
 
-export const parseUrl = (text) => {
+export const parseUrl = (text = '') => {
   const match = text.match(/^(https?:\/\/\S+\.\S{2,})(?=<br>)?$/)
   return match ? match[1] || '' : ''
 }
