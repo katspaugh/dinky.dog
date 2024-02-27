@@ -1,7 +1,7 @@
 const allowedTags = ['b', 'i', 'u', 's', 'p', 'br']
 
 const isLink = (tag) => {
-  return !!tag.match(/^a href="[^"]+"$/)
+  return !!tag.match(/^a href="[^"]+"$/) || !!tag.match(/^iframe src="[^"]+"$/)
 }
 
 export const sanitizeHtml = (html = '') => {

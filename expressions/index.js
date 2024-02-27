@@ -6,4 +6,9 @@ export const Fns = {
   upper: (...args) => args.map(String).join(' ').toUpperCase(),
 
   lower: (...args) => args.map(String).join(' ').toLowerCase(),
+
+  embed: (url) => {
+    if (!url) return ''
+    return `<iframe src="${url}">`
+  },
 }

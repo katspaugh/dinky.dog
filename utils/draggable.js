@@ -58,11 +58,13 @@ export function makeDraggable(element, onDrag, onStart, onEnd, threshold = 3) {
 
     document.addEventListener('pointermove', onPointerMove)
     document.addEventListener('pointerup', onPointerUp)
+    document.addEventListener('pointerleave', onPointerUp)
     document.addEventListener('touchmove', onTouchMove, { passive: false })
 
     unsubscribeDocument = () => {
       document.removeEventListener('pointermove', onPointerMove)
       document.removeEventListener('pointerup', onPointerUp)
+      document.removeEventListener('pointerleave', onPointerUp)
       document.removeEventListener('touchmove', onTouchMove)
     }
   }
