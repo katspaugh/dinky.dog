@@ -21,6 +21,13 @@ export function EditableText({ onInput = null }) {
         onInput(html)
       }
     }
+
+    container.onkeydown = (e) => {
+      if ((e.key === 'Enter' && !e.shiftKey) || e.key === 'Escape') {
+        e.preventDefault()
+        container.blur()
+      }
+    }
   }
 
   return {
