@@ -23,6 +23,7 @@ const persist = debounce(() => {
       data: {
         ...node.data,
         operatorData: node.operator.serialize(),
+        operatorType: node.data.operatorType === Operators.Text.name ? undefined : node.data.operatorType,
       },
     }
     return acc
@@ -35,7 +36,7 @@ function randomId() {
 }
 
 function createNode(id, props, data) {
-  const operator = Operators[data.operatorType](data.operatorData)
+  const operator = Operators[data.operatorType || Operators.Text.name](data.operatorData)
 
   state.nodes[id] = {
     props,
@@ -211,12 +212,12 @@ function init(appContainer, initialState) {
 
 const DEMO = {
   nodes: {
-    jnnnjq2uvic: { props: { x: 287, y: 69 }, connections: [], data: { operatorType: 'Text', operatorData: 'world' } },
     q6jjaugt7vg: {
       props: { x: 79, y: 114 },
       connections: [{ inputId: 'jnnnjq2uvic', inputIndex: 0 }],
-      data: { operatorType: 'Text', operatorData: 'Hello' },
+      data: { operatorData: 'Hello' },
     },
+    jnnnjq2uvic: { props: { x: 287, y: 69 }, connections: [], data: { operatorData: 'world!' } },
   },
 }
 
