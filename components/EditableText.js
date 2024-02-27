@@ -11,15 +11,11 @@ export function EditableText({ onInput = null }) {
     container.contentEditable = 'true'
 
     container.oninput = () => {
-      onInput(container.innerHTML)
-    }
-
-    container.onblur = () => {
       const html = sanitizeHtml(container.innerHTML)
       if (html !== container.innerHTML) {
         container.innerHTML = html
-        onInput(html)
       }
+      onInput(html)
     }
 
     container.onkeydown = (e) => {

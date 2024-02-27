@@ -9,7 +9,6 @@ import { parseUrl } from '../utils/parse-text.js'
 let state = {
   isLocked: false,
   title: '',
-  lastBackground: undefined,
   nodes: {},
 }
 let _sidebar = null
@@ -19,7 +18,7 @@ const persist = debounce(() => {
   const nodes = Object.entries(state.nodes).reduce((acc, [id, node]) => {
     acc[id] = {
       props: node.props,
-      connections: node.connections,
+      connections: node.connections.length ? node.connections : undefined,
       data: {
         ...node.data,
         operatorData: node.operator.serialize(),
@@ -36,7 +35,8 @@ function randomId() {
 }
 
 function createNode(id, props, data) {
-  const operator = Operators[data.operatorType || Operators.Text.name](data.operatorData)
+  const operatorType = data.operatorType || Operators.Text.name
+  const operator = Operators[operatorType](data.operatorData)
 
   state.nodes[id] = {
     props,
@@ -45,17 +45,21 @@ function createNode(id, props, data) {
     connections: [],
   }
 
+  const { x, y, width, height, background } = props
   _graph.render({
     node: {
-      background: state.lastBackground,
-      ...props,
       id,
+      x,
+      y,
+      width,
+      height,
+      background,
       inputsCount: operator.inputs.length,
       children: operator.render(),
     },
   })
 
-  if (data.operatorType === Operators.Text.name) {
+  if (operatorType === Operators.Text.name) {
     operator.output.subscribe((value) => {
       persist()
       onTextInput(id, value)
@@ -139,13 +143,7 @@ function onDisconnect(outputId, inputId, inputIndex) {
 
 function onUpdate(id, nodeProps) {
   if (!state.nodes[id]) return
-
   Object.assign(state.nodes[id].props, nodeProps)
-
-  if (nodeProps.background) {
-    state.lastBackground = nodeProps.background
-  }
-
   persist()
 }
 
@@ -174,8 +172,7 @@ function initSidebar(onLockChange) {
 }
 
 function init(appContainer, initialState) {
-  state.isLocked = initialState.isLocked
-  state.title = initialState.title
+  state = { ...state, ...initialState }
 
   const sidebar = initSidebar(() => {
     appContainer.className = state.isLocked ? 'locked' : ''
@@ -203,9 +200,11 @@ function init(appContainer, initialState) {
     Object.entries(initialState.nodes).forEach(([id, item]) => {
       createNode(id, item.props, item.data)
 
-      Promise.resolve().then(() => {
-        item.connections.forEach(({ inputId, inputIndex }) => connectNodes(id, inputId, inputIndex))
-      })
+      if (item.connections) {
+        Promise.resolve().then(() => {
+          item.connections.forEach(({ inputId, inputIndex }) => connectNodes(id, inputId, inputIndex))
+        })
+      }
     })
   }
 }

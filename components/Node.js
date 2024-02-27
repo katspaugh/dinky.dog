@@ -7,8 +7,6 @@ export const WIDTH = 120
 export const HEIGHT = 60
 const DEFAULT_BACKGROUND = '#fafafa'
 
-const noop = () => {}
-
 export function Node(id) {
   const container = document.createElement('div')
   container.className = 'module'
@@ -48,14 +46,15 @@ export function Node(id) {
       inputsCount = 0,
       children = null,
 
-      onClick = noop,
-      onInputClick = noop,
-      onOutputClick = noop,
-      onDrag = noop,
-      onDragEnd = noop,
-      onResize = noop,
-      onResizeEnd = noop,
-      onBackgroundChange = noop,
+      isLocked,
+      onClick,
+      onInputClick,
+      onOutputClick,
+      onDrag,
+      onDragEnd,
+      onResize,
+      onResizeEnd,
+      onBackgroundChange,
     }) => {
       // Position & size
       setPosition(x, y)
@@ -92,6 +91,7 @@ export function Node(id) {
         makeDraggable(
           container,
           (dx, dy) => {
+            if (isLocked()) return
             x += dx
             y += dy
             setPosition(x, y)
@@ -106,6 +106,7 @@ export function Node(id) {
       {
         const resizeHandle = ResizeHandle({
           onResize: (dx, dy) => {
+            if (isLocked()) return
             width = Math.max(WIDTH, width + dx)
             height = Math.max(HEIGHT, height + dy)
             setSize(width, height)

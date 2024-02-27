@@ -81,6 +81,8 @@ function createNode({ id, ...nodeProps }) {
   const container = node.render({
     ...nodeProps,
 
+    isLocked: _isLocked,
+
     onInputClick: (index) => {
       _currentInput = { id, index }
       if (_currentOutput) {
