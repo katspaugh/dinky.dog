@@ -126,8 +126,6 @@ function onConnect(outputId, inputId, inputIndex) {
   const input = state.nodes[inputId].operator.inputs[inputIndex]
   output.connect(input)
 
-  console.log(input)
-
   state.nodes[outputId].connections.push({ inputId, inputIndex })
   persist()
 }
@@ -222,7 +220,9 @@ const DEMO = {
   },
 }
 
-loadState().then((initialState = DEMO) => {
-  console.log('Initial state', initialState)
-  init(document.querySelector('#app'), initialState)
-})
+loadState()
+  .catch(() => DEMO)
+  .then((initialState = DEMO) => {
+    console.log('Initial state', initialState)
+    init(document.querySelector('#app'), initialState)
+  })

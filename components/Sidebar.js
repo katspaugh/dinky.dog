@@ -1,5 +1,6 @@
 import { EditableText } from '../components/EditableText.js'
 import { Toggle } from '../components/Toggle.js'
+import { ShareLink } from '../components/ShareLink.js'
 import { Fns } from '../expressions/index.js'
 import { sanitizeHtml } from '../utils/parse-text.js'
 
@@ -37,9 +38,12 @@ export function Sidebar({ title, setTitle, isLocked, setLocked }) {
   const footer = document.createElement('footer')
   div.appendChild(footer)
 
-  const toggle = new Toggle('Lock 🔒')
-  footer.appendChild(toggle.container)
+  const shareLink = ShareLink('🔗 Share link')
+  footer.appendChild(shareLink.render())
+
+  const toggle = Toggle('Lock 🔒')
   toggle.render({ checked: isLocked, onChange: setLocked })
+  footer.appendChild(toggle.container)
 
   return {
     container: div,
@@ -56,6 +60,6 @@ export function Sidebar({ title, setTitle, isLocked, setLocked }) {
       return div
     },
 
-    destroy: () => container.remove(),
+    destroy: () => div.remove(),
   }
 }

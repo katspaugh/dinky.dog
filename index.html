@@ -62,11 +62,11 @@
       .module input[type="color"] {
         position: absolute;
         z-index: 3;
-        top: -25px;
+        top: 0;
         right: 0;
         width: 50px;
-        height: 20px;
-        border: none;
+        border-color: #ddd;
+        transform: translateY(-120%);
         opacity: 0;
         transition: opacity 0.2s;
       }
@@ -157,6 +157,7 @@
       .sidebar h2 [contenteditable] {
         height: auto;
         background-color: transparent;
+        box-sizing: content-box;
       }
       .sidebar h2 [contenteditable]:empty::before {
         content: 'Untitled flow';
@@ -174,7 +175,12 @@
         position: fixed;
         bottom: 0;
         right: 0;
+        width: 20vw;
+        min-width: 230px;
         padding: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
       }
       @media (max-width: 900px) {
         .sidebar {
