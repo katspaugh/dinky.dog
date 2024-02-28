@@ -61,7 +61,6 @@ function createNode(id, props, data) {
 
   if (operatorType === Operators.Text.name) {
     operator.output.subscribe((value) => {
-      persist()
       onTextInput(id, value)
     })
   }
@@ -99,6 +98,8 @@ function onTextInput(id, value) {
     createNode(newId, props, { operatorType: Operators.LinkPreview.name, operatorData: value })
     connectNodes(id, newId, 0)
   }
+
+  persist()
 }
 
 function onRemove(id) {
