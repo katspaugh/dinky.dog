@@ -18,24 +18,26 @@ let _isLocked = () => false
 function connectNodes(outputId, inputId, inputIndex) {
   const edge = Edge()
 
+  const edgeItem = {
+    edge,
+    outputId,
+    inputId,
+    inputIndex,
+  }
+
+  _edges.push(edgeItem)
+
   const edgeContainer = edge.render({
     fromEl: _nodes[outputId].output,
     toEl: _nodes[inputId].inputs[inputIndex],
     onClick: () => {
       if (_isLocked()) return
-      _edges = _edges.filter((e) => e !== edge)
-      edge.destroy()
+      onEdgeRemove(edgeItem)
       _callbacks.onDisconnect(outputId, inputId, inputIndex)
     },
   })
 
   _graph.render({ edge: edgeContainer })
-
-  _edges.push({
-    edge,
-    outputId,
-    inputId,
-  })
 }
 
 function onNodeConnect(outputId, inputId, inputIndex) {
@@ -62,6 +64,12 @@ function onNodeRemove(id) {
   _callbacks.onRemove(id)
 }
 
+const onEdgeRemove = (edge) => {
+  if (!edge) return
+  edge.edge.destroy()
+  _edges = _edges.filter((e) => e !== edge)
+}
+
 function updateEdges(id) {
   const edges = _edges.filter((edge) => edge.outputId === id || edge.inputId === id)
   edges.forEach((edge) => {
@@ -69,14 +77,9 @@ function updateEdges(id) {
   })
 }
 
-function updateNode({ id, ...nodeProps }) {
-  const node = _nodes[id]
-  node.render(nodeProps)
-}
-
 function createNode({ id, ...nodeProps }) {
   if (_nodes[id]) {
-    updateNode(nodeProps)
+    _nodes[id].render(nodeProps)
     return
   }
 
@@ -247,8 +250,18 @@ export function initFlow(isLocked, callbacks) {
       return dropContainer
     },
 
-    remove: ({ node }) => {
-      onNodeRemove(node)
+    remove: ({ node, edge }) => {
+      if (node) {
+        onNodeRemove(node)
+      }
+
+      if (edge) {
+        onEdgeRemove(
+          _edges.find(
+            (e) => e.outputId === edge.outputId && e.inputId === edge.inputId && e.inputIndex === edge.inputIndex,
+          ),
+        )
+      }
     },
   }
 }
