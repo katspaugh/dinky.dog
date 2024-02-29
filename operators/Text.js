@@ -31,13 +31,13 @@ export function Text(initialValue) {
   const component = EditableText({ onInput })
 
   // Mirror output in the UI
-  const unsubOutput = outputStream.subscribe((value) => {
+  outputStream.subscribe((value) => {
     if (!fn) {
       component.render({ text: value })
     }
   })
 
-  const unsubInput = inputStream.subscribe((value, from) => {
+  inputStream.subscribe((value, from) => {
     if (fn) {
       combinedInputs[from] = value
       if (value === undefined) {
@@ -74,8 +74,8 @@ export function Text(initialValue) {
     },
 
     destroy: () => {
-      unsubOutput()
-      unsubInput()
+      inputStream.destroy()
+      outputStream.destroy()
       component.destroy()
     },
   }

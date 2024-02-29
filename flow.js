@@ -19,8 +19,8 @@ function connectNodes(outputId, inputId, inputIndex) {
   const edge = Edge()
 
   const edgeContainer = edge.render({
-    fromEl: _nodes[outputId].node.output,
-    toEl: _nodes[inputId].node.inputs[inputIndex],
+    fromEl: _nodes[outputId].output,
+    toEl: _nodes[inputId].inputs[inputIndex],
     onClick: () => {
       if (_isLocked()) return
       _edges = _edges.filter((e) => e !== edge)
@@ -36,13 +36,12 @@ function connectNodes(outputId, inputId, inputIndex) {
     outputId,
     inputId,
   })
-
-  _callbacks.onConnect(outputId, inputId, inputIndex)
 }
 
 function onNodeConnect(outputId, inputId, inputIndex) {
   if (_isLocked()) return
   connectNodes(outputId, inputId, inputIndex)
+  _callbacks.onConnect(outputId, inputId, inputIndex)
 }
 
 function onNodeRemove(id) {
@@ -50,13 +49,13 @@ function onNodeRemove(id) {
 
   const node = _nodes[id]
   if (!node) return
-  const edges = _edges.filter((edge) => edge.outputId === id || edge.inputId === id)
 
+  const edges = _edges.filter((edge) => edge.outputId === id || edge.inputId === id)
   edges.forEach((edge) => {
     edge.edge.destroy()
   })
 
-  node.node.destroy()
+  node.destroy()
 
   delete _nodes[id]
 
@@ -70,8 +69,16 @@ function updateEdges(id) {
   })
 }
 
+function updateNode({ id, ...nodeProps }) {
+  const node = _nodes[id]
+  node.render(nodeProps)
+}
+
 function createNode({ id, ...nodeProps }) {
-  const node = Node()
+  if (_nodes[id]) {
+    updateNode(nodeProps)
+    return
+  }
 
   const onConnect = () => {
     onNodeConnect(_currentOutput.id, _currentInput.id, _currentInput.index)
@@ -79,9 +86,7 @@ function createNode({ id, ...nodeProps }) {
     _currentInput = null
   }
 
-  const container = node.render({
-    ...nodeProps,
-
+  const node = Node({
     isLocked: _isLocked,
 
     onInputClick: (index) => {
@@ -122,10 +127,9 @@ function createNode({ id, ...nodeProps }) {
     onBackgroundChange: (background) => _callbacks.onUpdate(id, { background }),
   })
 
-  _nodes[id] = {
-    id: nodeProps.id,
-    node,
-  }
+  const container = node.render(nodeProps)
+
+  _nodes[id] = node
 
   _graph.render({ node: container })
 
@@ -178,8 +182,8 @@ function initGraph() {
       }
 
       const start = _currentOutput
-        ? _nodes[_currentOutput.id].node.output
-        : _nodes[_currentInput.id].node.inputs[_currentInput.index]
+        ? _nodes[_currentOutput.id].output
+        : _nodes[_currentInput.id].inputs[_currentInput.index]
       const end = { getBoundingClientRect: () => ({ left: x, top: y, width: 0, height: 0 }) }
 
       mouseEdge.render({ fromEl: _currentOutput ? start : end, toEl: _currentOutput ? end : start })
@@ -207,9 +211,7 @@ function initGraph() {
 }
 
 function initDropcontainer() {
-  const drop = DropContainer()
-
-  drop.render({
+  const drop = DropContainer({
     fileTypes: /image\//,
     onDrop: (params) => {
       _callbacks.onDrop({
@@ -220,7 +222,7 @@ function initDropcontainer() {
     },
   })
 
-  return drop
+  return drop.render()
 }
 
 export function initFlow(isLocked, callbacks) {
@@ -229,11 +231,11 @@ export function initFlow(isLocked, callbacks) {
 
   _graph = initGraph()
 
-  const drop = initDropcontainer()
-  drop.container.appendChild(_graph.container)
+  const dropContainer = initDropcontainer()
+  dropContainer.appendChild(_graph.container)
 
   return {
-    container: drop.container,
+    container: dropContainer,
 
     render: ({ node, edge }) => {
       if (node) {
@@ -242,7 +244,7 @@ export function initFlow(isLocked, callbacks) {
       if (edge) {
         connectNodes(edge.outputId, edge.inputId, edge.inputIndex)
       }
-      return drop.container
+      return dropContainer
     },
 
     remove: ({ node }) => {

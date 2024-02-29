@@ -37,4 +37,8 @@ export class Stream {
       this._listeners = this._listeners.filter((s) => s !== listener)
     }
   }
+
+  destroy() {
+    this._listeners = []
+  }
 }

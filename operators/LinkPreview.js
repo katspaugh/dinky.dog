@@ -10,7 +10,7 @@ export function LinkPreview(initialUrl) {
   const outputStream = new Stream()
   const component = MetaPreview()
 
-  const unsubInput = inputStream.subscribe((value) => {
+  inputStream.subscribe((value) => {
     const url = parseUrl(value)
     lastUrl = url
     onUrlChange(url)
@@ -30,7 +30,7 @@ export function LinkPreview(initialUrl) {
       })
   }, 500)
 
-  const unsubOutput = outputStream.subscribe((data) => {
+  outputStream.subscribe((data) => {
     component.render(data)
   })
 
@@ -44,8 +44,8 @@ export function LinkPreview(initialUrl) {
     render: () => component.container,
 
     destroy: () => {
-      unsubInput()
-      unsubOutput()
+      inputStream.destroy()
+      outputStream.destroy()
       component.destroy()
     },
   }

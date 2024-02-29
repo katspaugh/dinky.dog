@@ -7,6 +7,7 @@ import { debounce } from './utils/debounce.js'
 import { parseUrl } from '../utils/parse-text.js'
 
 let state = {
+  id: '',
   isLocked: false,
   title: '',
   nodes: {},
@@ -27,7 +28,10 @@ const persist = debounce(() => {
     }
     return acc
   }, {})
-  saveState({ ...state, nodes })
+
+  const serializedState = { ...state, nodes }
+
+  saveState(serializedState)
 }, 500)
 
 function randomId() {
@@ -74,6 +78,8 @@ function connectNodes(outputId, inputId, inputIndex) {
       inputIndex,
     },
   })
+
+  connectInputOutput(outputId, inputId, inputIndex)
 }
 
 function onClick(x, y) {
@@ -131,12 +137,21 @@ function onEscape(id) {
   }
 }
 
-function onConnect(outputId, inputId, inputIndex) {
+function connectInputOutput(outputId, inputId, inputIndex) {
+  // Already connected
+  if (state.nodes[outputId].connections.some((conn) => conn.inputId === inputId && conn.inputIndex === inputIndex)) {
+    return
+  }
+
   const output = state.nodes[outputId].operator.output
   const input = state.nodes[inputId].operator.inputs[inputIndex]
   output.connect(input)
 
   state.nodes[outputId].connections.push({ inputId, inputIndex })
+}
+
+function onConnect(outputId, inputId, inputIndex) {
+  connectInputOutput(outputId, inputId, inputIndex)
   persist()
 }
 
@@ -181,8 +196,30 @@ function initSidebar(onLockChange) {
   return sidebar
 }
 
+function initState(newState) {
+  // Update state properties
+  state.id = newState.id
+  state.title = newState.title
+  state.isLocked = newState.isLocked
+
+  // Re-create nodes and connections
+  if (newState.nodes) {
+    Promise.resolve().then(() => {
+      Object.entries(newState.nodes).forEach(([id, item]) => {
+        createNode(id, item.props, item.data)
+
+        if (item.connections) {
+          Promise.resolve().then(() => {
+            item.connections.forEach(({ inputId, inputIndex }) => connectNodes(id, inputId, inputIndex))
+          })
+        }
+      })
+    })
+  }
+}
+
 function init(appContainer, initialState) {
-  state = { ...state, ...initialState }
+  initState(initialState)
 
   const sidebar = initSidebar(() => {
     appContainer.className = state.isLocked ? 'locked' : ''
@@ -205,19 +242,6 @@ function init(appContainer, initialState) {
 
   _sidebar = sidebar
   _graph = graph
-
-  // Re-create nodes and connections
-  if (initialState.nodes) {
-    Object.entries(initialState.nodes).forEach(([id, item]) => {
-      createNode(id, item.props, item.data)
-
-      if (item.connections) {
-        Promise.resolve().then(() => {
-          item.connections.forEach(({ inputId, inputIndex }) => connectNodes(id, inputId, inputIndex))
-        })
-      }
-    })
-  }
 }
 
 const DEMO = {

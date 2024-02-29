@@ -6,7 +6,7 @@ export function Image(initialSrc = '') {
   const component = ImagePreview()
   const stream = new Stream(src)
 
-  const unsub = stream.subscribe((newSrc) => {
+  stream.subscribe((newSrc) => {
     src = newSrc
     component.render({ src })
   })
@@ -21,7 +21,7 @@ export function Image(initialSrc = '') {
     render: () => component.render({ src }),
 
     destroy: () => {
-      unsub()
+      stream.destroy()
       component.destroy()
     },
   }

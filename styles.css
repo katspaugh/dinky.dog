@@ -193,11 +193,11 @@ path:hover {
   min-width: 230px;
   background-color: var(--panel-color);
   padding: 0 2rem;
-  position: relative;
   z-index: 3;
   height: 100vh;
   overflow-y: auto;
   transition: .3s;
+  position: relative;
 }
 
 .sidebar.collapsed {
@@ -291,13 +291,11 @@ path:hover {
 }
 
 .sidebar footer {
-  box-sizing: content-box;
-  position: sticky;
+  position: absolute;
   bottom: 0;
   width: 100%;
   left: 0;
   padding: 20px;
-  margin: 0 -20px;
   background-color: var(--panel-color);
   display: flex;
   justify-content: space-between;
