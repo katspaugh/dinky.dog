@@ -5,14 +5,20 @@ import * as Operators from './operators/index.js'
 import { saveState, loadState } from './persist.js'
 import { debounce } from './utils/debounce.js'
 import { parseUrl } from '../utils/parse-text.js'
+import { initDurableStream } from './services/durable-stream.js'
+
+let clientId = localStorage.getItem('dinky_clientId') || Math.random()
+localStorage.setItem('dinky_clientId', clientId)
 
 let state = {
+  id: '',
   isLocked: false,
   title: '',
   nodes: {},
 }
 let _sidebar = null
 let _graph = null
+let _streamClient = null
 
 const persist = debounce(() => {
   const nodes = Object.entries(state.nodes).reduce((acc, [id, node]) => {
@@ -27,7 +33,14 @@ const persist = debounce(() => {
     }
     return acc
   }, {})
-  saveState({ ...state, nodes })
+
+  const serializedState = { ...state, nodes }
+
+  saveState(serializedState)
+
+  if (_streamClient) {
+    _streamClient.publish({ state: serializedState, clientId })
+  }
 }, 500)
 
 function randomId() {
@@ -132,6 +145,11 @@ function onEscape(id) {
 }
 
 function onConnect(outputId, inputId, inputIndex) {
+  // Already connected
+  if (state.nodes[outputId].connections.some((conn) => conn.inputId === inputId && conn.inputIndex === inputIndex)) {
+    return
+  }
+
   const output = state.nodes[outputId].operator.output
   const input = state.nodes[inputId].operator.inputs[inputIndex]
   output.connect(input)
@@ -181,8 +199,30 @@ function initSidebar(onLockChange) {
   return sidebar
 }
 
+function initState(newState) {
+  state = newState
+
+  // Re-create nodes and connections
+  if (newState.nodes) {
+    Object.entries(newState.nodes).forEach(([id, item]) => {
+      if (state.nodes[id]) {
+        _graph.remove({ node: id })
+      }
+
+      createNode(id, item.props, item.data)
+
+      if (item.connections) {
+        Promise.resolve().then(() => {
+          item.connections.forEach(({ inputId, inputIndex }) => connectNodes(id, inputId, inputIndex))
+        })
+      }
+    })
+  }
+}
+
 function init(appContainer, initialState) {
   state = { ...state, ...initialState }
+  state.id = state.id || randomId()
 
   const sidebar = initSidebar(() => {
     appContainer.className = state.isLocked ? 'locked' : ''
@@ -206,18 +246,20 @@ function init(appContainer, initialState) {
   _sidebar = sidebar
   _graph = graph
 
-  // Re-create nodes and connections
-  if (initialState.nodes) {
-    Object.entries(initialState.nodes).forEach(([id, item]) => {
-      createNode(id, item.props, item.data)
+  initState(state)
 
-      if (item.connections) {
-        Promise.resolve().then(() => {
-          item.connections.forEach(({ inputId, inputIndex }) => connectNodes(id, inputId, inputIndex))
-        })
+  // Init durable stream
+  initDurableStream(state.id).then(async (client) => {
+    _streamClient = client
+
+    client.subscribe(client.lastSequence, async (msg, ack) => {
+      if (msg.data.clientId !== clientId) {
+        console.log('Received state', msg.data.state)
+        initState(msg.data.state)
       }
+      ack()
     })
-  }
+  })
 }
 
 const DEMO = {
