@@ -1,4 +1,4 @@
-export function Graph({ onClick, onPointerUp, onPointerMove }) {
+export function Graph({ onClick, onPointerUp, onPointerMove, onKeyDown }) {
   const container = document.createElement('div')
   container.className = 'graph'
 
@@ -11,12 +11,12 @@ export function Graph({ onClick, onPointerUp, onPointerMove }) {
 
   let wasFocused = false
   pan.addEventListener('focusin', (e) => {
-    if (e.target.contentEditable) {
+    if (e.target.tabIndex != null) {
       wasFocused = true
     }
   })
   pan.addEventListener('focusout', (e) => {
-    if (e.target.contentEditable) {
+    if (e.target.tabIndex != null) {
       setTimeout(() => {
         wasFocused = false
       }, 100)
@@ -26,9 +26,9 @@ export function Graph({ onClick, onPointerUp, onPointerMove }) {
   pan.addEventListener(
     'click',
     (e) => {
-      if (e.target === pan && !wasFocused) {
+      if (e.target === pan) {
         const bbox = pan.getBoundingClientRect()
-        onClick(e.clientX - bbox.x, e.clientY - bbox.y)
+        onClick(e.clientX - bbox.x, e.clientY - bbox.y, wasFocused)
       }
     },
     { capture: true },
@@ -38,9 +38,10 @@ export function Graph({ onClick, onPointerUp, onPointerMove }) {
     onPointerMove(e.clientX, e.clientY)
   })
 
-  pan.addEventListener('pointerup', (e) => {
-    onPointerUp()
-  })
+  pan.addEventListener('pointerup', onPointerUp)
+  pan.addEventListener('pointerleave', onPointerUp)
+
+  document.addEventListener('keydown', onKeyDown)
 
   // Scale the SVG on window resize
   const onResize = () => {
@@ -71,6 +72,7 @@ export function Graph({ onClick, onPointerUp, onPointerMove }) {
     destroy: () => {
       container.remove()
       window.removeEventListener('resize', onResize)
+      document.removeEventListener('keydown', onKeyDown)
     },
   }
 }

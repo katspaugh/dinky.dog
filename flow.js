@@ -140,9 +140,17 @@ function createNode({ id, ...nodeProps }) {
 function initGraph() {
   let mouseEdge = null
 
+  const resetMouseEdge = () => {
+    if (mouseEdge) {
+      mouseEdge.destroy()
+      mouseEdge = null
+    }
+  }
+
   const graph = Graph({
-    onClick: (x, y) => {
+    onClick: (x, y, wasFocused) => {
       if (_isLocked()) return
+      if (wasFocused && !_currentOutput && !_currentInput) return
       _callbacks.onClick(x, y)
     },
 
@@ -151,10 +159,7 @@ function initGraph() {
 
       const currentStart = _currentInput || _currentOutput
       if (!currentStart) {
-        if (mouseEdge) {
-          mouseEdge.destroy()
-          mouseEdge = null
-        }
+        resetMouseEdge()
         return
       }
 
@@ -170,10 +175,16 @@ function initGraph() {
 
       mouseEdge.render({ fromEl: _currentOutput ? start : end, toEl: _currentOutput ? end : start })
     },
+
     onPointerUp: () => {
-      if (mouseEdge) {
-        mouseEdge.destroy()
-        mouseEdge = null
+      resetMouseEdge()
+    },
+
+    onKeyDown: (e) => {
+      if (e.key === 'Escape') {
+        resetMouseEdge()
+        _currentInput = null
+        _currentOutput = null
       }
     },
   })

@@ -2,6 +2,7 @@ import { sanitizeHtml } from '../utils/parse-text.js'
 
 export function EditableText({ onInput = null }) {
   const container = document.createElement('div')
+  container.tabIndex = 0
   Object.assign(container.style, {
     padding: '10px',
     overflow: 'auto',

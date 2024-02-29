@@ -81,6 +81,7 @@ export function Node(id) {
         if (e.target === output) {
           onOutputClick()
         } else if (inputs.includes(e.target)) {
+          e.target.focus()
           onInputClick(inputs.indexOf(e.target))
         }
         onClick()

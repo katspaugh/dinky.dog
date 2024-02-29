@@ -1,0 +1,272 @@
+:root {
+  --background-color: #fff;
+  --text-color: #000;
+  --link-color: #A52A2A;
+  --link-hover-color: #CD5C5C;
+  --hover-color: #aaf;
+  --active-color: #f00;
+  --point-color: #faa;
+  --panel-color: #eee;
+  --edge-color: #dfdfdf;
+  --edge-hover-color: #aaf;
+  --border-color: #aaa;
+  --textarea-color: #fff;
+  --text-dim-color: #aaa;
+  --text-module-color: #000;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background-color: #999;
+    --text-color: #fff;
+    --hover-color: #aaf;
+    --active-color: #f00;
+    --point-color: #faa;
+    --panel-color: #444;
+    --edge-color: #444;
+    --edge-hover-color: #aaf;
+    --border-color: #555;
+    --textarea-color: #444;
+    --text-dim-color: #aaa;
+    --text-module-color: #000;
+  }
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+  overflow: hidden;
+  overscroll-behavior: none;
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+a {
+  color: var(--link-color);
+}
+
+a:hover {
+  color: var(--link-hover-color);
+}
+
+#app {
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  flex-wrap: nowrap;
+}
+
+.module {
+  position: absolute;
+  z-index: 2;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+  transition: border 0.2s;
+  color: var(--text-module-color);
+}
+
+.module iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  max-width: 30vw;
+  max-height: 80vh;
+}
+
+.module.active,
+.module:hover {
+  border: 1px solid var(--hover-color);
+}
+
+.module button {
+  margin-left: -8px;
+  border: none;
+  background-color: var(--point-color);
+  transition: background-color 0.2s;
+}
+
+.module button:hover {
+  background-color: var(--hover-color);
+}
+
+.module button.active {
+  background-color: var(--active-color);
+}
+
+.module [contenteditable] {
+  width: 100%;
+  height: 100%;
+}
+
+.module input[type="color"] {
+  position: absolute;
+  z-index: 3;
+  top: 0;
+  right: 0;
+  width: 50px;
+  border: none;
+  transform: translateY(-120%);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.module:hover input[type="color"] {
+  opacity: 1;
+}
+
+.locked .module input[type="color"] {
+  display: none;
+}
+
+svg {
+  position: absolute;
+  z-index: 2;
+  pointer-events: none;
+}
+
+path {
+  fill: none;
+  stroke-width: 4px;
+  pointer-events: all;
+  cursor: pointer;
+  opacity: 0.9;
+  transition: stroke 0.2s;
+  stroke: var(--edge-color);
+}
+
+path:hover {
+  stroke: var(--edge-hover-color);
+}
+
+.drop {
+  flex: 1;
+  height: 100vh;
+  overflow: auto;
+}
+
+.pan {
+  position: relative;
+  width: 120vw;
+  height: 170vh;
+  background-size: 30px 30px;
+  background-image: radial-gradient(circle, var(--panel-color) 1px, transparent 1px);
+}
+
+.sidebar {
+  order: 1;
+  flex: 0 0 20vw;
+  min-width: 230px;
+  background-color: var(--panel-color);
+  padding: 0 2rem;
+  position: relative;
+  z-index: 3;
+  height: 100vh;
+  overflow-y: auto;
+  transition: .3s;
+}
+
+.sidebar.collapsed {
+  flex: 0;
+  min-width: 8px;
+  padding: 0;
+  overflow: hidden;
+}
+
+.sidebar .toggle-sidebar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 8px;
+  background-color: var(--border-color);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.sidebar h1 {
+  padding: 10px 0 0;
+  display: flex;
+  align-items: center;
+  margin: 0 -9px;
+  gap: 10px;
+  line-height: 29px;
+}
+
+.sidebar h1:before {
+  content: '';
+  display: block;
+  width: 100px;
+  height: 100px;
+  background: url('/dinky-small.png') no-repeat left center;
+  background-size: contain;
+  margin-top: -1px;
+}
+
+.sidebar [contenteditable] {
+  border: 1px solid var(--border-color);
+  background-color: var(--textarea-color);
+  height: 300px;
+  width: 100%;
+  margin: 20px -10px;
+  box-sizing: border-box;
+  border-radius: 4px;
+}
+
+.sidebar [contenteditable]:empty::before {
+  content: 'Notes';
+  color: var(--text-dim-color);
+}
+
+.locked [contenteditable] {
+  pointer-events: none;
+}
+
+.locked .sidebar [contenteditable] {
+  background-color: transparent;
+  border-color: transparent;
+}
+
+.sidebar h2 [contenteditable] {
+  height: auto;
+  background-color: transparent;
+  box-sizing: content-box;
+}
+
+.sidebar h2 [contenteditable]:empty::before {
+  content: 'Untitled flow';
+  color: var(--text-dim-color);
+}
+
+.sidebar h3 {
+  width: 100%;
+  overflow: auto;
+}
+
+.sidebar details {
+  margin-bottom: 100px;
+}
+
+.locked .sidebar details {
+  display: none;
+}
+
+.sidebar footer {
+  box-sizing: content-box;
+  position: sticky;
+  bottom: 0;
+  width: 100%;
+  left: 0;
+  padding: 20px;
+  margin: 0 -20px;
+  background-color: var(--panel-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}

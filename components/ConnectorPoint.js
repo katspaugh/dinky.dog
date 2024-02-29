@@ -1,5 +1,6 @@
 export function ConnectorPoint(left, top) {
   const container = document.createElement('button')
+  container.tabIndex = 0
 
   Object.assign(container.style, {
     borderRadius: '100%',
