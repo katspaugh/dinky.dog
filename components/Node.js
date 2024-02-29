@@ -6,10 +6,14 @@ import { Colorwheel } from './Colorwheel.js'
 export const WIDTH = 120
 export const HEIGHT = 60
 const DEFAULT_BACKGROUND = '#fafafa'
+const BG_THRESHOLD = 90e3
+const BG_Z_INDEX = 1
+const DEFAULT_Z_INDEX = 2
 
 export function Node(id) {
   const container = document.createElement('div')
   container.className = 'module'
+  container.style.zIndex = DEFAULT_Z_INDEX
 
   const setSize = (width, height) => {
     container.style.width = `${width}px`
@@ -56,9 +60,15 @@ export function Node(id) {
       onResizeEnd,
       onBackgroundChange,
     }) => {
+      const toggleZIndex = () => {
+        const isBackground = !!background && width * height >= BG_THRESHOLD
+        container.style.zIndex = isBackground ? BG_Z_INDEX : DEFAULT_Z_INDEX
+      }
+
       // Position & size
       setPosition(x, y)
       setSize(width, height)
+      toggleZIndex()
 
       // Render inputs
       for (let i = 0; i < inputsCount; i++) {
@@ -81,7 +91,6 @@ export function Node(id) {
         if (e.target === output) {
           onOutputClick()
         } else if (inputs.includes(e.target)) {
-          e.target.focus()
           onInputClick(inputs.indexOf(e.target))
         }
         onClick()
@@ -112,6 +121,7 @@ export function Node(id) {
             height = Math.max(HEIGHT, height + dy)
             setSize(width, height)
             onResize(width, height)
+            toggleZIndex()
           },
 
           onResizeEnd: () => {
@@ -129,8 +139,10 @@ export function Node(id) {
           colorwheel.render({
             color: background,
             onChange: (color) => {
+              background = color
               setBackground(color)
               onBackgroundChange(color)
+              toggleZIndex()
             },
           }),
         )
