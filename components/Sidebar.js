@@ -45,6 +45,14 @@ export function Sidebar({ title, setTitle, isLocked, setLocked }) {
   toggle.render({ checked: isLocked, onChange: setLocked })
   footer.appendChild(toggle.container)
 
+  const expandButton = document.createElement('button')
+  expandButton.className = 'toggle-sidebar'
+  div.appendChild(expandButton)
+
+  expandButton.onclick = () => {
+    div.classList.toggle('collapsed')
+  }
+
   return {
     container: div,
 

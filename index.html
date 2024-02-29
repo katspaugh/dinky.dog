@@ -113,9 +113,26 @@
         padding: 0 2rem;
         position: relative;
         z-index: 3;
-        padding-bottom: 100px;
         height: 100vh;
         overflow-y: auto;
+        transition: .3s;
+      }
+      .sidebar.collapsed {
+        flex: 0;
+        min-width: 8px;
+        padding: 0;
+        overflow: hidden;
+      }
+      .sidebar .toggle-sidebar {
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        width: 8px;
+        background-color: #ddd;
+        border: none;
+        padding: 0;
+        cursor: pointer;
       }
       .sidebar h1 {
         padding: 10px 0 0;
@@ -167,17 +184,21 @@
         width: 100%;
         overflow: auto;
       }
+      .sidebar details {
+        margin-bottom: 100px;
+      }
       .locked .sidebar details {
         display: none;
       }
       .sidebar footer {
-        background-color: #eee;
-        position: fixed;
+        box-sizing: content-box;
+        position: sticky;
         bottom: 0;
-        right: 0;
-        width: 20vw;
-        min-width: 230px;
+        width: 100%;
+        left: 0;
         padding: 20px;
+        margin: 0 -20px;
+        background-color: #eee;
         display: flex;
         justify-content: space-between;
         align-items: center;

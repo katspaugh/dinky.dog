@@ -4,6 +4,7 @@ export function ImagePreview() {
     width: '100%',
     height: '100%',
     overflow: 'hidden',
+    borderRadius: '4px',
   })
 
   const img = document.createElement('img')

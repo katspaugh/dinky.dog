@@ -9,22 +9,27 @@ export function Graph({ onClick, onPointerUp, onPointerMove }) {
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
   pan.appendChild(svg)
 
-  const onResize = () => {
-    const width = pan.clientWidth
-    const height = pan.clientHeight
-    svg.setAttribute('viewBox', `0 0 ${width} ${height}`)
-    svg.setAttribute('width', `${width}px`)
-    svg.setAttribute('height', `${height}px`)
-  }
-
-  window.addEventListener('resize', onResize)
+  let wasFocused = false
+  pan.addEventListener('focusin', (e) => {
+    if (e.target.contentEditable) {
+      wasFocused = true
+    }
+  })
+  pan.addEventListener('focusout', (e) => {
+    if (e.target.contentEditable) {
+      setTimeout(() => {
+        wasFocused = false
+      }, 100)
+    }
+  })
 
   pan.addEventListener(
     'click',
     (e) => {
-      if (e.target !== pan) return
-      const bbox = pan.getBoundingClientRect()
-      onClick(e.clientX - bbox.x, e.clientY - bbox.y)
+      if (e.target === pan && !wasFocused) {
+        const bbox = pan.getBoundingClientRect()
+        onClick(e.clientX - bbox.x, e.clientY - bbox.y)
+      }
     },
     { capture: true },
   )
@@ -36,6 +41,17 @@ export function Graph({ onClick, onPointerUp, onPointerMove }) {
   pan.addEventListener('pointerup', (e) => {
     onPointerUp()
   })
+
+  // Scale the SVG on window resize
+  const onResize = () => {
+    const width = pan.clientWidth
+    const height = pan.clientHeight
+    svg.setAttribute('viewBox', `0 0 ${width} ${height}`)
+    svg.setAttribute('width', `${width}px`)
+    svg.setAttribute('height', `${height}px`)
+  }
+
+  window.addEventListener('resize', onResize)
 
   return {
     container,
@@ -52,6 +68,9 @@ export function Graph({ onClick, onPointerUp, onPointerMove }) {
       return container
     },
 
-    destroy: () => container.remove(),
+    destroy: () => {
+      container.remove()
+      window.removeEventListener('resize', onResize)
+    },
   }
 }
