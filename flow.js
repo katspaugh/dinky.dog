@@ -9,6 +9,7 @@ const REMOVE_THRESHOLD_Y = -20
 let _graph = null
 let _nodes = {}
 let _edges = []
+let _currentNode = null
 let _currentInput = null
 let _currentOutput = null
 let _callbacks = {}
@@ -109,9 +110,15 @@ function createNode({ id, ...nodeProps }) {
       updateEdges(id)
     },
 
-    onClick: () => _callbacks.onSelect(id),
+    onClick: () => {
+      _currentNode = id
+      _callbacks.onSelect(id)
+    },
+
     onDragEnd: (x, y) => _callbacks.onUpdate(id, { x: Math.round(x), y: Math.round(y) }),
+
     onResizeEnd: (width, height) => _callbacks.onUpdate(id, { width, height }),
+
     onBackgroundChange: (background) => _callbacks.onUpdate(id, { background }),
   })
 
@@ -135,6 +142,8 @@ function createNode({ id, ...nodeProps }) {
     }
     onConnect()
   }
+
+  _currentNode = id
 }
 
 function initGraph() {
@@ -185,6 +194,11 @@ function initGraph() {
         resetMouseEdge()
         _currentInput = null
         _currentOutput = null
+
+        if (_currentNode) {
+          _callbacks.onEscape(_currentNode)
+          _currentNode = null
+        }
       }
     },
   })
@@ -229,6 +243,10 @@ export function initFlow(isLocked, callbacks) {
         connectNodes(edge.outputId, edge.inputId, edge.inputIndex)
       }
       return drop.container
+    },
+
+    remove: ({ node }) => {
+      onNodeRemove(node)
     },
   }
 }

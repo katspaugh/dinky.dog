@@ -183,11 +183,15 @@ path:hover {
   left: 0;
   top: 0;
   height: 100%;
-  width: 8px;
-  background-color: var(--border-color);
   border: none;
+  border-left: 8px solid var(--panel-color);
   padding: 0;
   cursor: pointer;
+  transition: border-left-color 0.2s;
+}
+
+.sidebar .toggle-sidebar:hover {
+  border-left-color: var(--border-color);
 }
 
 .sidebar h1 {

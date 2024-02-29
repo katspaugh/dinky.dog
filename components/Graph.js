@@ -10,18 +10,23 @@ export function Graph({ onClick, onPointerUp, onPointerMove, onKeyDown }) {
   pan.appendChild(svg)
 
   let wasFocused = false
-  pan.addEventListener('focusin', (e) => {
-    if (e.target.tabIndex != null) {
-      wasFocused = true
-    }
-  })
-  pan.addEventListener('focusout', (e) => {
-    if (e.target.tabIndex != null) {
-      setTimeout(() => {
-        wasFocused = false
-      }, 100)
-    }
-  })
+  {
+    let focusTimer = null
+    pan.addEventListener('focusin', (e) => {
+      if (e.target.tabIndex != null) {
+        if (focusTimer) clearTimeout(focusTimer)
+        wasFocused = true
+      }
+    })
+    pan.addEventListener('focusout', (e) => {
+      if (e.target.tabIndex != null) {
+        if (focusTimer) clearTimeout(focusTimer)
+        focusTimer = setTimeout(() => {
+          wasFocused = false
+        }, 100)
+      }
+    })
+  }
 
   pan.addEventListener(
     'click',

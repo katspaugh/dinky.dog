@@ -122,6 +122,15 @@ function onSelect(id) {
   })
 }
 
+function onEscape(id) {
+  const node = state.nodes[id]
+  if (!node) return
+
+  if (!node.operator.output.get()) {
+    _graph.remove({ node: id })
+  }
+}
+
 function onConnect(outputId, inputId, inputIndex) {
   const output = state.nodes[outputId].operator.output
   const input = state.nodes[inputId].operator.inputs[inputIndex]
@@ -187,6 +196,7 @@ function init(appContainer, initialState) {
     onConnect,
     onDisconnect,
     onUpdate,
+    onEscape,
   })
 
   appContainer.appendChild(graph.container)
