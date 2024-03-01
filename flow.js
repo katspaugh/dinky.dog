@@ -3,9 +3,6 @@ import { DropContainer } from './components/DropContainer.js'
 import { Node, WIDTH, HEIGHT } from './components/Node.js'
 import { Edge } from './components/Edge.js'
 
-const REMOVE_THRESHOLD_X = -70
-const REMOVE_THRESHOLD_Y = -20
-
 let _graph = null
 let _nodes = {}
 let _edges = []
@@ -13,7 +10,6 @@ let _currentNode = null
 let _currentInput = null
 let _currentOutput = null
 let _callbacks = {}
-let _isLocked = () => false
 
 function connectNodes(outputId, inputId, inputIndex) {
   const edge = Edge()
@@ -30,25 +26,17 @@ function connectNodes(outputId, inputId, inputIndex) {
   const edgeContainer = edge.render({
     fromEl: _nodes[outputId].output,
     toEl: _nodes[inputId].inputs[inputIndex],
-    onClick: () => {
-      if (_isLocked()) return
-      onEdgeRemove(edgeItem)
-      _callbacks.onDisconnect(outputId, inputId, inputIndex)
-    },
+    onClick: () => _callbacks.onDisconnect(outputId, inputId, inputIndex),
   })
 
   _graph.render({ edge: edgeContainer })
 }
 
 function onNodeConnect(outputId, inputId, inputIndex) {
-  if (_isLocked()) return
-  connectNodes(outputId, inputId, inputIndex)
   _callbacks.onConnect(outputId, inputId, inputIndex)
 }
 
 function onNodeRemove(id) {
-  if (_isLocked()) return
-
   const node = _nodes[id]
   if (!node) return
 
@@ -77,7 +65,7 @@ function updateEdges(id) {
   })
 }
 
-function createNode({ id, ...nodeProps }) {
+function renderNode({ id, ...nodeProps }) {
   if (_nodes[id]) {
     _nodes[id].render(nodeProps)
     return
@@ -89,9 +77,7 @@ function createNode({ id, ...nodeProps }) {
     _currentInput = null
   }
 
-  const node = Node({
-    isLocked: _isLocked,
-
+  const node = Node(id, {
     onInputClick: (index) => {
       _currentInput = { id, index }
       if (_currentOutput) {
@@ -106,51 +92,44 @@ function createNode({ id, ...nodeProps }) {
       }
     },
 
-    onDrag: (x, y) => {
-      updateEdges(id)
-
-      if (x < REMOVE_THRESHOLD_X || y < REMOVE_THRESHOLD_Y) {
-        onNodeRemove(id)
-      }
+    onDrag: (dx, dy) => {
+      _callbacks.onDrag(id, dx, dy)
     },
 
-    onResize: () => {
-      updateEdges(id)
+    onResize: (dx, dy) => {
+      _callbacks.onResize(id, dx, dy)
+    },
+
+    onBackgroundChange: (background) => {
+      _callbacks.onBackgroundChange(id, background)
     },
 
     onClick: () => {
       _currentNode = id
       _callbacks.onSelect(id)
     },
-
-    onDragEnd: (x, y) => _callbacks.onUpdate(id, { x: Math.round(x), y: Math.round(y) }),
-
-    onResizeEnd: (width, height) => _callbacks.onUpdate(id, { width, height }),
-
-    onBackgroundChange: (background) => _callbacks.onUpdate(id, { background }),
   })
 
   const container = node.render(nodeProps)
-
   _nodes[id] = node
-
   _graph.render({ node: container })
+  _currentNode = id
 
   // Immediately connect to the current input/output
-  if (_currentOutput) {
-    _currentInput = {
-      id,
-      index: 0,
+  Promise.resolve().then(() => {
+    if (_currentOutput) {
+      _currentInput = {
+        id,
+        index: 0,
+      }
+      onConnect()
+    } else if (_currentInput) {
+      _currentOutput = {
+        id,
+      }
+      onConnect()
     }
-    onConnect()
-  } else if (_currentInput) {
-    _currentOutput = {
-      id,
-    }
-    onConnect()
-  }
-
-  _currentNode = id
+  })
 }
 
 function initGraph() {
@@ -165,14 +144,11 @@ function initGraph() {
 
   const graph = Graph({
     onClick: (x, y, wasFocused) => {
-      if (_isLocked()) return
       if (wasFocused && !_currentOutput && !_currentInput) return
       _callbacks.onClick(x, y)
     },
 
     onPointerMove: (x, y) => {
-      if (_isLocked()) return
-
       const currentStart = _currentInput || _currentOutput
       if (!currentStart) {
         resetMouseEdge()
@@ -228,9 +204,8 @@ function initDropcontainer() {
   return drop.render()
 }
 
-export function initFlow(isLocked, callbacks) {
+export function initFlow(callbacks) {
   _callbacks = callbacks
-  _isLocked = isLocked
 
   _graph = initGraph()
 
@@ -242,7 +217,8 @@ export function initFlow(isLocked, callbacks) {
 
     render: ({ node, edge }) => {
       if (node) {
-        createNode(node)
+        renderNode(node)
+        updateEdges(node.id)
       }
       if (edge) {
         connectNodes(edge.outputId, edge.inputId, edge.inputIndex)
@@ -253,6 +229,7 @@ export function initFlow(isLocked, callbacks) {
     remove: ({ node, edge }) => {
       if (node) {
         onNodeRemove(node)
+        updateEdges(node.id)
       }
 
       if (edge) {

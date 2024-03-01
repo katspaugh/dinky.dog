@@ -26,9 +26,9 @@ export async function loadState() {
   return decompressStringToObject(hash)
 }
 
-export async function getShortUrl() {
+export async function getShortHash() {
   const hash = getHash()
   if (!hash) return
   const newHash = await saveFullHash(hash)
-  return `${window.location.origin}#${newHash}`
+  return newHash
 }

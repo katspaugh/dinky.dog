@@ -7,48 +7,13 @@ export const WIDTH = 120
 export const HEIGHT = 60
 const DEFAULT_BACKGROUND = '#fafafa'
 const BG_THRESHOLD = 90e3
-const BG_Z_INDEX = 1
-const DEFAULT_Z_INDEX = 2
+const BG_Z_INDEX = '1'
+const DEFAULT_Z_INDEX = '2'
 
-export function Node({
-  isLocked,
-  onClick,
-  onInputClick,
-  onOutputClick,
-  onDrag,
-  onDragEnd,
-  onResize,
-  onResizeEnd,
-  onBackgroundChange,
-}) {
-  let x = 0
-  let y = 0
-  let width = WIDTH
-  let height = HEIGHT
-  let background = DEFAULT_BACKGROUND
-
+export function Node(id, { onClick, onInputClick, onOutputClick, onDrag, onResize, onBackgroundChange }) {
   const container = document.createElement('div')
-  container.className = 'module'
-  container.style.zIndex = DEFAULT_Z_INDEX
-
-  const setSize = (width, height) => {
-    container.style.width = `${width}px`
-    container.style.height = `${height}px`
-  }
-
-  const setPosition = (x, y) => {
-    container.style.left = `${x}px`
-    container.style.top = `${y}px`
-  }
-
-  const setBackground = (color) => {
-    container.style.backgroundColor = color
-  }
-
-  const setZIndex = () => {
-    const isBackground = !!background && width * height >= BG_THRESHOLD
-    container.style.zIndex = isBackground ? BG_Z_INDEX : DEFAULT_Z_INDEX
-  }
+  container.id = `node-${id}`
+  container.className = 'node'
 
   const output = ConnectorPoint('100%', '50%').render()
   container.appendChild(output)
@@ -69,53 +34,14 @@ export function Node({
   }
 
   // Drag
-  if (onDrag && onDragEnd) {
-    makeDraggable(
-      container,
-      (dx, dy) => {
-        if (isLocked()) return
-        x += dx
-        y += dy
-        setPosition(x, y)
-        onDrag(Math.round(x), Math.round(y))
-      },
-      undefined,
-      () => onDragEnd(x, y),
-    )
+  if (onDrag) {
+    makeDraggable(container, onDrag)
   }
 
   // Resize
-  if (onResize && onResizeEnd) {
-    const resizeHandle = ResizeHandle({
-      onResize: (dx, dy) => {
-        if (isLocked()) return
-        width = Math.max(WIDTH, width + dx)
-        height = Math.max(HEIGHT, height + dy)
-        setSize(width, height)
-        onResize(width, height)
-        setZIndex()
-      },
-
-      onResizeEnd: () => {
-        onResizeEnd(Math.round(width), Math.round(height))
-      },
-    })
+  if (onResize) {
+    const resizeHandle = ResizeHandle({ onResize })
     container.appendChild(resizeHandle.render())
-  }
-
-  // Background color
-  if (onBackgroundChange) {
-    container.appendChild(
-      colorwheel.render({
-        color: background,
-        onChange: (color) => {
-          background = color
-          setBackground(color)
-          onBackgroundChange(color)
-          setZIndex()
-        },
-      }),
-    )
   }
 
   return {
@@ -125,33 +51,51 @@ export function Node({
 
     output,
 
-    render: (props) => {
-      x = props.x || x
-      y = props.y || y
-      width = props.width || width
-      height = props.height || height
-      background = props.background || background
+    render: ({
+      x,
+      y,
+      width = WIDTH,
+      height = HEIGHT,
+      background = DEFAULT_BACKGROUND,
+      inputsCount = 0,
+      children = null,
+    }) => {
+      const isBackground = !!background && width * height >= BG_THRESHOLD
 
-      // Position & size
-      setPosition(x, y)
-      setSize(width, height)
-      setBackground(background)
-      setZIndex()
+      Object.assign(container.style, {
+        left: `${x}px`,
+        top: `${y}px`,
+        width: `${width}px`,
+        height: `${height}px`,
+        backgroundColor: background,
+        zIndex: isBackground ? BG_Z_INDEX : DEFAULT_Z_INDEX,
+      })
 
       // Render inputs
-      inputs.forEach((input) => input.remove())
-      inputs.length = 0
-      for (let i = 0; i < props.inputsCount; i++) {
-        const button = ConnectorPoint('0', `${((i + 1) / (props.inputsCount + 1)) * 100}%`).render()
-        container.appendChild(button)
-        inputs.push(button)
+      if (inputsCount && inputs.length !== inputsCount) {
+        inputs.forEach((input) => input.remove())
+        inputs.length = 0
+        for (let i = 0; i < inputsCount; i++) {
+          const button = ConnectorPoint('0', `${((i + 1) / (inputsCount + 1)) * 100}%`).render()
+          container.appendChild(button)
+          inputs.push(button)
+        }
       }
 
       // Children
-      if (props.children) {
-        const children = Array.isArray(props.children) ? props.children : [props.children]
-        children.forEach((el) => container.appendChild(el))
+      if (children) {
+        container.appendChild(children)
       }
+
+      // Background color
+      container.appendChild(
+        colorwheel.render({
+          color: background,
+          onChange: (color) => {
+            onBackgroundChange(color)
+          },
+        }),
+      )
 
       return container
     },

@@ -2,13 +2,14 @@ import { Sidebar } from './components/Sidebar.js'
 import { initFlow } from './flow.js'
 import { HEIGHT } from './components/Node.js'
 import * as Operators from './operators/index.js'
-import { parseUrl } from '../utils/parse-text.js'
+import { parseUrl } from './utils/parse-text.js'
 import { saveState, loadState } from './persist.js'
-import { debounce } from '../utils/debounce.js'
-import { initDurableStream } from './services/durable-stream.js'
+import { debounce } from './utils/debounce.js'
+import { initP2P } from './services/p2p.js'
 
-const clientId = Math.random()
 const PERSIST_DELAY = 300
+const REMOVE_THRESHOLD_X = -70
+const REMOVE_THRESHOLD_Y = -30
 
 let state = {
   id: '',
@@ -18,8 +19,7 @@ let state = {
 }
 let _sidebar = null
 let _graph = null
-let _streamClient = null
-let _lockPublishing = false
+let _p2p = null
 
 const persist = debounce(() => {
   const nodes = Object.entries(state.nodes).reduce((acc, [id, node]) => {
@@ -37,12 +37,14 @@ const persist = debounce(() => {
 
   const serializedState = { ...state, nodes }
 
-  if (_streamClient && !_lockPublishing) {
-    _streamClient.publish({ state: serializedState, clientId })
-  }
-
   saveState(serializedState)
 }, PERSIST_DELAY)
+
+function broadcast(command, ...args) {
+  if (!_p2p) return
+  const data = { command, args }
+  _p2p.broadcast(new TextEncoder().encode(JSON.stringify(data)))
+}
 
 function randomId() {
   return Math.random().toString(32).slice(2)
@@ -80,7 +82,39 @@ function createNode(id, props, data) {
   }
 }
 
+function removeNode(id) {
+  _graph.remove({ node: id })
+}
+
+function updateNode(id, props) {
+  const node = state.nodes[id]
+  if (!node) return
+  Object.assign(node.props, props)
+  _graph.render({ node: { id, ...node.props } })
+}
+
+function updateNodeData(id, data) {
+  const node = state.nodes[id]
+  if (!node) return
+  const operatorType = data.operatorType || node.data.operatorType || Operators.Text.name
+  const operator = Operators[operatorType](data.operatorData)
+  node.operator.destroy()
+  node.operator = operator
+  _graph.render({ node: { ...node.props, id, children: node.operator.render() } })
+}
+
 function connectNodes(outputId, inputId, inputIndex) {
+  // Already connected
+  if (state.nodes[outputId].connections.some((conn) => conn.inputId === inputId && conn.inputIndex === inputIndex)) {
+    return
+  }
+
+  const output = state.nodes[outputId].operator.output
+  const input = state.nodes[inputId].operator.inputs[inputIndex]
+  output.connect(input)
+
+  state.nodes[outputId].connections.push({ inputId, inputIndex })
+
   _graph.render({
     edge: {
       outputId,
@@ -88,20 +122,41 @@ function connectNodes(outputId, inputId, inputIndex) {
       inputIndex,
     },
   })
+}
 
-  connectInputOutput(outputId, inputId, inputIndex)
+function disconnectNodes(outputId, inputId, inputIndex) {
+  const output = state.nodes[outputId].operator.output
+  const input = state.nodes[inputId].operator.inputs[inputIndex]
+  output.disconnect(input)
+
+  state.nodes[outputId].connections = state.nodes[outputId].connections.filter(
+    (c) => c.inputId !== inputId && c.inputIndex !== inputIndex,
+  )
+
+  _graph.remove({
+    edge: {
+      outputId,
+      inputId,
+      inputIndex,
+    },
+  })
+}
+
+function onCreateNode(id, props, data) {
+  createNode(id, props, data)
+  persist()
+  broadcast('cmdCreateNode', id, props, data)
 }
 
 function onClick(x, y) {
+  if (state.isLocked) return
   const id = randomId()
-  createNode(id, { x, y }, { operatorType: Operators.Text.name })
-  persist()
+  onCreateNode(id, { x, y }, { operatorType: Operators.Text.name })
 }
 
 function onDrop({ x, y, fileType, data }) {
   const id = randomId() + fileType
-  createNode(id, { x, y }, { operatorType: Operators.Image.name, operatorData: data })
-  persist()
+  onCreateNode(id, { x, y }, { operatorType: Operators.Image.name, operatorData: data })
 }
 
 function onTextInput(id, value) {
@@ -116,16 +171,14 @@ function onTextInput(id, value) {
   }
 
   persist()
+  broadcast('cmdUpdateNodeData', id, { operatorData: value })
 }
 
 function onRemove(id) {
   if (state.isLocked) return
   delete state.nodes[id]
   persist()
-}
-
-function removeNode(id) {
-  _graph.remove({ node: id })
+  broadcast('cmdRemoveNode', id)
 }
 
 function onSelect(id) {
@@ -148,51 +201,52 @@ function onEscape(id) {
 
   if (!node.operator.output.get()) {
     removeNode(id)
+    broadcast('cmdRemoveNode', id)
   }
-}
-
-function connectInputOutput(outputId, inputId, inputIndex) {
-  // Already connected
-  if (state.nodes[outputId].connections.some((conn) => conn.inputId === inputId && conn.inputIndex === inputIndex)) {
-    return
-  }
-
-  const output = state.nodes[outputId].operator.output
-  const input = state.nodes[inputId].operator.inputs[inputIndex]
-  output.connect(input)
-
-  state.nodes[outputId].connections.push({ inputId, inputIndex })
-}
-
-function disconnectInputOutput(outputId, inputId, inputIndex) {
-  const output = state.nodes[outputId].operator.output
-  const input = state.nodes[inputId].operator.inputs[inputIndex]
-  output.disconnect(input)
-
-  state.nodes[outputId].connections = state.nodes[outputId].connections.filter(
-    (c) => c.inputId !== inputId && c.inputIndex !== inputIndex,
-  )
-}
-
-function removeConnection(outputId, inputId, inputIndex) {
-  disconnectInputOutput(outputId, inputId, inputIndex)
-  _graph.remove({ edge: { outputId, inputId, inputIndex } })
 }
 
 function onConnect(outputId, inputId, inputIndex) {
-  connectInputOutput(outputId, inputId, inputIndex)
+  connectNodes(outputId, inputId, inputIndex)
   persist()
+  broadcast('cmdConnect', outputId, inputId, inputIndex)
 }
 
 function onDisconnect(outputId, inputId, inputIndex) {
-  disconnectInputOutput(outputId, inputId, inputIndex)
+  disconnectNodes(outputId, inputId, inputIndex)
   persist()
+  broadcast('cmdDisconnect', outputId, inputId, inputIndex)
 }
 
-function onUpdate(id, nodeProps) {
+function onNodeUpate(id, props) {
+  if (state.isLocked) return
   if (!state.nodes[id]) return
-  Object.assign(state.nodes[id].props, nodeProps)
+  updateNode(id, props)
   persist()
+  broadcast('cmdUpdateNode', id, state.nodes[id].props)
+}
+
+function onDrag(id, dx, dy) {
+  if (!state.nodes[id]) return
+  const { props } = state.nodes[id]
+  const x = Math.round(props.x + dx)
+  const y = Math.round(props.y + dy)
+  onNodeUpate(id, { x, y })
+
+  if (x < REMOVE_THRESHOLD_X || y < REMOVE_THRESHOLD_Y) {
+    removeNode(id)
+  }
+}
+
+function onResize(id, dx, dy) {
+  const { props } = state.nodes[id]
+  onNodeUpate(id, {
+    width: Math.round(props.width + dx),
+    height: Math.round(props.height + dy),
+  })
+}
+
+function onBackgroundChange(id, background) {
+  onNodeUpate(id, { background })
 }
 
 function initSidebar(onLockChange) {
@@ -219,15 +273,7 @@ function initSidebar(onLockChange) {
   return sidebar
 }
 
-let _lockTimeout = null
 function initState(newState) {
-  _lockPublishing = true
-
-  if (_lockTimeout) clearTimeout(_lockTimeout)
-  _lockTimeout = setTimeout(() => {
-    _lockPublishing = false
-  }, PERSIST_DELAY + 100)
-
   // Update state properties
   state.id = newState.id || randomId()
   state.title = newState.title
@@ -244,11 +290,6 @@ function initState(newState) {
       })
 
       Object.entries(newState.nodes).forEach(([id, item]) => {
-        if (state.nodes[id]) {
-          state.nodes[id].operator.destroy()
-          state.nodes[id].connections.forEach(({ inputId, inputIndex }) => removeConnection(id, inputId, inputIndex))
-        }
-
         createNode(id, item.props, item.data)
 
         if (item.connections) {
@@ -259,8 +300,15 @@ function initState(newState) {
       })
     })
   }
+}
 
-  persist()
+const commands = {
+  cmdCreateNode: createNode,
+  cmdRemoveNode: removeNode,
+  cmdConnect: connectNodes,
+  cmdDisconnect: disconnectNodes,
+  cmdUpdateNode: updateNode,
+  cmdUpdateNodeData: updateNodeData,
 }
 
 function init(appContainer, loadedState) {
@@ -270,14 +318,16 @@ function init(appContainer, loadedState) {
     appContainer.className = state.isLocked ? 'locked' : ''
   })
 
-  const graph = initFlow(() => state.isLocked, {
+  const graph = initFlow({
     onClick,
     onDrop,
     onRemove,
     onSelect,
     onConnect,
     onDisconnect,
-    onUpdate,
+    onDrag,
+    onResize,
+    onBackgroundChange,
     onEscape,
   })
 
@@ -285,28 +335,22 @@ function init(appContainer, loadedState) {
   appContainer.appendChild(sidebar.container)
   document.body.appendChild(appContainer)
 
+  const clientId = localStorage.getItem('dinky_clientId') || randomId()
+  localStorage.setItem('dinky_clientId', clientId)
+
+  const p2p = initP2P(clientId, state.id)
+
+  p2p.on('msg', (peer, data) => {
+    const { command, args } = JSON.parse(new TextDecoder('utf-8').decode(data))
+    console.log('Msg', { peer, command, args })
+    if (commands[command]) {
+      commands[command](...args)
+    }
+  })
+
   _sidebar = sidebar
   _graph = graph
-
-  // Init durable stream
-  initDurableStream(state.id)
-    .then((client) => {
-      _streamClient = client
-      return client.info()
-    })
-    .then((info) => {
-      _streamClient.subscribe(info.sequence, (msg, ack) => {
-        ack()
-
-        if (msg.data.clientId !== clientId) {
-          console.log('Received state', msg)
-          initState(msg.data.state)
-        }
-      })
-    })
-    .catch((err) => {
-      console.error('Failed to init a Durable Stream', err)
-    })
+  _p2p = p2p
 }
 
 const DEMO = {
