@@ -1,7 +1,10 @@
 import DurableStreamClient from 'https://esm.sh/durable-stream-client'
+import * as storage from './local-storage.js'
 
 const API_URL = 'durable_stream.katspaugh.workers.dev'
 const DEV_API_URL = 'localhost:8787'
+
+const CLIENT_ID_KEY = 'stream-clientId'
 
 function getBrowserName() {
   const browsers = ['Chrome', 'Firefox', 'Safari', 'Brave', 'Opera', 'Edge']
@@ -21,13 +24,12 @@ function randomEmoji() {
 }
 
 function randomId() {
-  return Math.random().toString(36).slice(2, 9)
+  return Math.random().toString(36).slice(2)
 }
 
 export function getClientId() {
-  const clientId =
-    localStorage.getItem('dinky_stream-clientId') || [getBrowserName(), randomEmoji(), randomId()].join('-')
-  localStorage.setItem('dinky_stream-clientId', clientId)
+  const clientId = storage.getItem(CLIENT_ID_KEY) || [getBrowserName(), randomEmoji(), randomId()].join('-')
+  storage.setItem(CLIENT_ID_KEY, clientId)
   return clientId
 }
 

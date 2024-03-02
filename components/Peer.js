@@ -29,7 +29,7 @@ export function Peer({ id, onExpire }) {
     transition: 'background-color 0.3s',
   })
   container.innerText = emoji
-  container.title = browser
+  container.title = `Viewed by another peer in ${browser}`
 
   peerCount++
 

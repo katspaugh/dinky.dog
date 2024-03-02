@@ -29,12 +29,12 @@ export function Sidebar({ title, setTitle, isLocked, setLocked }) {
   const footer = document.createElement('footer')
   div.appendChild(footer)
 
-  const shareLink = ShareLink('🔗 Share link')
-  footer.appendChild(shareLink.render())
-
   const toggle = Toggle('Lock 🔒')
   toggle.render({ checked: isLocked, onChange: setLocked })
   footer.appendChild(toggle.container)
+
+  const shareLink = ShareLink('🔗 Share link')
+  footer.appendChild(shareLink.render())
 
   const expandButton = document.createElement('button')
   expandButton.className = 'toggle-sidebar'

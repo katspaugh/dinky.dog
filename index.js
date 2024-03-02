@@ -1,10 +1,11 @@
 import { Sidebar } from './components/Sidebar.js'
 import { Peer } from './components/Peer.js'
+import { MyCharts } from './components/MyCharts.js'
 import { initFlow } from './flow.js'
 import { HEIGHT } from './components/Node.js'
 import * as Operators from './operators/index.js'
 import { parseUrl } from './utils/parse-text.js'
-import { saveState, loadState } from './persist.js'
+import { saveState, loadState, getSavedStates } from './persist.js'
 import { debounce } from './utils/debounce.js'
 import { initDurableStream, getClientId } from './services/durable-stream.js'
 
@@ -52,7 +53,7 @@ const broadcast = debounce((command, ...args) => {
 }, BROADCAST_DELAY)
 
 function randomId() {
-  return Math.random().toString(32).slice(2)
+  return Math.random().toString(36).slice(2)
 }
 
 function createNode(id, props, data) {
@@ -268,8 +269,8 @@ function initSidebar(onLockChange) {
 
     setLocked: (isLocked) => {
       state.isLocked = isLocked
-      onLockChange()
       persist()
+      onLockChange()
     },
   })
 
@@ -344,10 +345,19 @@ const commands = {
 }
 
 async function initStreamClient() {
-  _streamClient = await initDurableStream(state.id)
+  const streamId = state.id
+
+  try {
+    _streamClient = await initDurableStream(streamId)
+  } catch (err) {
+    console.error('Failed to init stream client', err)
+    return
+  }
 
   _streamClient.subscribe(state.lastSequence, (msg, ack) => {
     ack()
+
+    if (state.id !== streamId) return
 
     state.lastSequence = msg.sequence
 
@@ -372,6 +382,14 @@ async function initStreamClient() {
   window.addEventListener('beforeunload', () => {
     broadcast('cmdPeerDisconnect')
   })
+}
+
+function initMyCharts() {
+  const savedStates = getSavedStates()
+  if (savedStates.length) {
+    const container = MyCharts().render({ charts: savedStates })
+    _sidebar.container.appendChild(container)
+  }
 }
 
 function init(appContainer, loadedState) {
@@ -401,9 +419,8 @@ function init(appContainer, loadedState) {
   _sidebar = sidebar
   _graph = graph
 
-  initStreamClient().catch((err) => {
-    console.error('Failed to init stream client', err)
-  })
+  initMyCharts()
+  initStreamClient()
 }
 
 const DEMO = {

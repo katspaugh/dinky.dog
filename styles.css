@@ -209,7 +209,7 @@ path:hover {
   flex: 0 0 20vw;
   min-width: 230px;
   background-color: var(--panel-color);
-  padding: 0 2rem;
+  padding: 0 20px;
   z-index: 3;
   height: 100vh;
   overflow-y: auto;
@@ -300,7 +300,20 @@ path:hover {
 }
 
 .sidebar details {
-  margin-bottom: 100px;
+  margin: 30px 0;
+  transition: .3s;
+}
+
+.sidebar details summary {
+  user-select: none;
+}
+
+.sidebar details li {
+  margin-bottom: 10px;
+}
+
+.sidebar details a {
+  color: inherit;
 }
 
 .locked .sidebar details {

@@ -27,11 +27,13 @@ export function MetaPreview() {
       container.appendChild(titleEl)
 
       if (image) {
-        const img = new Image()
-        img.src = image
-        img.style.width = '100%'
-        img.alt = description || title
-        container.appendChild(img)
+        const iframe = document.createElement('iframe')
+        iframe.style.width = '100%'
+        iframe.setAttribute('sandbox', '')
+        iframe.src =
+          'data:text/html,' +
+          encodeURIComponent(`<style>* { margin: 0; }</style><img src="${image}" style="width: 100%; height: auto;">`)
+        container.appendChild(iframe)
       }
 
       return container
