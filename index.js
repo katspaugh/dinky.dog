@@ -359,9 +359,14 @@ function init(appContainer, loadedState) {
         commands[command](...args)
       }
 
-      if (peers[peer.client_id]) {
-        peers[peer.client_id].render()
+      if (command === 'cmdPointerMove' && peers[peer.client_id]) {
+        peers[peer.client_id].render({ pointerX: args[0], pointerY: args[1] })
       }
+    })
+
+    appContainer.addEventListener('pointermove', (e) => {
+      const { clientX, clientY } = e
+      broadcast('cmdPointerMove', clientX, clientY)
     })
 
     _p2p = p2p
