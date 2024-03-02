@@ -1,4 +1,5 @@
 import { Sidebar } from './components/Sidebar.js'
+import { Peer } from './components/Peer.js'
 import { initFlow } from './flow.js'
 import { HEIGHT } from './components/Node.js'
 import * as Operators from './operators/index.js'
@@ -335,22 +336,39 @@ function init(appContainer, loadedState) {
   appContainer.appendChild(sidebar.container)
   document.body.appendChild(appContainer)
 
-  const clientId = localStorage.getItem('dinky_clientId') || randomId()
-  localStorage.setItem('dinky_clientId', clientId)
+  {
+    const p2p = initP2P(state.id)
+    let peers = {}
 
-  const p2p = initP2P(clientId, state.id)
+    p2p.on('peerconnect', ({ client_id }) => {
+      const peer = (peers[client_id] = Peer(client_id))
+      appContainer.appendChild(peer.render())
+    })
 
-  p2p.on('msg', (peer, data) => {
-    const { command, args } = JSON.parse(new TextDecoder('utf-8').decode(data))
-    console.log('Msg', { peer, command, args })
-    if (commands[command]) {
-      commands[command](...args)
-    }
-  })
+    p2p.on('peerclose', ({ client_id }) => {
+      if (peers[client_id]) {
+        peers[client_id].destroy()
+        delete peers[client_id]
+      }
+    })
+
+    p2p.on('msg', (peer, data) => {
+      const { command, args } = JSON.parse(new TextDecoder('utf-8').decode(data))
+      console.log('Msg', { peer, command, args })
+      if (commands[command]) {
+        commands[command](...args)
+      }
+
+      if (peers[peer.client_id]) {
+        peers[peer.client_id].render()
+      }
+    })
+
+    _p2p = p2p
+  }
 
   _sidebar = sidebar
   _graph = graph
-  _p2p = p2p
 }
 
 const DEMO = {
