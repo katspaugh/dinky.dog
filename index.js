@@ -6,21 +6,25 @@ import * as Operators from './operators/index.js'
 import { parseUrl } from './utils/parse-text.js'
 import { saveState, loadState } from './persist.js'
 import { debounce } from './utils/debounce.js'
-import { initP2P } from './services/p2p.js'
+import { initDurableStream, getClientId } from './services/durable-stream.js'
 
 const PERSIST_DELAY = 300
+const BROADCAST_DELAY = 300
 const REMOVE_THRESHOLD_X = -70
 const REMOVE_THRESHOLD_Y = -30
 
+const clientId = getClientId()
 let state = {
   id: '',
+  lastSequence: 0,
   isLocked: false,
   title: '',
   nodes: {},
 }
+const _peers = {}
 let _sidebar = null
 let _graph = null
-let _p2p = null
+let _streamClient = null
 
 const persist = debounce(() => {
   const nodes = Object.entries(state.nodes).reduce((acc, [id, node]) => {
@@ -41,11 +45,11 @@ const persist = debounce(() => {
   saveState(serializedState)
 }, PERSIST_DELAY)
 
-function broadcast(command, ...args) {
-  if (!_p2p) return
-  const data = { command, args }
-  _p2p.broadcast(new TextEncoder().encode(JSON.stringify(data)))
-}
+const broadcast = debounce((command, ...args) => {
+  if (_streamClient) {
+    _streamClient.publish({ command, args, clientId })
+  }
+}, BROADCAST_DELAY)
 
 function randomId() {
   return Math.random().toString(32).slice(2)
@@ -279,6 +283,7 @@ function initState(newState) {
   state.id = newState.id || randomId()
   state.title = newState.title
   state.isLocked = newState.isLocked
+  state.lastSequence = newState.lastSequence || 0
 
   // Re-create nodes and connections
   if (newState.nodes) {
@@ -301,6 +306,31 @@ function initState(newState) {
       })
     })
   }
+
+  console.log('State', state)
+}
+
+function onPeerMessage(peerId) {
+  if (!_peers[peerId]) {
+    const peer = Peer({
+      id: peerId,
+      onExpire: () => {
+        delete _peers[peerId]
+        peer.destroy()
+      },
+    })
+    _sidebar.container.appendChild(peer.render())
+    _peers[peerId] = peer
+  } else {
+    _peers[peerId].render()
+  }
+}
+
+function peerDisonnect(peerId) {
+  if (_peers[peerId]) {
+    _peers[peerId].destroy()
+    delete _peers[peerId]
+  }
 }
 
 const commands = {
@@ -310,6 +340,38 @@ const commands = {
   cmdDisconnect: disconnectNodes,
   cmdUpdateNode: updateNode,
   cmdUpdateNodeData: updateNodeData,
+  cmdPeerDisconnect: peerDisonnect,
+}
+
+async function initStreamClient() {
+  _streamClient = await initDurableStream(state.id)
+
+  _streamClient.subscribe(state.lastSequence, (msg, ack) => {
+    ack()
+
+    state.lastSequence = msg.sequence
+
+    if (msg.data.clientId !== clientId) {
+      console.log('Received msg', msg)
+
+      const { command, args } = msg.data
+      if (commands[command]) {
+        commands[command](...args)
+      }
+
+      onPeerMessage(msg.data.clientId)
+
+      persist()
+    }
+  })
+
+  // Send an initial message to announce our presence
+  broadcast('cmdHello')
+
+  // Send a message when the user closes the tab
+  window.addEventListener('beforeunload', () => {
+    broadcast('cmdPeerDisconnect')
+  })
 }
 
 function init(appContainer, loadedState) {
@@ -336,46 +398,12 @@ function init(appContainer, loadedState) {
   appContainer.appendChild(sidebar.container)
   document.body.appendChild(appContainer)
 
-  {
-    const p2p = initP2P(state.id)
-    let peers = {}
-
-    p2p.on('peerconnect', ({ client_id }) => {
-      const peer = (peers[client_id] = Peer(client_id))
-      appContainer.appendChild(peer.render())
-    })
-
-    p2p.on('peerclose', ({ client_id }) => {
-      if (peers[client_id]) {
-        peers[client_id].destroy()
-        delete peers[client_id]
-      }
-    })
-
-    p2p.on('msg', (peer, data) => {
-      const { command, args } = JSON.parse(new TextDecoder('utf-8').decode(data))
-      console.log('Msg', { peer, command, args })
-      if (commands[command]) {
-        commands[command](...args)
-      }
-
-      if (command === 'cmdPointerMove' && peers[peer.client_id]) {
-        peers[peer.client_id].render({ pointerX: args[0], pointerY: args[1] })
-      }
-    })
-
-    appContainer.addEventListener('pointermove', (e) => {
-      const { clientX, clientY } = e
-      broadcast('cmdPointerMove', clientX, clientY)
-    })
-
-    broadcast('cmdPointerMove', 0, 0)
-
-    _p2p = p2p
-  }
-
   _sidebar = sidebar
   _graph = graph
+
+  initStreamClient().catch((err) => {
+    console.error('Failed to init stream client', err)
+  })
 }
 
 const DEMO = {
