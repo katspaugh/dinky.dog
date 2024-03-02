@@ -1,17 +1,6 @@
 let peerCount = 0
 
-const COLORS = [
-  '#ffe8ed',
-  '#d6e2e7',
-  '#bbeebb',
-  '#fefeca',
-  '#e1d8f0',
-  '#ffd9a3',
-  '#d9f3e6',
-  '#f2f2fc',
-  '#fff2d9',
-  '#e4f1ed',
-]
+const COLORS = ['#FF6633', '#FFB399', '#FF33FF', '#FFFF99', '#00B3E6', '#E6B333', '#3366E6', '#999966', '#99FF99']
 
 export function Peer(id) {
   const container = document.createElement('div')
@@ -31,9 +20,10 @@ export function Peer(id) {
     backgroundColor: '#fff',
     border: `3px solid ${color}`,
     top: '10px',
-    left: 10 + peerCount * 50 + 'px',
+    right: 10 + peerCount * 50 + 'px',
     zIndex: '1000',
     cursor: 'default',
+    opacity: 0.7,
     transition: 'background-color 0.3s',
   })
   container.innerText = emoji

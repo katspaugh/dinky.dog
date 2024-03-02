@@ -1,7 +1,6 @@
 import { EditableText } from '../components/EditableText.js'
 import { Toggle } from '../components/Toggle.js'
 import { ShareLink } from '../components/ShareLink.js'
-import { Fns } from '../expressions/index.js'
 import { sanitizeHtml } from '../utils/parse-text.js'
 
 export function Sidebar({ title, setTitle, isLocked, setLocked }) {
@@ -17,21 +16,13 @@ export function Sidebar({ title, setTitle, isLocked, setLocked }) {
   const content = document.createElement('div')
   div.appendChild(content)
 
-  const fnNames = Object.keys(Fns)
-    .map((name) => `<li>=${name}</li>`)
-    .join('')
-
   const details = document.createElement('details')
   details.open = true
   details.innerHTML = `
     <summary>Instructions</summary>
-    <p>Click anywhere to add a node.</p>
-    <p>Drag a node off screen to remove.</p>
-    <p>Drag-n-drop images.</p>
-    <p>Copy the URL to share.</p>
-    <h4>Functions</h4>
-    <p>Use these functions in the nodes:</p>
-    <ul>${fnNames}</ul>
+    <p>Double-click anywhere to create a node.</p>
+    <p>To remove: drag a node off the screen, or delete its contents and press Escape.</p>
+    <p>Drag-n-drop image files to insert a picture.</p>
   `
   div.appendChild(details)
 

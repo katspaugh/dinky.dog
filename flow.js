@@ -143,9 +143,14 @@ function initGraph() {
   }
 
   const graph = Graph({
-    onClick: (x, y, wasFocused) => {
-      if (wasFocused && !_currentOutput && !_currentInput) return
-      _callbacks.onClick(x, y)
+    onClick: (x, y) => {
+      if (_currentOutput || _currentInput) {
+        _callbacks.onEmptyClick(x, y)
+      }
+    },
+
+    onDblClick: (x, y) => {
+      _callbacks.onEmptyClick(x, y)
     },
 
     onPointerMove: (x, y) => {

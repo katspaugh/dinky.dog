@@ -149,7 +149,7 @@ function onCreateNode(id, props, data) {
   broadcast('cmdCreateNode', id, props, data)
 }
 
-function onClick(x, y) {
+function onEmptyClick(x, y) {
   if (state.isLocked) return
   const id = randomId()
   onCreateNode(id, { x, y }, { operatorType: Operators.Text.name })
@@ -320,7 +320,7 @@ function init(appContainer, loadedState) {
   })
 
   const graph = initFlow({
-    onClick,
+    onEmptyClick,
     onDrop,
     onRemove,
     onSelect,
@@ -368,6 +368,8 @@ function init(appContainer, loadedState) {
       const { clientX, clientY } = e
       broadcast('cmdPointerMove', clientX, clientY)
     })
+
+    broadcast('cmdPointerMove', 0, 0)
 
     _p2p = p2p
   }

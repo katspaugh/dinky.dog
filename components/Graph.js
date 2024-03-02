@@ -1,4 +1,4 @@
-export function Graph({ onClick, onPointerUp, onPointerMove, onKeyDown }) {
+export function Graph({ onClick, onDblClick, onPointerUp, onPointerMove, onKeyDown }) {
   const container = document.createElement('div')
   container.className = 'graph'
 
@@ -9,40 +9,16 @@ export function Graph({ onClick, onPointerUp, onPointerMove, onKeyDown }) {
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
   pan.appendChild(svg)
 
-  let wasFocused = false
-  {
-    let focusTimer = null
-    pan.addEventListener('focusin', (e) => {
-      if (e.target.tabIndex != null) {
-        if (focusTimer) clearTimeout(focusTimer)
-        wasFocused = true
-      }
-    })
-    pan.addEventListener('focusout', (e) => {
-      if (e.target.tabIndex != null) {
-        if (focusTimer) clearTimeout(focusTimer)
-        focusTimer = setTimeout(() => {
-          wasFocused = false
-        }, 100)
-      }
-    })
+  const makeClickHandler = (callback) => (e) => {
+    if (e.target === pan) {
+      const bbox = pan.getBoundingClientRect()
+      callback(e.clientX - bbox.x, e.clientY - bbox.y)
+    }
   }
 
-  pan.addEventListener(
-    'click',
-    (e) => {
-      if (e.target === pan) {
-        const bbox = pan.getBoundingClientRect()
-        onClick(e.clientX - bbox.x, e.clientY - bbox.y, wasFocused)
-      }
-    },
-    { capture: true },
-  )
-
-  pan.addEventListener('pointermove', (e) => {
-    onPointerMove(e.clientX, e.clientY)
-  })
-
+  pan.addEventListener('click', makeClickHandler(onClick), { capture: true })
+  pan.addEventListener('dblclick', makeClickHandler(onDblClick), { capture: true })
+  pan.addEventListener('pointermove', (e) => onPointerMove(e.clientX, e.clientY))
   pan.addEventListener('pointerup', onPointerUp)
   pan.addEventListener('pointerleave', onPointerUp)
 

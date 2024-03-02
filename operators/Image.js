@@ -2,26 +2,26 @@ import { Stream } from '../utils/stream.js'
 import { ImagePreview } from '../components/ImagePreview.js'
 
 export function Image(initialSrc = '') {
-  let src = initialSrc
+  const inputStream = new Stream()
+  const outputStream = new Stream(initialSrc)
   const component = ImagePreview()
-  const stream = new Stream(src)
 
-  stream.subscribe((newSrc) => {
-    src = newSrc
+  outputStream.subscribe((src) => {
     component.render({ src })
   })
 
   return {
-    inputs: [new Stream()],
+    inputs: [inputStream],
 
-    output: stream,
+    output: outputStream,
 
-    serialize: () => src.toString(),
+    serialize: () => outputStream.get().toString(),
 
-    render: () => component.render({ src }),
+    render: () => component.render({ src: outputStream.get() }),
 
     destroy: () => {
-      stream.destroy()
+      inputStream.destroy()
+      outputStream.destroy()
       component.destroy()
     },
   }
