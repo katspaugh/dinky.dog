@@ -12,6 +12,7 @@
   --textarea-color: #fff;
   --text-dim-color: #aaa;
   --text-node-color: #000;
+  --shadow-color: #ddd;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -27,6 +28,7 @@
     --textarea-color: #444;
     --text-dim-color: #aaa;
     --text-node-color: #000;
+    --shadow-color: transparent;
   }
 }
 
@@ -66,10 +68,10 @@ a:hover {
   border: 1px solid var(--border-color);
   transition: border-color 0.2s;
   color: var(--text-node-color);
+  box-shadow: 1px 1px var(--shadow-color);
 }
 
-.node.active,
-.node:hover {
+.node:active {
   border-color: var(--hover-color);
 }
 
@@ -118,6 +120,7 @@ a:hover {
   height: 10px;
   background: linear-gradient(135deg, transparent 0%, transparent 50%, #999 50%, #999 100%);
   cursor: nwse-resize;
+  border-radius: 0 0 2px 0;
 }
 
 /* Bottom line */

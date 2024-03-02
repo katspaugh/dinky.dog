@@ -25,8 +25,8 @@ function randomEmoji() {
 }
 
 export function initP2P(roomId) {
-  const clientId = localStorage.getItem('dinky_clientId') || [getBrowserName(), randomEmoji(), randomId()].join('-')
-  localStorage.setItem('dinky_clientId', clientId)
+  const clientId = localStorage.getItem('dinky_p2p-clientId') || [getBrowserName(), randomEmoji(), randomId()].join('-')
+  localStorage.setItem('dinky_p2p-clientId', clientId)
 
   const p2pcf = new P2PCF(clientId, roomId, {
     // Worker URL (optional) - if left out, will use a public worker

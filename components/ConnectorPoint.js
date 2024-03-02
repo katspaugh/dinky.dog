@@ -10,7 +10,7 @@ export function ConnectorPoint(left, top) {
     marginLeft: '-8px',
     transform: 'translateY(-50%)',
     position: 'absolute',
-    zIndex: 3,
+    zIndex: 5,
     left,
     top,
   })
