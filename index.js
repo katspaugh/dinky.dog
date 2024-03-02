@@ -2,7 +2,7 @@ import { Sidebar } from './components/Sidebar.js'
 import { Peer } from './components/Peer.js'
 import { MyCharts } from './components/MyCharts.js'
 import { initFlow } from './flow.js'
-import { HEIGHT } from './components/Node.js'
+import { WIDTH, HEIGHT } from './components/Node.js'
 import * as Operators from './operators/index.js'
 import { parseUrl } from './utils/parse-text.js'
 import { saveState, loadState, getSavedStates } from './persist.js'
@@ -246,8 +246,8 @@ function onDrag(id, dx, dy) {
 function onResize(id, dx, dy) {
   const { props } = state.nodes[id]
   onNodeUpate(id, {
-    width: Math.round(props.width + dx),
-    height: Math.round(props.height + dy),
+    width: Math.round((props.width || WIDTH) + dx),
+    height: Math.round((props.height || HEIGHT) + dy),
   })
 }
 

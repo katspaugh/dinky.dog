@@ -30,6 +30,7 @@ export function MetaPreview() {
         const iframe = document.createElement('iframe')
         iframe.style.width = '100%'
         iframe.setAttribute('sandbox', '')
+        iframe.style.pointerEvents = 'none'
         iframe.src =
           'data:text/html,' +
           encodeURIComponent(`<style>* { margin: 0; }</style><img src="${image}" style="width: 100%; height: auto;">`)
