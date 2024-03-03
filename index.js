@@ -246,8 +246,8 @@ function onDrag(id, dx, dy) {
 function onResize(id, dx, dy) {
   const { props } = state.nodes[id]
   onNodeUpate(id, {
-    width: Math.round((props.width || WIDTH) + dx),
-    height: Math.round((props.height || HEIGHT) + dy),
+    width: Math.max(WIDTH, Math.round((props.width || WIDTH) + dx)),
+    height: Math.max(HEIGHT, Math.round((props.height || HEIGHT) + dy)),
   })
 }
 
@@ -273,6 +273,13 @@ function initSidebar(onLockChange) {
       onLockChange()
     },
   })
+
+  const peer = Peer({
+    id: clientId,
+    isMe: true,
+    onExpire: () => {},
+  })
+  sidebar.render({ myPeer: peer.render() })
 
   onLockChange()
 
@@ -311,16 +318,17 @@ function initState(newState) {
   console.log('State', state)
 }
 
-function onPeerMessage(peerId) {
+function onPeerMessage(peerId, isMe) {
   if (!_peers[peerId]) {
     const peer = Peer({
       id: peerId,
+      isMe,
       onExpire: () => {
         delete _peers[peerId]
         peer.destroy()
       },
     })
-    _sidebar.container.appendChild(peer.render())
+    _sidebar.render({ peerContainer: peer.render() })
     _peers[peerId] = peer
   } else {
     _peers[peerId].render()
@@ -361,6 +369,8 @@ async function initStreamClient() {
 
     state.lastSequence = msg.sequence
 
+    onPeerMessage(msg.data.clientId, msg.data.clientId === clientId)
+
     if (msg.data.clientId !== clientId) {
       console.log('Received msg', msg)
 
@@ -368,8 +378,6 @@ async function initStreamClient() {
       if (commands[command]) {
         commands[command](...args)
       }
-
-      onPeerMessage(msg.data.clientId)
 
       persist()
     }

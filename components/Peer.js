@@ -2,15 +2,12 @@ const COLORS = ['#FF6633', '#FFB399', '#FF33FF', '#FFFF99', '#00B3E6', '#E6B333'
 
 const EXPIRE_DELAY = 5 * 60e3
 
-let peerCount = 0
-
-export function Peer({ id, onExpire }) {
+export function Peer({ id, onExpire, isMe = false }) {
   const container = document.createElement('div')
   const [browser, emoji, rand] = id.split('-')
   const color = COLORS[parseInt(rand, 36) % COLORS.length]
 
   Object.assign(container.style, {
-    position: 'fixed',
     fontSize: '24px',
     textAlign: 'center',
     display: 'flex',
@@ -21,17 +18,11 @@ export function Peer({ id, onExpire }) {
     borderRadius: '50%',
     backgroundColor: '#fff',
     border: `3px solid ${color}`,
-    top: '10px',
-    right: 10 + peerCount * 50 + 'px',
-    zIndex: '100',
     cursor: 'default',
-    opacity: 0.7,
     transition: 'background-color 0.3s',
   })
   container.innerText = emoji
-  container.title = `Viewed by another peer in ${browser}`
-
-  peerCount++
+  container.title = isMe ? `You (${browser})` : `Viewed by another peer in ${browser}`
 
   let animationTimer = null
   let expirationTimer = null

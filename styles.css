@@ -1,11 +1,13 @@
 :root {
   --background-color: #fff;
-  --text-color: #000;
+  --text-color: #333;
+  --secondary-text-color: #555;
   --link-color: #A52A2A;
   --link-hover-color: #CD5C5C;
   --hover-color: #aaf;
   --point-color: #faa;
   --panel-color: #eee;
+  --panel-hover-color: #dddeee;
   --edge-color: #aaf;
   --edge-hover-color: #f00;
   --border-color: #aaa;
@@ -19,6 +21,7 @@
   :root {
     --background-color: #999;
     --text-color: #fff;
+    --secondary-text-color: #fafafa;
     --hover-color: #aaf;
     --point-color: #faa;
     --panel-color: #444;
@@ -264,7 +267,8 @@ path:hover {
   background-color: var(--textarea-color);
   height: 300px;
   width: 100%;
-  margin: 20px -10px;
+  box-sizing: content-box;
+  margin: 20px 0;
   box-sizing: border-box;
   border-radius: 4px;
 }
@@ -281,12 +285,13 @@ path:hover {
 .locked .sidebar [contenteditable] {
   background-color: transparent;
   border-color: transparent;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
 }
 
 .sidebar h2 [contenteditable] {
   height: auto;
   background-color: transparent;
-  box-sizing: content-box;
 }
 
 .sidebar h2 [contenteditable]:empty::before {
@@ -300,20 +305,40 @@ path:hover {
 }
 
 .sidebar details {
-  margin: 30px 0;
+  margin: 40px 0;
   transition: .3s;
 }
 
 .sidebar details summary {
   user-select: none;
+  color: var(--secondary-text-color);
+  cursor: pointer;
+  font-size: 0.8em;
+  margin-bottom: 1em;
+}
+
+.sidebar details ul {
+  padding-left: 0;
+  margin: 0;
 }
 
 .sidebar details li {
-  margin-bottom: 10px;
+  list-style: none;
 }
 
 .sidebar details a {
+  display: block;
+  width: 100%;
   color: inherit;
+  text-decoration: none;
+  padding: 10px;
+  transition: background-color 0.2s;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.sidebar details a:hover {
+  background-color: var(--panel-hover-color);
 }
 
 .locked .sidebar details {

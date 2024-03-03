@@ -1,14 +1,14 @@
 import DurableStreamClient from 'https://esm.sh/durable-stream-client'
 import * as storage from './local-storage.js'
 
+const PROD_HOST = 'dinky.dog'
 const API_URL = 'durable_stream.katspaugh.workers.dev'
 const DEV_API_URL = 'localhost:8787'
-
 const CLIENT_ID_KEY = 'stream-clientId'
 
 function getBrowserName() {
   const browsers = ['Chrome', 'Firefox', 'Safari', 'Brave', 'Opera', 'Edge']
-  return browsers.find((browser) => navigator.userAgent.includes(browser)) || 'Unknown'
+  return browsers.find((browser) => navigator.userAgent.includes(browser)) || 'Unknown browser'
 }
 
 function randomEmoji() {
@@ -36,7 +36,7 @@ export function getClientId() {
 // Initialize the client
 export async function initDurableStream(subject) {
   const { host } = location
-  const isDev = host.startsWith('localhost:')
+  const isDev = host !== PROD_HOST
 
   const client = new DurableStreamClient({
     host: isDev ? DEV_API_URL : API_URL,

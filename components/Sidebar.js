@@ -1,6 +1,7 @@
 import { EditableText } from '../components/EditableText.js'
 import { Toggle } from '../components/Toggle.js'
 import { ShareLink } from '../components/ShareLink.js'
+import { ConnectedPeers } from '../components/ConnectedPeers.js'
 import { sanitizeHtml } from '../utils/parse-text.js'
 
 export function Sidebar({ title, setTitle, isLocked, setLocked }) {
@@ -44,16 +45,34 @@ export function Sidebar({ title, setTitle, isLocked, setLocked }) {
     div.classList.toggle('collapsed')
   }
 
+  const allPeers = ConnectedPeers()
+  div.appendChild(allPeers.render())
+
+  const userContainer = document.createElement('details')
+  userContainer.open = true
+  userContainer.innerHTML = `<summary>My avatar</summary>`
+  div.appendChild(userContainer)
+
   return {
     container: div,
 
-    render: ({ description, note = '', onNoteEdit }) => {
-      details.open = false
-      content.innerHTML = `<h3>${sanitizeHtml(description)}</h3>`
+    render: ({ description, note = '', onNoteEdit, peerContainer, myPeer }) => {
+      if (description) {
+        details.open = false
+        content.innerHTML = `<h3>${sanitizeHtml(description)}</h3>`
+      }
 
       if (onNoteEdit) {
         const editableText = EditableText({ onInput: onNoteEdit })
         content.appendChild(editableText.render({ text: note }))
+      }
+
+      if (peerContainer) {
+        allPeers.render({ peer: peerContainer })
+      }
+
+      if (myPeer) {
+        userContainer.appendChild(myPeer)
       }
 
       return div
