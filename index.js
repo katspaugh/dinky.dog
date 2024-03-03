@@ -402,10 +402,8 @@ async function initStreamClient() {
 
 function initMyCharts() {
   const savedStates = getSavedStates()
-  if (savedStates.length) {
-    const container = MyCharts().render({ charts: savedStates })
-    _sidebar.container.appendChild(container)
-  }
+  const container = MyCharts().render({ charts: savedStates })
+  _sidebar.container.appendChild(container)
 }
 
 function init(appContainer, loadedState) {
