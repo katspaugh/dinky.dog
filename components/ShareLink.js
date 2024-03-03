@@ -18,7 +18,7 @@ export function ShareLink(label = '') {
       setHash(hash)
 
       try {
-        navigator.clipboard.writeText(`${location.origin}/?q=${hash}`)
+        navigator.clipboard.writeText(location.href)
       } catch {
         button.disabled = false
         return

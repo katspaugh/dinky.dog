@@ -5,6 +5,8 @@ import { Colorwheel } from './Colorwheel.js'
 
 export const WIDTH = 120
 export const HEIGHT = 60
+export const MIN_WIDTH = 100
+export const MIN_HEIGHT = 42
 const DEFAULT_BACKGROUND = '#fafafa'
 const BG_THRESHOLD = 200e3
 const BG_Z_INDEX = '1'

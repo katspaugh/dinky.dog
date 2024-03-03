@@ -5,6 +5,7 @@ import { ShareLink } from '../components/ShareLink.js'
 export function Sidebar({ title, setTitle, isLocked, setLocked }) {
   const div = document.createElement('div')
   div.className = 'sidebar'
+  if (isLocked) div.classList.add('collapsed')
   div.innerHTML = `<h1>Dinky Dog</h1>`
 
   const titleInput = EditableText({ onInput: setTitle })

@@ -2,13 +2,14 @@ import { Sidebar } from './components/Sidebar.js'
 import { Peer } from './components/Peer.js'
 import { MyCharts } from './components/MyCharts.js'
 import { ConnectedPeers } from './components/ConnectedPeers.js'
+import { WIDTH, HEIGHT, MIN_WIDTH, MIN_HEIGHT } from './components/Node.js'
 import { initFlow } from './flow.js'
-import { WIDTH, HEIGHT } from './components/Node.js'
 import * as Operators from './operators/index.js'
 import * as TextTransformers from './text-transformers/index.js'
 import { saveState, loadState, getSavedStates } from './persist.js'
 import { debounce } from './utils/debounce.js'
 import { initDurableStream, getClientId } from './services/durable-stream.js'
+import { measureText } from './utils/measure-text.js'
 
 const PERSIST_DELAY = 300
 const BROADCAST_DELAY = 300
@@ -28,7 +29,6 @@ let _sidebar
 let _graph
 let _peersContainer
 let _streamClient
-let _lastBackground
 
 const persist = debounce(() => {
   const nodes = Object.entries(state.nodes).reduce((acc, [id, node]) => {
@@ -152,7 +152,7 @@ function disconnectNodes(outputId, inputId, inputIndex) {
 }
 
 function onCreateNode(id, props, data) {
-  createNode(id, { background: _lastBackground, ...props }, data)
+  createNode(id, props, data)
   persist()
   broadcast('cmdCreateNode', id, props, data)
 }
@@ -172,6 +172,18 @@ function onTextInput(id, value) {
   const node = state.nodes[id]
   const newId = id + '-preview'
   if (!node || state.nodes[newId]) return
+
+  // Update node size to fit the text
+  const curWidth = node.props.width || WIDTH
+  const curHeight = node.props.height || HEIGHT
+  const { width, height } = measureText(value, curWidth, curHeight)
+
+  console.log('Text size', width, height)
+
+  updateNode(id, {
+    width: Math.max(width, curWidth),
+    height: Math.max(height, curHeight),
+  })
 
   if (TextTransformers.parseUrl(value)) {
     const props = { x: node.props.x, y: node.props.y + (node.props.height || HEIGHT) + 10, width: 300, height: 190 }
@@ -249,13 +261,12 @@ function onDrag(id, dx, dy) {
 function onResize(id, dx, dy) {
   const { props } = state.nodes[id]
   onNodeUpate(id, {
-    width: Math.max(WIDTH, Math.round((props.width || WIDTH) + dx)),
-    height: Math.max(HEIGHT, Math.round((props.height || HEIGHT) + dy)),
+    width: Math.max(MIN_WIDTH, Math.round((props.width || WIDTH) + dx)),
+    height: Math.max(MIN_HEIGHT, Math.round((props.height || HEIGHT) + dy)),
   })
 }
 
 function onBackgroundChange(id, background) {
-  _lastBackground = background
   onNodeUpate(id, { background })
 }
 
