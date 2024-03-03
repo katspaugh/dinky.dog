@@ -12,8 +12,9 @@ export function EditableText({ onInput = null }) {
     container.contentEditable = 'true'
 
     container.oninput = () => {
-      const html = sanitizeHtml(container.innerHTML)
-      if (html !== container.innerHTML) {
+      const value = container.innerHTML
+      const html = sanitizeHtml(value)
+      if (html !== value) {
         container.innerHTML = html
       }
       onInput(html)
