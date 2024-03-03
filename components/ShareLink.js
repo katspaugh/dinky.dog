@@ -1,4 +1,4 @@
-import { getShortHash } from '../persist.js'
+import { getShortHash, setHash } from '../persist.js'
 
 export function ShareLink(label = '') {
   const button = document.createElement('button')
@@ -6,16 +6,29 @@ export function ShareLink(label = '') {
   button.style.minWidth = '93px'
   button.style.minHeight = '24px'
 
+  let timeoutId
+
   button.onclick = async (e) => {
     e.preventDefault()
+
+    button.disabled = true
+
     const hash = await getShortHash().catch(() => '')
     if (hash) {
-      location.hash = hash
-      navigator.clipboard.writeText(`${location.origin}/#${hash}`)
+      setHash(hash)
+
+      try {
+        navigator.clipboard.writeText(`${location.origin}/?q=${hash}`)
+      } catch {
+        button.disabled = false
+        return
+      }
 
       button.innerText = 'Copied!'
-      setTimeout(() => {
+      if (timeoutId) clearTimeout(timeoutId)
+      timeoutId = setTimeout(() => {
         button.innerText = label
+        button.disabled = false
       }, 1000)
     }
   }

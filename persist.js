@@ -4,7 +4,19 @@ import * as storage from './services/local-storage.js'
 
 const STATE_STORAGE_PREFIX = 'state-'
 
-function setHash(hash) {
+let lastHash = ''
+
+// Reload the page when the hash changes outside of the persist module
+// E.g. on the back button click
+window.addEventListener('hashchange', () => {
+  const hash = getHash()
+  if (hash !== lastHash) {
+    location.reload()
+  }
+})
+
+export function setHash(hash) {
+  lastHash = hash
   window.location.hash = hash
 }
 
