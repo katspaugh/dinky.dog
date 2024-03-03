@@ -2,7 +2,6 @@ import { EditableText } from '../components/EditableText.js'
 import { Toggle } from '../components/Toggle.js'
 import { ShareLink } from '../components/ShareLink.js'
 import { ConnectedPeers } from '../components/ConnectedPeers.js'
-import { sanitizeHtml } from '../utils/parse-text.js'
 
 export function Sidebar({ title, setTitle, isLocked, setLocked }) {
   const div = document.createElement('div')
@@ -53,18 +52,18 @@ export function Sidebar({ title, setTitle, isLocked, setLocked }) {
   userContainer.innerHTML = `<summary>My avatar</summary>`
   div.appendChild(userContainer)
 
+  let noteEditor = null
+
   return {
     container: div,
 
-    render: ({ description, note = '', onNoteEdit, peerContainer, myPeer }) => {
-      if (description) {
-        details.open = false
-        content.innerHTML = `<h3>${sanitizeHtml(description)}</h3>`
-      }
-
+    render: ({ note = '', onNoteEdit, peerContainer, myPeer }) => {
       if (onNoteEdit) {
-        const editableText = EditableText({ onInput: onNoteEdit })
-        content.appendChild(editableText.render({ text: note }))
+        if (noteEditor) {
+          noteEditor.destroy()
+        }
+        noteEditor = EditableText({ onInput: onNoteEdit })
+        content.appendChild(noteEditor.render({ text: note }))
       }
 
       if (peerContainer) {

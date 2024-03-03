@@ -1,4 +1,4 @@
-import { sanitizeHtml } from '../utils/parse-text.js'
+import { sanitizeHtml } from '../utils/sanitize-html.js'
 
 export function EditableText({ onInput = null }) {
   const container = document.createElement('div')

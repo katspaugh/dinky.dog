@@ -1,10 +1,16 @@
 import { Stream } from '../utils/stream.js'
 import { ImagePreview } from '../components/ImagePreview.js'
+import { parseImageUrl } from '../text-transformers/index.js'
 
-export function Image(initialSrc = '') {
+export function Image(text = '') {
   const inputStream = new Stream()
-  const outputStream = new Stream(initialSrc)
+  const outputStream = new Stream(text)
   const component = ImagePreview()
+
+  inputStream.subscribe((text) => {
+    const src = parseImageUrl(text)
+    outputStream.next(src)
+  })
 
   outputStream.subscribe((src) => {
     component.render({ src })

@@ -4,7 +4,7 @@ import { MyCharts } from './components/MyCharts.js'
 import { initFlow } from './flow.js'
 import { WIDTH, HEIGHT } from './components/Node.js'
 import * as Operators from './operators/index.js'
-import { parseUrl } from './utils/parse-text.js'
+import * as TextTransformers from './text-transformers/index.js'
 import { saveState, loadState, getSavedStates } from './persist.js'
 import { debounce } from './utils/debounce.js'
 import { initDurableStream, getClientId } from './services/durable-stream.js'
@@ -170,9 +170,16 @@ function onTextInput(id, value) {
   const newId = id + '-preview'
   if (!node || state.nodes[newId]) return
 
-  if (parseUrl(value)) {
+  if (TextTransformers.parseUrl(value)) {
     const props = { x: node.props.x, y: node.props.y + (node.props.height || HEIGHT) + 10, width: 300, height: 190 }
-    createNode(newId, props, { operatorType: Operators.LinkPreview.name, operatorData: value })
+    createNode(newId, props, {
+      operatorType: TextTransformers.parseImageUrl(value) ? Operators.Image.name : Operators.LinkPreview.name,
+      operatorData: value,
+    })
+    connectNodes(id, newId, 0)
+  } else if (TextTransformers.parseMath(value)) {
+    const props = { x: node.props.x, y: node.props.y + (node.props.height || HEIGHT) + 10 }
+    createNode(newId, props, { operatorType: Operators.Math.name, operatorData: value })
     connectNodes(id, newId, 0)
   }
 
@@ -268,7 +275,7 @@ function initSidebar(onLockChange) {
     isLocked: state.isLocked,
 
     setLocked:
-      state.isLocked || state.isLocked !== clientId
+      state.isLocked && state.isLocked !== clientId
         ? undefined
         : (isLocked) => {
             state.isLocked = isLocked ? clientId : false
