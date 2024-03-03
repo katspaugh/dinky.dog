@@ -22,6 +22,9 @@ export function Toggle(label = '') {
       checkbox.onchange = () => {
         onChange(checkbox.checked)
       }
+      if (!onChange) {
+        checkbox.disabled = true
+      }
       return container
     },
 

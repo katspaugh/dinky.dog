@@ -30,6 +30,11 @@ export async function saveState(state) {
 
 export async function loadState() {
   let hash = getHash()
+  if (!hash) {
+    const savedStates = getSavedStates()
+    hash = savedStates[0] && savedStates[0].hash
+  }
+
   if (!hash) return
 
   // Short hash is a key to the full hash

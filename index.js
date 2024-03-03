@@ -267,11 +267,15 @@ function initSidebar(onLockChange) {
 
     isLocked: state.isLocked,
 
-    setLocked: (isLocked) => {
-      state.isLocked = isLocked
-      persist()
-      onLockChange()
-    },
+    setLocked:
+      state.isLocked || state.isLocked !== clientId
+        ? undefined
+        : (isLocked) => {
+            state.isLocked = isLocked ? clientId : false
+            persist()
+            onLockChange()
+            return isLocked
+          },
   })
 
   const peer = Peer({

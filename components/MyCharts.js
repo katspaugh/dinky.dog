@@ -1,9 +1,21 @@
+function makeListItem({ href, title, listStyleType }) {
+  const li = document.createElement('li')
+  const link = document.createElement('a')
+  link.href = href
+  link.innerText = title
+  if (listStyleType) {
+    li.style.listStyleType = listStyleType
+  }
+  li.appendChild(link)
+  return li
+}
+
 export function MyCharts() {
   const container = document.createElement('details')
   container.open = true
 
   const header = document.createElement('summary')
-  header.innerText = 'My charts'
+  header.innerText = 'My flows'
   container.appendChild(header)
 
   const list = document.createElement('ul')
@@ -15,12 +27,18 @@ export function MyCharts() {
     render: ({ charts }) => {
       list.innerHTML = ''
 
+      const li = makeListItem({
+        href: location.origin + '?#new',
+        title: 'New flow',
+        listStyleType: '"+"',
+      })
+      list.appendChild(li)
+
       charts.forEach((chart) => {
-        const li = document.createElement('li')
-        const link = document.createElement('a')
-        link.href = location.origin + '?' + chart.id + '#' + chart.hash
-        link.innerText = chart.title || chart.id
-        li.appendChild(link)
+        const li = makeListItem({
+          href: location.origin + '?' + chart.id + '#' + chart.hash,
+          title: chart.title || chart.id,
+        })
         list.appendChild(li)
       })
 

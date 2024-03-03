@@ -21,8 +21,8 @@ export function Sidebar({ title, setTitle, isLocked, setLocked }) {
   details.open = true
   details.innerHTML = `
     <summary>Instructions</summary>
-    <p>Double-click anywhere to create a node.</p>
-    <p>To remove: drag a node off the screen, or delete its contents and press Escape.</p>
+    <p>Double-click anywhere to create an object.</p>
+    <p>To remove: drag an object off the screen, or delete its contents and press Escape.</p>
     <p>Drag-n-drop image files to insert a picture.</p>
   `
   div.appendChild(details)
@@ -31,7 +31,7 @@ export function Sidebar({ title, setTitle, isLocked, setLocked }) {
   div.appendChild(footer)
 
   const toggle = Toggle('Lock 🔒')
-  toggle.render({ checked: isLocked, onChange: setLocked })
+  toggle.render({ checked: !!isLocked, onChange: setLocked })
   footer.appendChild(toggle.container)
 
   const shareLink = ShareLink('🔗 Share link')

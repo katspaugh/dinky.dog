@@ -244,6 +244,8 @@ path:hover {
 }
 
 .sidebar h1 {
+  color: #172A35;
+  text-shadow: 1px 1px #fff, -1px -1px #fff, 1px -1px #fff, -1px 1px #fff;
   padding: 10px 0 0;
   display: flex;
   align-items: center;
@@ -318,7 +320,7 @@ path:hover {
 }
 
 .sidebar details ul {
-  padding-left: 0;
+  padding-left: 0.6em;
   margin: 0;
 }
 
@@ -341,7 +343,7 @@ path:hover {
   background-color: var(--panel-hover-color);
 }
 
-.locked .sidebar details {
+.locked .sidebar details:first-of-type {
   display: none;
 }
 

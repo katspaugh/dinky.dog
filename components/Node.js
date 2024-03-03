@@ -6,7 +6,7 @@ import { Colorwheel } from './Colorwheel.js'
 export const WIDTH = 120
 export const HEIGHT = 60
 const DEFAULT_BACKGROUND = '#fafafa'
-const BG_THRESHOLD = 90e3
+const BG_THRESHOLD = 200e3
 const BG_Z_INDEX = '1'
 const DEFAULT_Z_INDEX = '2'
 
@@ -60,7 +60,7 @@ export function Node(id, { onClick, onInputClick, onOutputClick, onDrag, onResiz
       inputsCount = 0,
       children = null,
     }) => {
-      const isBackground = !!background && width * height >= BG_THRESHOLD
+      const isBackground = background !== DEFAULT_BACKGROUND && width * height >= BG_THRESHOLD
 
       Object.assign(container.style, {
         left: `${x}px`,
