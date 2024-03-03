@@ -21,8 +21,7 @@ export function EditableText({ onInput = null }) {
     }
 
     container.onkeydown = (e) => {
-      if ((e.key === 'Enter' && !e.shiftKey) || e.key === 'Escape') {
-        e.preventDefault()
+      if (e.key === 'Escape') {
         container.blur()
       }
     }
