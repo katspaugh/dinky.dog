@@ -52,20 +52,10 @@ export function Sidebar({ title, setTitle, isLocked, setLocked }) {
   userContainer.innerHTML = `<summary>My avatar</summary>`
   div.appendChild(userContainer)
 
-  let noteEditor = null
-
   return {
     container: div,
 
-    render: ({ note = '', onNoteEdit, peerContainer, myPeer }) => {
-      if (onNoteEdit) {
-        if (noteEditor) {
-          noteEditor.destroy()
-        }
-        noteEditor = EditableText({ onInput: onNoteEdit })
-        content.appendChild(noteEditor.render({ text: note }))
-      }
-
+    render: ({ peerContainer, myPeer }) => {
       if (peerContainer) {
         allPeers.render({ peer: peerContainer })
       }

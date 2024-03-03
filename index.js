@@ -198,14 +198,7 @@ function onSelect(id) {
   const node = state.nodes[id]
   if (!node) return
 
-  _sidebar.render({
-    description: node.operator.serialize(),
-    note: node.data.note,
-    onNoteEdit: (value) => {
-      node.data.note = value
-      persist()
-    },
-  })
+  // TODO: Show node properties
 }
 
 function onEscape(id) {

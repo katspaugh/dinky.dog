@@ -2,8 +2,13 @@ const PREFIX = 'dinky_'
 const MAX_SIZE = 100 * 1024 // 100 KB
 
 export function getItem(key) {
-  const item = localStorage.getItem(PREFIX + key)
-  return item == null ? item : JSON.parse(item)
+  try {
+    const item = localStorage.getItem(PREFIX + key)
+    return item == null ? item : JSON.parse(item)
+  } catch (e) {
+    console.error('Error getting item from localStorage', e)
+    return null
+  }
 }
 
 export function setItem(key, value) {

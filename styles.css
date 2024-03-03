@@ -275,11 +275,6 @@ path:hover {
   border-radius: 4px;
 }
 
-.sidebar [contenteditable]:empty::before {
-  content: 'Notes';
-  color: var(--text-dim-color);
-}
-
 .locked [contenteditable] {
   pointer-events: none;
 }
