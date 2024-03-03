@@ -293,13 +293,6 @@ function initSidebar(onLockChange) {
           },
   })
 
-  const peer = Peer({
-    id: clientId,
-    isMe: true,
-    onExpire: () => {},
-  })
-  sidebar.render({ myPeer: peer.render() })
-
   onLockChange()
 
   return sidebar
@@ -409,12 +402,20 @@ async function initStreamClient() {
   window.addEventListener('beforeunload', () => {
     broadcast('cmdPeerDisconnect')
   })
+
+  // Show own avatar
+  const peer = Peer({
+    id: clientId,
+    isMe: true,
+    onExpire: () => {},
+  })
+  _sidebar.render({ myPeer: peer.render() })
 }
 
 function initMyCharts() {
   const savedStates = getSavedStates()
   const container = MyCharts().render({ charts: savedStates })
-  _sidebar.container.appendChild(container)
+  _sidebar.render({ children: container })
 }
 
 function init(appContainer, loadedState) {

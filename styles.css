@@ -240,6 +240,15 @@ path:hover {
   --sidebar-toggle-width: 10px;
 }
 
+.sidebar .flex {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  gap: 25px;
+  min-height: 100%;
+}
+
 .sidebar.collapsed {
   margin-left: calc(max(20vw, 230px) * -1 + var(--sidebar-toggle-width));
 }
@@ -250,10 +259,11 @@ path:hover {
 
 .sidebar .toggle-sidebar {
   position: absolute;
-  right: 0;
+  z-index: 4;
+  right: -20px;
   top: 0;
+  bottom: 0;
   width: var(--sidebar-toggle-width);
-  height: 100%;
   border: none;
   padding: 0;
   cursor: pointer;
@@ -294,36 +304,29 @@ path:hover {
   margin-top: -1px;
 }
 
-.sidebar [contenteditable] {
-  border: 1px solid var(--border-color);
-  background-color: var(--textarea-color);
-  height: 300px;
-  width: 100%;
-  box-sizing: content-box;
-  margin: 20px 0;
-  box-sizing: border-box;
-  border-radius: 4px;
-}
-
 .locked [contenteditable] {
   pointer-events: none;
 }
 
-.locked .sidebar [contenteditable] {
+.sidebar input.title {
+  background-color: transparent;
+  font-size: 1.5em;
+  color: inherit;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background-color: var(--textarea-color);
+}
+
+.sidebar input.title::placeholder {
+  color: var(--text-dim-color);
+}
+
+.locked .sidebar input.title {
   background-color: transparent;
   border-color: transparent;
   padding-left: 0 !important;
   padding-right: 0 !important;
-}
-
-.sidebar h2 [contenteditable] {
-  height: auto;
-  background-color: transparent;
-}
-
-.sidebar h2 [contenteditable]:empty::before {
-  content: 'Untitled flow';
-  color: var(--text-dim-color);
 }
 
 .sidebar h3 {
@@ -332,8 +335,8 @@ path:hover {
 }
 
 .sidebar details {
-  margin: 40px 0;
   transition: .3s;
+  width: 100%;
 }
 
 .sidebar details summary {
@@ -360,6 +363,7 @@ path:hover {
   color: inherit;
   text-decoration: none;
   padding: 10px;
+  margin: -3px 0;
   transition: background-color 0.2s;
   border-radius: 4px;
   background-color: transparent;
@@ -369,17 +373,12 @@ path:hover {
   background-color: var(--panel-hover-color);
 }
 
-.locked .sidebar details:first-of-type {
+.locked .sidebar .instructions {
   display: none;
 }
 
 .sidebar footer {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  left: 0;
-  padding: 20px;
-  background-color: var(--panel-color);
+  flex: 1;
   display: flex;
   justify-content: space-between;
   align-items: center;
