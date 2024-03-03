@@ -23,9 +23,10 @@ let state = {
   nodes: {},
 }
 const _peers = {}
-let _sidebar = null
-let _graph = null
-let _streamClient = null
+let _sidebar
+let _graph
+let _streamClient
+let _lastBackground
 
 const persist = debounce(() => {
   const nodes = Object.entries(state.nodes).reduce((acc, [id, node]) => {
@@ -149,7 +150,7 @@ function disconnectNodes(outputId, inputId, inputIndex) {
 }
 
 function onCreateNode(id, props, data) {
-  createNode(id, props, data)
+  createNode(id, { background: _lastBackground, ...props }, data)
   persist()
   broadcast('cmdCreateNode', id, props, data)
 }
@@ -252,6 +253,7 @@ function onResize(id, dx, dy) {
 }
 
 function onBackgroundChange(id, background) {
+  _lastBackground = background
   onNodeUpate(id, { background })
 }
 

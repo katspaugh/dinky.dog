@@ -18,7 +18,17 @@ export function Node(id, { onClick, onInputClick, onOutputClick, onDrag, onResiz
   const output = ConnectorPoint('100%', '50%').render()
   container.appendChild(output)
   const inputs = []
+
+  // Color wheel
   const colorwheel = Colorwheel()
+  container.appendChild(
+    colorwheel.render({
+      color: DEFAULT_BACKGROUND,
+      onChange: (color) => {
+        onBackgroundChange(color)
+      },
+    }),
+  )
 
   // Event listeners
   if (onClick) {
@@ -88,14 +98,9 @@ export function Node(id, { onClick, onInputClick, onOutputClick, onDrag, onResiz
       }
 
       // Background color
-      container.appendChild(
-        colorwheel.render({
-          color: background,
-          onChange: (color) => {
-            onBackgroundChange(color)
-          },
-        }),
-      )
+      if (background) {
+        colorwheel.render({ color: background })
+      }
 
       return container
     },

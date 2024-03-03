@@ -50,7 +50,6 @@ export function Peer({ id, onExpire, isMe = false }) {
       if (expirationTimer) clearTimeout(expirationTimer)
       if (animationTimer) clearTimeout(animationTimer)
       container.remove()
-      peerCount--
     },
   }
 }
