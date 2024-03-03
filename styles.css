@@ -237,29 +237,40 @@ path:hover {
   overflow-y: auto;
   transition: .3s;
   position: relative;
+  --sidebar-toggle-width: 10px;
 }
 
 .sidebar.collapsed {
-  flex: 0;
-  min-width: 8px;
-  padding: 0;
-  overflow: hidden;
+  margin-left: calc(max(20vw, 230px) * -1 + var(--sidebar-toggle-width));
+}
+
+.sidebar.collapsed:hover {
+  transform: translateX(4px)
 }
 
 .sidebar .toggle-sidebar {
   position: absolute;
   right: 0;
   top: 0;
+  width: var(--sidebar-toggle-width);
   height: 100%;
   border: none;
-  border-left: 8px solid var(--panel-color);
   padding: 0;
   cursor: pointer;
-  transition: border-left-color 0.2s;
+  background-color: var(--panel-hover-color);
+  transition: background-color 0.2s;
+  border-right: 1px solid var(--border-color);
+  cursor: w-resize;
+  box-sizing: content-box;
+}
+
+.sidebar.collapsed .toggle-sidebar {
+  cursor: e-resize;
+  padding-left: 4px;
 }
 
 .sidebar .toggle-sidebar:hover {
-  border-left-color: var(--border-color);
+  background-color: var(--hover-color);
 }
 
 .sidebar h1 {

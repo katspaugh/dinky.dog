@@ -1,7 +1,6 @@
 import { EditableText } from '../components/EditableText.js'
 import { Toggle } from '../components/Toggle.js'
 import { ShareLink } from '../components/ShareLink.js'
-import { ConnectedPeers } from '../components/ConnectedPeers.js'
 
 export function Sidebar({ title, setTitle, isLocked, setLocked }) {
   const div = document.createElement('div')
@@ -39,13 +38,7 @@ export function Sidebar({ title, setTitle, isLocked, setLocked }) {
   const expandButton = document.createElement('button')
   expandButton.className = 'toggle-sidebar'
   div.appendChild(expandButton)
-
-  expandButton.onclick = () => {
-    div.classList.toggle('collapsed')
-  }
-
-  const allPeers = ConnectedPeers()
-  div.appendChild(allPeers.render())
+  expandButton.onclick = () => div.classList.toggle('collapsed')
 
   const userContainer = document.createElement('details')
   userContainer.open = true
@@ -55,11 +48,7 @@ export function Sidebar({ title, setTitle, isLocked, setLocked }) {
   return {
     container: div,
 
-    render: ({ peerContainer, myPeer }) => {
-      if (peerContainer) {
-        allPeers.render({ peer: peerContainer })
-      }
-
+    render: ({ myPeer }) => {
       if (myPeer) {
         userContainer.appendChild(myPeer)
       }

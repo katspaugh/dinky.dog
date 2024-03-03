@@ -8,7 +8,10 @@ const CLIENT_ID_KEY = 'stream-clientId'
 
 function getBrowserName() {
   const browsers = ['Chrome', 'Firefox', 'Safari', 'Brave', 'Opera', 'Edge']
-  return browsers.find((browser) => navigator.userAgent.includes(browser)) || 'Unknown browser'
+  const oses = ['Windows', 'Mac OS', 'iOS', 'Android', 'Linux']
+  const browser = browsers.find((browser) => navigator.userAgent.includes(browser)) || 'Unknown browser'
+  const os = oses.find((os) => navigator.userAgent.includes(os)) || 'Unknown OS'
+  return `${browser}/${os}`
 }
 
 function randomEmoji() {
@@ -46,6 +49,6 @@ export async function initDurableStream(subject) {
   })
 
   await client.init()
-  console.log('Durable Stream Client initialized', client)
+  console.log('Durable Stream initialized', client)
   return client
 }

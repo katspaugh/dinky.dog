@@ -22,7 +22,7 @@ export function Peer({ id, onExpire, isMe = false }) {
     transition: 'background-color 0.3s',
   })
   container.innerText = emoji
-  container.title = isMe ? `You (in ${browser})` : `Viewed by another peer in ${browser}`
+  container.title = isMe ? `You (${browser})` : `Viewed by another peer (${browser})`
 
   let animationTimer = null
   let expirationTimer = null

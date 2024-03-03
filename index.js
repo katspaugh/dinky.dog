@@ -1,6 +1,7 @@
 import { Sidebar } from './components/Sidebar.js'
 import { Peer } from './components/Peer.js'
 import { MyCharts } from './components/MyCharts.js'
+import { ConnectedPeers } from './components/ConnectedPeers.js'
 import { initFlow } from './flow.js'
 import { WIDTH, HEIGHT } from './components/Node.js'
 import * as Operators from './operators/index.js'
@@ -25,6 +26,7 @@ let state = {
 const _peers = {}
 let _sidebar
 let _graph
+let _peersContainer
 let _streamClient
 let _lastBackground
 
@@ -334,7 +336,7 @@ function onPeerMessage(peerId, isMe) {
         peer.destroy()
       },
     })
-    _sidebar.render({ peerContainer: peer.render() })
+    _peersContainer.render({ peer: peer.render() })
     _peers[peerId] = peer
   } else {
     _peers[peerId].render()
@@ -426,12 +428,16 @@ function init(appContainer, loadedState) {
     onEscape,
   })
 
+  const peersContainer = ConnectedPeers()
+
   appContainer.appendChild(graph.container)
   appContainer.appendChild(sidebar.container)
+  appContainer.appendChild(peersContainer.render())
   document.body.appendChild(appContainer)
 
   _sidebar = sidebar
   _graph = graph
+  _peersContainer = peersContainer
 
   initMyCharts()
   initStreamClient()
