@@ -14,17 +14,18 @@
   --textarea-color: #fff;
   --text-dim-color: #aaa;
   --text-node-color: #000;
-  --shadow-color: #ddd;
+  --shadow-color: #555;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --background-color: #999;
     --text-color: #fff;
-    --secondary-text-color: #fafafa;
+    --secondary-text-color: #999;
     --hover-color: #aaf;
     --point-color: #faa;
     --panel-color: #444;
+    --panel-hover-color: #555;
     --edge-color: #444;
     --edge-hover-color: #aaf;
     --border-color: #555;
@@ -71,11 +72,24 @@ a:hover {
   border: 1px solid var(--border-color);
   transition: border-color 0.2s;
   color: var(--text-node-color);
-  box-shadow: 1px 1px var(--shadow-color);
+  box-shadow: 1px 1px 1px var(--shadow-color);
+}
+
+.node:hover {
+  border-color: var(--hover-color);
+}
+
+@keyframes tilt {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(0.5deg);
+  }
 }
 
 .node:active {
-  border-color: var(--hover-color);
+  animation: tilt 0.15s alternate;
 }
 
 .node iframe {
@@ -321,6 +335,7 @@ path:hover {
 
 .sidebar details ul {
   padding-left: 0.6em;
+  text-indent: -0.3em;
   margin: 0;
 }
 

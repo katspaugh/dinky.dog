@@ -30,7 +30,7 @@ export function MyCharts() {
       const li = makeListItem({
         href: location.origin + '?#new',
         title: 'New flow',
-        listStyleType: '"+"',
+        listStyleType: '"＋"',
       })
       list.appendChild(li)
 
