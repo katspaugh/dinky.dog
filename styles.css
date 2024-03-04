@@ -221,8 +221,8 @@ path:hover {
 
 .pan {
   position: relative;
-  width: 120vw;
-  height: 170vh;
+  width: 3000px;
+  height: 3000px;
   background-size: 30px 30px;
   background-image: radial-gradient(circle, var(--border-color) 1px, transparent 1px);
 }
@@ -232,6 +232,7 @@ path:hover {
   min-width: 230px;
   background-color: var(--panel-color);
   padding: 0 20px;
+  padding-right: 30px;
   z-index: 3;
   height: 100vh;
   overflow-y: auto;
@@ -261,13 +262,12 @@ path:hover {
 .sidebar .toggle-sidebar {
   position: absolute;
   z-index: 4;
-  right: -20px;
+  right: -30px;
   top: 0;
   bottom: 0;
   width: var(--sidebar-toggle-width);
   border: none;
   padding: 0;
-  cursor: pointer;
   background-color: var(--panel-hover-color);
   transition: background-color 0.2s;
   border-right: 1px solid var(--border-color);
@@ -310,6 +310,7 @@ path:hover {
 }
 
 .sidebar input.title {
+  width: 100%;
   background-color: transparent;
   font-size: 1.5em;
   color: inherit;
@@ -350,7 +351,7 @@ path:hover {
 
 .sidebar details ul {
   padding-left: 0.6em;
-  text-indent: -0.3em;
+  text-indent: -0.2em;
   margin: 0;
 }
 
@@ -379,7 +380,12 @@ path:hover {
 }
 
 .sidebar footer {
+  width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.peers:hover {
+  opacity: 1 !important;
 }

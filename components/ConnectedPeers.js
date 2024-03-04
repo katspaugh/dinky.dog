@@ -1,5 +1,6 @@
 export function ConnectedPeers() {
   const container = document.createElement('div')
+  container.className = 'peers'
 
   Object.assign(container.style, {
     position: 'fixed',
@@ -10,6 +11,7 @@ export function ConnectedPeers() {
     top: '10px',
     right: '10px',
     zIndex: '100',
+    transition: 'opacity .2s',
     opacity: 0.7,
   })
 

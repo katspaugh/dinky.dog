@@ -48,7 +48,7 @@ export function Sidebar({ title, setTitle, isLocked, setLocked }) {
   }
 
   const userContainer = document.createElement('details')
-  userContainer.style.order = 2
+  userContainer.style.order = '2'
   userContainer.open = true
   userContainer.innerHTML = `<summary>My avatar</summary>`
   div.appendChild(userContainer)
