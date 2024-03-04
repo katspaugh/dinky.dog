@@ -28,14 +28,12 @@ export function Text(initialValue) {
 
     serialize: () => outputStream.get(),
 
-    render: () => {
+    render: ({ focus = false } = {}) => {
       const container = component.render({ text: outputStream.get() })
 
-      // Autofocus if there's no initial value
-      if (!initialValue) {
-        setTimeout(() => {
-          container.focus()
-        }, 100)
+      // Focus the input if requested
+      if (focus) {
+        container.focus()
       }
 
       return container

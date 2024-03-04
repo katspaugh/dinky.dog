@@ -161,6 +161,11 @@ function onEmptyClick(x, y) {
   if (state.isLocked) return
   const id = randomId()
   onCreateNode(id, { x, y }, { operatorType: Operators.Text.name })
+
+  // Focus the new node
+  if (state.nodes[id]) {
+    state.nodes[id].operator.render({ focus: true })
+  }
 }
 
 function onDrop({ x, y, fileType, data }) {
@@ -176,7 +181,6 @@ function onTextInput(id, value) {
   const curWidth = node.props.width || WIDTH
   const curHeight = node.props.height || HEIGHT
   const { width, height } = measureText(value, curWidth, curHeight)
-
   if (width !== curWidth || height !== curHeight) {
     onNodeUpate(id, {
       width: Math.max(width, curWidth),
