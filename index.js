@@ -170,32 +170,38 @@ function onDrop({ x, y, fileType, data }) {
 
 function onTextInput(id, value) {
   const node = state.nodes[id]
-  const newId = id + '-preview'
-  if (!node || state.nodes[newId]) return
+  if (!node) return
 
   // Update node size to fit the text
   const curWidth = node.props.width || WIDTH
   const curHeight = node.props.height || HEIGHT
   const { width, height } = measureText(value, curWidth, curHeight)
 
-  console.log('Text size', width, height)
-
-  updateNode(id, {
-    width: Math.max(width, curWidth),
-    height: Math.max(height, curHeight),
-  })
-
-  if (TextTransformers.parseUrl(value)) {
-    const props = { x: node.props.x, y: node.props.y + (node.props.height || HEIGHT) + 10, width: 300, height: 190 }
-    createNode(newId, props, {
-      operatorType: TextTransformers.parseImageUrl(value) ? Operators.Image.name : Operators.LinkPreview.name,
-      operatorData: value,
+  if (width !== curWidth || height !== curHeight) {
+    updateNode(id, {
+      width: Math.max(width, curWidth),
+      height: Math.max(height, curHeight),
     })
-    connectNodes(id, newId, 0)
-  } else if (TextTransformers.parseMath(value)) {
-    const props = { x: node.props.x, y: node.props.y + (node.props.height || HEIGHT) + 10 }
-    createNode(newId, props, { operatorType: Operators.Math.name, operatorData: value })
-    connectNodes(id, newId, 0)
+  }
+
+  // Parse data and create new nodes if needed
+  const newId = id + '-preview'
+  if (!state.nodes[newId]) {
+    let newNodeType = null
+    if (TextTransformers.parseUrl(value)) {
+      newNodeType = TextTransformers.parseImageUrl(value) ? Operators.Image.name : Operators.LinkPreview.name
+    } else if (TextTransformers.parseMath(value)) {
+      newNodeType = Operators.Math.name
+    }
+
+    if (newNodeType) {
+      const props = { x: node.props.x, y: node.props.y + (node.props.height || HEIGHT) + 10, width: 300, height: 190 }
+      onCreateNode(newId, props, {
+        operatorType: newNodeType,
+        operatorData: value,
+      })
+      onConnect(id, newId, 0)
+    }
   }
 
   persist()
