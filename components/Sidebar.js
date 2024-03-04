@@ -4,7 +4,7 @@ import { ShareLink } from '../components/ShareLink.js'
 export function Sidebar({ title, setTitle, isLocked, setLocked }) {
   const container = document.createElement('div')
   container.className = 'sidebar'
-  if (isLocked) div.classList.add('collapsed')
+  if (isLocked) container.classList.add('collapsed')
 
   const div = document.createElement('div')
   div.className = 'flex'
@@ -29,7 +29,7 @@ export function Sidebar({ title, setTitle, isLocked, setLocked }) {
   footer.appendChild(shareLink.render())
 
   const instructions = document.createElement('details')
-  instructions.style.order = 3
+  instructions.style.order = '3'
   instructions.className = 'instructions'
   instructions.open = true
   instructions.innerHTML = `
