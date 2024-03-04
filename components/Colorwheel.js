@@ -1,5 +1,6 @@
 // Paster colors
 const PASTEL_COLORS = [
+  '#F9F9F9', // the default color
   '#ffe8ed',
   '#d6e2e7',
   '#bbeebb',
@@ -9,7 +10,6 @@ const PASTEL_COLORS = [
   '#d9f3e6',
   '#f2f2fc',
   '#fff2d9',
-  '#e4f1ed',
 ]
 
 let _datalist

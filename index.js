@@ -29,6 +29,7 @@ let _sidebar
 let _graph
 let _peersContainer
 let _streamClient
+let _lastBackground
 
 const persist = debounce(() => {
   const nodes = Object.entries(state.nodes).reduce((acc, [id, node]) => {
@@ -160,7 +161,7 @@ function onCreateNode(id, props, data) {
 function onEmptyClick(x, y) {
   if (state.isLocked) return
   const id = randomId()
-  onCreateNode(id, { x, y }, { operatorType: Operators.Text.name })
+  onCreateNode(id, { x, y, background: _lastBackground }, { operatorType: Operators.Text.name })
 
   // Focus the new node
   if (state.nodes[id]) {
@@ -277,6 +278,7 @@ function onResize(id, dx, dy) {
 }
 
 function onBackgroundChange(id, background) {
+  _lastBackground = background
   onNodeUpate(id, { background })
 }
 
