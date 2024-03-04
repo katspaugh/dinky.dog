@@ -1,6 +1,19 @@
 import { Toggle } from '../components/Toggle.js'
 import { ShareLink } from '../components/ShareLink.js'
 
+const originalDevicePixelRatio = Math.round(window.devicePixelRatio / (window.screen.availWidth / window.innerWidth))
+let pxRatio = originalDevicePixelRatio
+
+function resizeElementToCompensateZoom(element) {
+  const newPxRatio = window.devicePixelRatio
+  if (newPxRatio !== pxRatio) {
+    pxRatio = newPxRatio
+    element.style.transformOrigin = 'top left'
+    element.style.transform = `scale(${originalDevicePixelRatio / newPxRatio})`
+    element.style.height = document.documentElement.clientHeight * newPxRatio + 'px'
+  }
+}
+
 export function Sidebar({ title, setTitle, isLocked, setLocked }) {
   const container = document.createElement('div')
   container.className = 'sidebar'
@@ -35,7 +48,7 @@ export function Sidebar({ title, setTitle, isLocked, setLocked }) {
   instructions.innerHTML = `
     <summary>Instructions</summary>
     <p>Double-click anywhere to create an object.</p>
-    <p>To remove: drag an object off the screen, or delete its contents and press Escape.</p>
+    <p>Press Escape to remove an empty node.</p>
     <p>Drag-n-drop image files to insert a picture.</p>
   `
   div.appendChild(instructions)
@@ -53,6 +66,10 @@ export function Sidebar({ title, setTitle, isLocked, setLocked }) {
   userContainer.innerHTML = `<summary>My avatar</summary>`
   div.appendChild(userContainer)
 
+  // Call the function on page load and whenever the window is resized
+  const onResize = () => resizeElementToCompensateZoom(container)
+  window.addEventListener('resize', onResize)
+
   return {
     container,
 
@@ -69,9 +86,14 @@ export function Sidebar({ title, setTitle, isLocked, setLocked }) {
         div.appendChild(children)
       }
 
+      onResize()
+
       return container
     },
 
-    destroy: () => container.remove(),
+    destroy: () => {
+      container.remove()
+      window.removeEventListener('resize', onResize)
+    },
   }
 }

@@ -228,15 +228,14 @@ path:hover {
 }
 
 .sidebar {
-  flex: 0 0 20vw;
-  min-width: 230px;
+  width: 300px;
+  height: 100vh;
   background-color: var(--panel-color);
   padding: 0 20px;
   padding-right: 30px;
   z-index: 3;
-  height: 100vh;
   overflow-y: auto;
-  transition: .3s;
+  transition: margin-left .3s;
   position: relative;
   --sidebar-toggle-width: 10px;
 }

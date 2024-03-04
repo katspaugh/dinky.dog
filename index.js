@@ -171,7 +171,7 @@ function onEmptyClick(x, y) {
 
 function onDrop({ x, y, fileType, data }) {
   const id = randomId() + fileType
-  onCreateNode(id, { x, y }, { operatorType: Operators.Image.name, operatorData: data })
+  onCreateNode(id, { x, y, background: _lastBackground }, { operatorType: Operators.Image.name, operatorData: data })
 }
 
 function onTextInput(id, value) {
