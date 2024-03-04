@@ -178,7 +178,7 @@ function onTextInput(id, value) {
   const { width, height } = measureText(value, curWidth, curHeight)
 
   if (width !== curWidth || height !== curHeight) {
-    updateNode(id, {
+    onNodeUpate(id, {
       width: Math.max(width, curWidth),
       height: Math.max(height, curHeight),
     })
