@@ -1,5 +1,6 @@
 import { Toggle } from '../components/Toggle.js'
 import { ShareLink } from '../components/ShareLink.js'
+import { ConnectedPeers } from '../components/ConnectedPeers.js'
 
 const originalDevicePixelRatio = Math.round(window.devicePixelRatio / (window.screen.availWidth / window.innerWidth))
 let pxRatio = originalDevicePixelRatio
@@ -8,9 +9,9 @@ function resizeElementToCompensateZoom(element) {
   const newPxRatio = window.devicePixelRatio
   if (newPxRatio !== pxRatio) {
     pxRatio = newPxRatio
-    element.style.transformOrigin = 'top left'
+    element.style.transformOrigin = 'top right'
     element.style.transform = `scale(${originalDevicePixelRatio / newPxRatio})`
-    element.style.height = document.documentElement.clientHeight * newPxRatio + 'px'
+    element.style.height = Math.round(document.documentElement.clientHeight * newPxRatio) + 'px'
   }
 }
 
@@ -34,12 +35,12 @@ export function Sidebar({ title, setTitle, isLocked, setLocked }) {
   const footer = document.createElement('footer')
   div.appendChild(footer)
 
+  const shareLink = ShareLink('🔗 Share link')
+  footer.appendChild(shareLink.render())
+
   const toggle = Toggle('Lock 🔒')
   toggle.render({ checked: !!isLocked, onChange: setLocked })
   footer.appendChild(toggle.container)
-
-  const shareLink = ShareLink('🔗 Share link')
-  footer.appendChild(shareLink.render())
 
   const instructions = document.createElement('details')
   instructions.style.order = '3'
@@ -48,7 +49,7 @@ export function Sidebar({ title, setTitle, isLocked, setLocked }) {
   instructions.innerHTML = `
     <summary>Instructions</summary>
     <p>Double-click anywhere to create an object.</p>
-    <p>Press Escape to remove an empty node.</p>
+    <p>Press Escape to remove an empty object.</p>
     <p>Drag-n-drop image files to insert a picture.</p>
   `
   div.appendChild(instructions)
@@ -63,7 +64,9 @@ export function Sidebar({ title, setTitle, isLocked, setLocked }) {
   const userContainer = document.createElement('details')
   userContainer.style.order = '2'
   userContainer.open = true
-  userContainer.innerHTML = `<summary>My avatar</summary>`
+  const allPeers = ConnectedPeers()
+  userContainer.innerHTML = `<summary>Viewers</summary>`
+  userContainer.appendChild(allPeers.render())
   div.appendChild(userContainer)
 
   // Call the function on page load and whenever the window is resized
@@ -73,13 +76,13 @@ export function Sidebar({ title, setTitle, isLocked, setLocked }) {
   return {
     container,
 
-    render: ({ title, myPeer, children }) => {
+    render: ({ title, peer, children }) => {
       if (title !== undefined && title !== titleInput.value) {
         titleInput.value = title
       }
 
-      if (myPeer) {
-        userContainer.appendChild(myPeer)
+      if (peer) {
+        allPeers.render({ peer })
       }
 
       if (children) {

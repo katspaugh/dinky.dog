@@ -62,8 +62,6 @@ a:hover {
 #app {
   height: 100vh;
   width: 100vw;
-  display: flex;
-  flex-wrap: nowrap;
 }
 
 .node {
@@ -213,10 +211,9 @@ path:hover {
 }
 
 .drop {
-  flex: 1;
   height: 100vh;
+  width: 100vw;
   overflow: auto;
-  order: 1;
 }
 
 .pan {
@@ -228,16 +225,26 @@ path:hover {
 }
 
 .sidebar {
+  position: fixed;
+  z-index: 10;
+  right: 0;
+  top: 0;
   width: 300px;
   height: 100vh;
   background-color: var(--panel-color);
   padding: 0 20px;
-  padding-right: 30px;
-  z-index: 3;
+  padding-left: 30px;
   overflow-y: auto;
-  transition: margin-left .3s;
-  position: relative;
+  transition: left .3s;
   --sidebar-toggle-width: 10px;
+}
+
+.sidebar.collapsed {
+  right: -292px;
+}
+
+.sidebar.collapsed:hover {
+  transform: translateX(4px)
 }
 
 .sidebar .flex {
@@ -250,18 +257,10 @@ path:hover {
   min-height: 100%;
 }
 
-.sidebar.collapsed {
-  margin-left: calc(max(20vw, 230px) * -1 + var(--sidebar-toggle-width));
-}
-
-.sidebar.collapsed:hover {
-  transform: translateX(4px)
-}
-
 .sidebar .toggle-sidebar {
   position: absolute;
   z-index: 4;
-  right: -30px;
+  left: -30px;
   top: 0;
   bottom: 0;
   width: var(--sidebar-toggle-width);
@@ -383,8 +382,4 @@ path:hover {
   display: flex;
   justify-content: space-between;
   align-items: center;
-}
-
-.peers:hover {
-  opacity: 1 !important;
 }
