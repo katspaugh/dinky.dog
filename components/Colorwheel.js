@@ -18,6 +18,7 @@ export function Colorwheel() {
   const container = document.createElement('label')
   const input = document.createElement('input')
   input.type = 'color'
+  input.tabIndex = 2
   input.setAttribute('list', 'colors')
   container.appendChild(input)
 

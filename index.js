@@ -187,28 +187,35 @@ function onTextInput(id, value) {
     })
   }
 
-  // Parse data and create new nodes if needed
-  const newId = id + '-preview'
-  if (!state.nodes[newId]) {
-    let newNodeType = null
-    if (TextTransformers.parseUrl(value)) {
-      newNodeType = TextTransformers.parseImageUrl(value) ? Operators.Image.name : Operators.LinkPreview.name
-    } else if (TextTransformers.parseMath(value)) {
-      newNodeType = Operators.Math.name
-    }
-
-    if (newNodeType) {
-      const props = { x: node.props.x, y: node.props.y + (node.props.height || HEIGHT) + 10, width: 300, height: 190 }
-      onCreateNode(newId, props, {
-        operatorType: newNodeType,
-        operatorData: value,
-      })
-      onConnect(id, newId, 0)
-    }
-  }
-
   persist()
   broadcast('cmdUpdateNodeData', id, { operatorData: value })
+
+  Promise.resolve().then(() => {
+    // Parse data and create new nodes if needed
+    const newId = id + '-preview'
+    if (!state.nodes[newId]) {
+      let newNodeType = null
+      const size = { width: 300, height: 190 }
+      if (TextTransformers.parseUrl(value)) {
+        newNodeType = TextTransformers.parseImageUrl(value) ? Operators.Image.name : Operators.LinkPreview.name
+      } else if (TextTransformers.parseMath(value)) {
+        newNodeType = Operators.Math.name
+      } else if (TextTransformers.parseEthAddress(value)) {
+        newNodeType = Operators.EthPreview.name
+        size.width = 170
+        size.height = 85
+      }
+
+      if (newNodeType) {
+        const props = { x: node.props.x, y: node.props.y + (node.props.height || HEIGHT) + 10, ...size }
+        onCreateNode(newId, props, {
+          operatorType: newNodeType,
+          operatorData: value,
+        })
+        onConnect(id, newId, 0)
+      }
+    }
+  })
 }
 
 function onRemove(id) {

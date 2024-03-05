@@ -13,3 +13,8 @@ export function parseImageUrl(text = '') {
 export function parseMath(text = '') {
   return /^[0-9+-/*^() ]+(?=&nbsp;|<br>)*$/.test(text) ? text : ''
 }
+
+export function parseEthAddress(text = '') {
+  const match = text.match(/(?:^|\b)0x[a-f0-9]{40}(?=\b)/i)
+  return match ? match[0] || '' : ''
+}

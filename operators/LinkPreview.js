@@ -14,13 +14,11 @@ export function LinkPreview(initialUrl) {
     if (!url) return
 
     fetchPreview(url)
+      .catch(() => ({ title: url, url }))
       .then((data) => {
         if (url === lastUrl) {
           outputStream.next(data)
         }
-      })
-      .catch(() => {
-        component.render({ title: url, url })
       })
   }, 100)
 

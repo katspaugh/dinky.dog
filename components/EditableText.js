@@ -1,11 +1,12 @@
 import { sanitizeHtml } from '../utils/sanitize-html.js'
 
-export function EditableText({ onInput = null }) {
+export function EditableText({ onInput = null } = {}) {
   const container = document.createElement('div')
   container.tabIndex = 0
   Object.assign(container.style, {
     padding: '10px',
     overflow: 'auto',
+    overflowWrap: 'normal',
   })
 
   if (onInput) {
@@ -24,6 +25,10 @@ export function EditableText({ onInput = null }) {
       if (e.key === 'Escape') {
         container.blur()
       }
+    }
+
+    container.onblur = () => {
+      container.scrollLeft = 0
     }
   }
 
