@@ -276,10 +276,11 @@ function onDrag(id, dx, dy) {
   const { props } = state.nodes[id]
   const x = Math.round(props.x + dx)
   const y = Math.round(props.y + dy)
-  onNodeUpate(id, { x, y })
 
   if (x < REMOVE_THRESHOLD_X || y < REMOVE_THRESHOLD_Y) {
     removeNode(id)
+  } else {
+    onNodeUpate(id, { x, y })
   }
 }
 
@@ -393,6 +394,8 @@ const commands = {
 
 async function initStreamClient() {
   const streamId = state.id
+
+  onPeerMessage(clientId, true)
 
   try {
     _streamClient = await initDurableStream(streamId)

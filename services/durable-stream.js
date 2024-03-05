@@ -8,7 +8,7 @@ const CLIENT_ID_KEY = 'stream-clientId'
 
 function getBrowserName() {
   const browsers = ['Chrome', 'Firefox', 'Safari', 'Brave', 'Opera', 'Edge']
-  const oses = ['Windows', 'Mac OS', 'iOS', 'Android', 'Linux']
+  const oses = ['Windows', 'Mac', 'iOS', 'Android', 'Linux']
   const browser = browsers.find((browser) => navigator.userAgent.includes(browser)) || 'Unknown browser'
   const os = oses.find((os) => navigator.userAgent.includes(os)) || 'Unknown OS'
   return `${browser}/${os}`
