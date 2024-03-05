@@ -116,20 +116,18 @@ function renderNode({ id, ...nodeProps }) {
   _currentNode = id
 
   // Immediately connect to the current input/output
-  Promise.resolve().then(() => {
-    if (_currentOutput) {
-      _currentInput = {
-        id,
-        index: 0,
-      }
-      onConnect()
-    } else if (_currentInput) {
-      _currentOutput = {
-        id,
-      }
-      onConnect()
+  if (_currentOutput) {
+    _currentInput = {
+      id,
+      index: 0,
     }
-  })
+    onConnect()
+  } else if (_currentInput) {
+    _currentOutput = {
+      id,
+    }
+    onConnect()
+  }
 }
 
 function initGraph() {

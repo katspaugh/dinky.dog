@@ -48,11 +48,14 @@ const persist = debounce(() => {
   saveState(serializedState)
 }, PERSIST_DELAY)
 
-const broadcast = debounce((command, ...args) => {
+function broadcast(command, ...args) {
   if (_streamClient) {
     _streamClient.publish({ command, args, clientId })
   }
-}, BROADCAST_DELAY)
+}
+
+const debouncedBroadcastProps = debounce(broadcast, BROADCAST_DELAY)
+const debouncedBroadcastData = debounce(broadcast, BROADCAST_DELAY)
 
 function randomId() {
   return Math.random().toString(36).slice(2)
@@ -111,9 +114,15 @@ function updateNodeData(id, data) {
   _graph.render({ node: { ...node.props, id, children: node.operator.render() } })
 }
 
-function connectNodes(outputId, inputId, inputIndex) {
+function connectNodes(outputId, inputId, inputIndex, attempt = 0) {
   // Already connected
   if (state.nodes[outputId].connections.some((conn) => conn.inputId === inputId && conn.inputIndex === inputIndex)) {
+    return
+  }
+
+  // The node hasn't been created yet
+  if (!state.nodes[inputId] && attempt < 10) {
+    setTimeout(() => connectNodes(outputId, inputId, inputIndex, attempt + 1), 100)
     return
   }
 
@@ -188,7 +197,7 @@ function onTextInput(id, value) {
   }
 
   persist()
-  broadcast('cmdUpdateNodeData', id, { operatorData: value })
+  debouncedBroadcastData('cmdUpdateNodeData', id, { operatorData: value })
 
   Promise.resolve().then(() => {
     // Parse data and create new nodes if needed
@@ -259,7 +268,7 @@ function onNodeUpate(id, props) {
   if (!state.nodes[id]) return
   updateNode(id, props)
   persist()
-  broadcast('cmdUpdateNode', id, state.nodes[id].props)
+  debouncedBroadcastProps('cmdUpdateNode', id, state.nodes[id].props)
 }
 
 function onDrag(id, dx, dy) {
