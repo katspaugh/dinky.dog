@@ -81,7 +81,6 @@ function createNode(id, props, data) {
       width,
       height,
       background,
-      inputsCount: operator.inputs.length,
       children: operator.render(),
     },
   })
@@ -114,47 +113,43 @@ function updateNodeData(id, data) {
   _graph.render({ node: { ...node.props, id, children: node.operator.render() } })
 }
 
-function connectNodes(outputId, inputId, inputIndex, attempt = 0) {
+function connectNodes(outputId, inputId, attempt = 0) {
   // Already connected
-  if (state.nodes[outputId].connections.some((conn) => conn.inputId === inputId && conn.inputIndex === inputIndex)) {
+  if (state.nodes[outputId].connections.some((conn) => conn.inputId === inputId)) {
     return
   }
 
   // The node hasn't been created yet
   if (!state.nodes[inputId] && attempt < 10) {
-    setTimeout(() => connectNodes(outputId, inputId, inputIndex, attempt + 1), 100)
+    setTimeout(() => connectNodes(outputId, inputId, attempt + 1), 100)
     return
   }
 
   const output = state.nodes[outputId].operator.output
-  const input = state.nodes[inputId].operator.inputs[inputIndex]
+  const input = state.nodes[inputId].operator.input
   output.connect(input)
 
-  state.nodes[outputId].connections.push({ inputId, inputIndex })
+  state.nodes[outputId].connections.push({ inputId })
 
   _graph.render({
     edge: {
       outputId,
       inputId,
-      inputIndex,
     },
   })
 }
 
-function disconnectNodes(outputId, inputId, inputIndex) {
+function disconnectNodes(outputId, inputId) {
   const output = state.nodes[outputId].operator.output
-  const input = state.nodes[inputId].operator.inputs[inputIndex]
+  const input = state.nodes[inputId].operator.input
   output.disconnect(input)
 
-  state.nodes[outputId].connections = state.nodes[outputId].connections.filter(
-    (c) => c.inputId !== inputId && c.inputIndex !== inputIndex,
-  )
+  state.nodes[outputId].connections = state.nodes[outputId].connections.filter((c) => c.inputId !== inputId)
 
   _graph.remove({
     edge: {
       outputId,
       inputId,
-      inputIndex,
     },
   })
 }
@@ -251,16 +246,16 @@ function onEscape(id) {
   }
 }
 
-function onConnect(outputId, inputId, inputIndex) {
-  connectNodes(outputId, inputId, inputIndex)
+function onConnect(outputId, inputId) {
+  connectNodes(outputId, inputId)
   persist()
-  broadcast('cmdConnect', outputId, inputId, inputIndex)
+  broadcast('cmdConnect', outputId, inputId)
 }
 
-function onDisconnect(outputId, inputId, inputIndex) {
-  disconnectNodes(outputId, inputId, inputIndex)
+function onDisconnect(outputId, inputId) {
+  disconnectNodes(outputId, inputId)
   persist()
-  broadcast('cmdDisconnect', outputId, inputId, inputIndex)
+  broadcast('cmdDisconnect', outputId, inputId)
 }
 
 function onNodeUpate(id, props) {
@@ -347,7 +342,7 @@ function initState(newState) {
 
         if (item.connections) {
           Promise.resolve().then(() => {
-            item.connections.forEach(({ inputId, inputIndex }) => connectNodes(id, inputId, inputIndex))
+            item.connections.forEach(({ inputId }) => connectNodes(id, inputId))
           })
         }
       })
@@ -407,7 +402,7 @@ async function initStreamClient() {
   _streamClient.subscribe(state.lastSequence, (msg, ack) => {
     ack()
 
-    if (state.id !== streamId) return
+    if (state.isLocked || state.id !== streamId) return
 
     state.lastSequence = msg.sequence
 
@@ -476,7 +471,7 @@ const DEMO = {
   nodes: {
     q6jjaugt7vg: {
       props: { x: 79, y: 114 },
-      connections: [{ inputId: 'jnnnjq2uvic', inputIndex: 0 }],
+      connections: [{ inputId: 'jnnnjq2uvic' }],
       data: { operatorData: 'Hello' },
     },
     jnnnjq2uvic: { props: { x: 287, y: 69 }, connections: [], data: { operatorData: 'world!' } },

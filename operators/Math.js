@@ -21,11 +21,11 @@ export function Math(text = '') {
   })
 
   return {
-    inputs: [inputStream],
+    input: inputStream,
 
     output: outputStream,
 
-    serialize: () => outputStream.get().toString(),
+    serialize: () => String(outputStream.get()),
 
     render: () => component.render({ src: outputStream.get() }),
 

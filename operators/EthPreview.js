@@ -60,7 +60,7 @@ export function EthPreview(text = '') {
   })
 
   const operator = {
-    inputs: [inputStream],
+    input: inputStream,
 
     output: outputStream,
 

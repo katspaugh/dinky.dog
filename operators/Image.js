@@ -11,7 +11,7 @@ export function Image(src = '') {
   })
 
   return {
-    inputs: [inputStream],
+    input: inputStream,
 
     output: outputStream,
 

@@ -13,6 +13,7 @@ export function ConnectorPoint(left, top) {
     zIndex: 5,
     left,
     top,
+    visibility: left === '0' ? 'hidden' : 'visible',
   })
 
   return {

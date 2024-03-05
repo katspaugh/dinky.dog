@@ -22,7 +22,7 @@ export function Text(initialValue) {
   })
 
   return {
-    inputs: [inputStream],
+    input: inputStream,
 
     output: outputStream,
 

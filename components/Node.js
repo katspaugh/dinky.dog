@@ -19,7 +19,8 @@ export function Node(id, { onClick, onInputClick, onOutputClick, onDrag, onResiz
 
   const output = ConnectorPoint('100%', '50%').render()
   container.appendChild(output)
-  const inputs = []
+  const input = ConnectorPoint('0', '50%').render()
+  container.appendChild(input)
 
   // Color wheel
   const colorwheel = Colorwheel()
@@ -38,10 +39,9 @@ export function Node(id, { onClick, onInputClick, onOutputClick, onDrag, onResiz
     container.addEventListener('click', (e) => {
       if (e.target === output) {
         onOutputClick()
-      } else if (inputs.includes(e.target)) {
-        onInputClick(inputs.indexOf(e.target))
+      } else {
+        onInputClick()
       }
-      onClick()
     })
   }
 
@@ -59,19 +59,11 @@ export function Node(id, { onClick, onInputClick, onOutputClick, onDrag, onResiz
   return {
     container: container,
 
-    inputs,
+    input,
 
     output,
 
-    render: ({
-      x,
-      y,
-      width = WIDTH,
-      height = HEIGHT,
-      background = DEFAULT_BACKGROUND,
-      inputsCount = 0,
-      children = null,
-    }) => {
+    render: ({ x, y, width = WIDTH, height = HEIGHT, background = DEFAULT_BACKGROUND, children = null }) => {
       const isBackground = background !== DEFAULT_BACKGROUND && width * height >= BG_THRESHOLD
 
       Object.assign(container.style, {
@@ -82,17 +74,6 @@ export function Node(id, { onClick, onInputClick, onOutputClick, onDrag, onResiz
         backgroundColor: background,
         zIndex: isBackground ? BG_Z_INDEX : DEFAULT_Z_INDEX,
       })
-
-      // Render inputs
-      if (inputsCount && inputs.length !== inputsCount) {
-        inputs.forEach((input) => input.remove())
-        inputs.length = 0
-        for (let i = 0; i < inputsCount; i++) {
-          const button = ConnectorPoint('0', `${((i + 1) / (inputsCount + 1)) * 100}%`).render()
-          container.appendChild(button)
-          inputs.push(button)
-        }
-      }
 
       // Children
       if (children) {

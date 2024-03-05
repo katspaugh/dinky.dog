@@ -11,7 +11,8 @@ export function parseImageUrl(text = '') {
 }
 
 export function parseMath(text = '') {
-  return /^[0-9+-/*^() ]+(?=&nbsp;|<br>)*$/.test(text) ? text : ''
+  const match = text.match(/^([-0-9+-/*^() ]+)=(?=&nbsp;|<br>)*$/)
+  return match ? match[1] : ''
 }
 
 export function parseEthAddress(text = '') {

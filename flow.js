@@ -7,33 +7,27 @@ let _graph = null
 let _nodes = {}
 let _edges = []
 let _currentNode = null
-let _currentInput = null
 let _currentOutput = null
 let _callbacks = {}
 
-function connectNodes(outputId, inputId, inputIndex) {
+function connectNodes(outputId, inputId) {
   const edge = Edge()
 
   const edgeItem = {
     edge,
     outputId,
     inputId,
-    inputIndex,
   }
 
   _edges.push(edgeItem)
 
   const edgeContainer = edge.render({
     fromEl: _nodes[outputId].output,
-    toEl: _nodes[inputId].inputs[inputIndex],
-    onClick: () => _callbacks.onDisconnect(outputId, inputId, inputIndex),
+    toEl: _nodes[inputId].input,
+    onClick: () => _callbacks.onDisconnect(outputId, inputId),
   })
 
   _graph.render({ edge: edgeContainer })
-}
-
-function onNodeConnect(outputId, inputId, inputIndex) {
-  _callbacks.onConnect(outputId, inputId, inputIndex)
 }
 
 function onNodeRemove(id) {
@@ -41,18 +35,15 @@ function onNodeRemove(id) {
   if (!node) return
 
   const edges = _edges.filter((edge) => edge.outputId === id || edge.inputId === id)
-  edges.forEach((edge) => {
-    edge.edge.destroy()
-  })
+  edges.forEach(removeEdge)
 
   node.destroy()
-
   delete _nodes[id]
 
   _callbacks.onRemove(id)
 }
 
-const onEdgeRemove = (edge) => {
+const removeEdge = (edge) => {
   if (!edge) return
   edge.edge.destroy()
   _edges = _edges.filter((e) => e !== edge)
@@ -72,14 +63,12 @@ function renderNode({ id, ...nodeProps }) {
   }
 
   const onConnect = () => {
-    onNodeConnect(_currentOutput.id, _currentInput.id, _currentInput.index)
+    _callbacks.onConnect(_currentOutput.id, id)
     _currentOutput = null
-    _currentInput = null
   }
 
   const node = Node(id, {
-    onInputClick: (index) => {
-      _currentInput = { id, index }
+    onInputClick: () => {
       if (_currentOutput) {
         onConnect()
       }
@@ -87,9 +76,6 @@ function renderNode({ id, ...nodeProps }) {
 
     onOutputClick: () => {
       _currentOutput = { id }
-      if (_currentInput) {
-        onConnect()
-      }
     },
 
     onDrag: (dx, dy) => {
@@ -117,15 +103,6 @@ function renderNode({ id, ...nodeProps }) {
 
   // Immediately connect to the current input/output
   if (_currentOutput) {
-    _currentInput = {
-      id,
-      index: 0,
-    }
-    onConnect()
-  } else if (_currentInput) {
-    _currentOutput = {
-      id,
-    }
     onConnect()
   }
 }
@@ -142,7 +119,7 @@ function initGraph() {
 
   const graph = Graph({
     onClick: (x, y) => {
-      if (_currentOutput || _currentInput) {
+      if (_currentOutput) {
         _callbacks.onEmptyClick(x, y)
       }
     },
@@ -152,8 +129,7 @@ function initGraph() {
     },
 
     onPointerMove: (x, y) => {
-      const currentStart = _currentInput || _currentOutput
-      if (!currentStart) {
+      if (!_currentOutput) {
         resetMouseEdge()
         return
       }
@@ -163,12 +139,9 @@ function initGraph() {
         graph.render({ edge: mouseEdge.container })
       }
 
-      const start = _currentOutput
-        ? _nodes[_currentOutput.id].output
-        : _nodes[_currentInput.id].inputs[_currentInput.index]
-      const end = { getBoundingClientRect: () => ({ left: x, top: y, width: 0, height: 0 }) }
-
-      mouseEdge.render({ fromEl: _currentOutput ? start : end, toEl: _currentOutput ? end : start })
+      const fromEl = _nodes[_currentOutput.id].output
+      const toEl = { getBoundingClientRect: () => ({ left: x, top: y, width: 0, height: 0 }) }
+      mouseEdge.render({ fromEl, toEl })
     },
 
     onPointerUp: () => {
@@ -178,7 +151,6 @@ function initGraph() {
     onKeyDown: (e) => {
       if (e.key === 'Escape') {
         resetMouseEdge()
-        _currentInput = null
         _currentOutput = null
 
         if (_currentNode) {
@@ -224,7 +196,7 @@ export function initFlow(callbacks) {
         updateEdges(node.id)
       }
       if (edge) {
-        connectNodes(edge.outputId, edge.inputId, edge.inputIndex)
+        connectNodes(edge.outputId, edge.inputId)
       }
       return dropContainer
     },
@@ -232,15 +204,10 @@ export function initFlow(callbacks) {
     remove: ({ node, edge }) => {
       if (node) {
         onNodeRemove(node)
-        updateEdges(node.id)
       }
 
       if (edge) {
-        onEdgeRemove(
-          _edges.find(
-            (e) => e.outputId === edge.outputId && e.inputId === edge.inputId && e.inputIndex === edge.inputIndex,
-          ),
-        )
+        removeEdge(_edges.find((e) => e.outputId === edge.outputId && e.inputId === edge.inputId))
       }
     },
   }

@@ -33,7 +33,7 @@ export function LinkPreview(initialUrl) {
   })
 
   const operator = {
-    inputs: [inputStream],
+    input: inputStream,
 
     output: outputStream,
 
