@@ -39,8 +39,10 @@ export function Node(id, { onClick, onInputClick, onOutputClick, onDrag, onResiz
     container.addEventListener('click', (e) => {
       if (e.target === output) {
         onOutputClick()
-      } else {
+      } else if (e.target === input) {
         onInputClick()
+      } else {
+        onClick()
       }
     })
   }

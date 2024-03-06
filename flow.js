@@ -7,6 +7,7 @@ let _graph = null
 let _nodes = {}
 let _edges = []
 let _currentNode = null
+let _currentInput = null
 let _currentOutput = null
 let _callbacks = {}
 
@@ -63,19 +64,24 @@ function renderNode({ id, ...nodeProps }) {
   }
 
   const onConnect = () => {
-    _callbacks.onConnect(_currentOutput.id, id)
+    _callbacks.onConnect(_currentOutput || id, _currentInput || id)
     _currentOutput = null
+    _currentInput = null
   }
 
   const node = Node(id, {
     onInputClick: () => {
+      _currentInput = id
       if (_currentOutput) {
         onConnect()
       }
     },
 
     onOutputClick: () => {
-      _currentOutput = { id }
+      _currentOutput = id
+      if (_currentInput) {
+        onConnect()
+      }
     },
 
     onDrag: (dx, dy) => {
@@ -91,8 +97,12 @@ function renderNode({ id, ...nodeProps }) {
     },
 
     onClick: () => {
-      _currentNode = id
-      _callbacks.onSelect(id)
+      if (_currentOutput || _currentInput) {
+        onConnect()
+      } else {
+        _currentNode = id
+        _callbacks.onSelect(id)
+      }
     },
   })
 
@@ -102,7 +112,7 @@ function renderNode({ id, ...nodeProps }) {
   _currentNode = id
 
   // Immediately connect to the current input/output
-  if (_currentOutput) {
+  if (_currentOutput || _currentInput) {
     onConnect()
   }
 }
@@ -119,7 +129,7 @@ function initGraph() {
 
   const graph = Graph({
     onClick: (x, y, wasFocused) => {
-      if (_currentOutput || !wasFocused) {
+      if (_currentOutput || _currentOutput || !wasFocused) {
         _callbacks.onEmptyClick(x, y)
       }
     },
@@ -129,7 +139,9 @@ function initGraph() {
     },
 
     onPointerMove: (x, y) => {
-      if (!_currentOutput) {
+      const currentStart = _currentInput || _currentOutput
+
+      if (!currentStart) {
         resetMouseEdge()
         return
       }
@@ -139,9 +151,10 @@ function initGraph() {
         graph.render({ edge: mouseEdge.container })
       }
 
-      const fromEl = _nodes[_currentOutput.id].output
-      const toEl = { getBoundingClientRect: () => ({ left: x, top: y, width: 0, height: 0 }) }
-      mouseEdge.render({ fromEl, toEl })
+      const start = _currentOutput ? _nodes[_currentOutput].output : _nodes[_currentInput].input
+      const end = { getBoundingClientRect: () => ({ left: x, top: y, width: 0, height: 0 }) }
+
+      mouseEdge.render({ fromEl: _currentOutput ? start : end, toEl: _currentOutput ? end : start })
     },
 
     onPointerUp: () => {
@@ -152,6 +165,7 @@ function initGraph() {
       if (e.key === 'Escape') {
         resetMouseEdge()
         _currentOutput = null
+        _currentInput = null
 
         if (_currentNode) {
           _callbacks.onEscape(_currentNode)

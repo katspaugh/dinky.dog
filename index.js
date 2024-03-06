@@ -162,6 +162,7 @@ function onCreateNode(id, props, data) {
 
 function onEmptyClick(x, y) {
   if (state.isLocked) return
+
   const id = randomId()
   onCreateNode(id, { x, y, background: _lastBackground }, { operatorType: Operators.Text.name })
 
