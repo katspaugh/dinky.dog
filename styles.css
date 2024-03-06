@@ -71,6 +71,7 @@ a:hover {
   transition: border-color 0.2s;
   color: var(--text-node-color);
   box-shadow: 1px 1px 1px var(--shadow-color);
+  cursor: auto;
 }
 
 .node:hover {
@@ -103,6 +104,7 @@ a:hover {
   border: none;
   background-color: var(--point-color);
   transition: background-color 0.2s;
+  cursor: pointer;
 }
 
 .node button:hover {
@@ -222,6 +224,11 @@ path:hover {
   height: 3000px;
   background-size: 30px 30px;
   background-image: radial-gradient(circle, var(--border-color) 1px, transparent 1px);
+  cursor: crosshair;
+}
+
+.pan.focused {
+  cursor: auto;
 }
 
 .sidebar {
@@ -306,7 +313,7 @@ path:hover {
   display: block;
   width: 100px;
   height: 100px;
-  background: url('/dinky-small.png') no-repeat left center;
+  background: url('/images/dinky-small.png') no-repeat left center;
   background-size: contain;
   transform: scaleX(-1);
 }

@@ -118,8 +118,8 @@ function initGraph() {
   }
 
   const graph = Graph({
-    onClick: (x, y) => {
-      if (_currentOutput) {
+    onClick: (x, y, wasFocused) => {
+      if (_currentOutput || !wasFocused) {
         _callbacks.onEmptyClick(x, y)
       }
     },

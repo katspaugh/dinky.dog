@@ -48,10 +48,10 @@ export function Sidebar({ title, setTitle, isLocked, setLocked }) {
   instructions.open = true
   instructions.innerHTML = `
     <summary>Instructions</summary>
-    <p>Double-click anywhere to <b>create</b> an object.</p>
-    <p><b>Connect</b> to other objects by clicking on the circle.</p>
-    <p>To <b>remove</b> an object, drag it off the screen, or press Escape on an empty object.</p>
-    <p>Drag-n-drop image files to <b>insert</b> a picture.</p>
+    <p>＋ Click anywhere to <b>create</b> an object.</p>
+    <p>〰 <b>Connect</b> to other objects by clicking on the circle.</p>
+    <p>␛ To <b>remove</b> an object, drag it off the screen, or press Escape on an empty object.</p>
+    <p>🀙 Drag-n-drop image files to <b>insert</b> a picture.</p>
   `
   div.appendChild(instructions)
 
