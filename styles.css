@@ -104,7 +104,6 @@ a:hover {
   border: none;
   background-color: var(--point-color);
   transition: background-color 0.2s;
-  cursor: pointer;
 }
 
 .node button:hover {
