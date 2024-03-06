@@ -3,11 +3,11 @@ import { ConnectorPoint } from './ConnectorPoint.js'
 import { ResizeHandle } from './ResizeHandle.js'
 import { Colorwheel } from './Colorwheel.js'
 
-export const WIDTH = 120
-export const HEIGHT = 60
+export const WIDTH = 180
+export const HEIGHT = 75
 export const MIN_WIDTH = 100
 export const MIN_HEIGHT = 42
-const DEFAULT_BACKGROUND = '#fafafa'
+const DEFAULT_BACKGROUND = '#f9f9f9'
 const BG_THRESHOLD = 200e3
 const BG_Z_INDEX = '1'
 const DEFAULT_Z_INDEX = '2'

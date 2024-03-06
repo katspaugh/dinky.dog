@@ -474,7 +474,7 @@ const DEMO = {
       connections: [{ inputId: 'jnnnjq2uvic' }],
       data: { operatorData: 'Hello' },
     },
-    jnnnjq2uvic: { props: { x: 287, y: 69 }, connections: [], data: { operatorData: 'world!' } },
+    jnnnjq2uvic: { props: { x: 387, y: 69 }, connections: [], data: { operatorData: 'world!' } },
   },
 }
 

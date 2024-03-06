@@ -1,6 +1,6 @@
 // Paster colors
 const PASTEL_COLORS = [
-  '#F9F9F9', // the default color
+  '#F9F9F9',
   '#ffe8ed',
   '#d6e2e7',
   '#bbeebb',

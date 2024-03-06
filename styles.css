@@ -10,7 +10,7 @@
   --panel-hover-color: #dddeee;
   --edge-color: #aaf;
   --edge-hover-color: #f00;
-  --border-color: #aaa;
+  --border-color: #D4D4D4;
   --textarea-color: #fff;
   --text-dim-color: #aaa;
   --text-node-color: #000;
@@ -29,7 +29,7 @@
     --edge-color: #444;
     --edge-hover-color: #aaf;
     --border-color: #555;
-    --textarea-color: #444;
+    --textarea-color: #656565;
     --text-dim-color: #aaa;
     --text-node-color: #000;
     --shadow-color: transparent;
@@ -253,8 +253,14 @@ path:hover {
   display: flex;
   flex-direction: column;
   flex-wrap: wrap;
-  gap: 25px;
+  gap: 45px;
   min-height: 100%;
+}
+
+.sidebar details {
+  border-top: 1px solid var(--border-color);
+  padding-top: 22px;
+  margin-top: -22px;
 }
 
 .sidebar .toggle-sidebar {
@@ -268,7 +274,7 @@ path:hover {
   padding: 0;
   background-color: var(--panel-hover-color);
   transition: background-color 0.2s;
-  border-right: 1px solid var(--border-color);
+  border-left: 1px solid var(--border-color);
   box-sizing: content-box;
   cursor: e-resize;
 }
@@ -284,7 +290,7 @@ path:hover {
 .sidebar h1 {
   color: #172A35;
   --outline-color: #fff;
-  text-shadow: 1px 1px var(--outline-color), -1px -1px var(--outline-color), 1px -1px var(--outline-color), -1px 1px var(--outline-color);
+  text-shadow: 2px 2px var(--outline-color), -2px -2px var(--outline-color), 2px -2px var(--outline-color), -2px 2px var(--outline-color);
   padding: 10px 0 0;
   display: flex;
   align-items: center;
@@ -316,6 +322,7 @@ path:hover {
   color: inherit;
   padding: 10px;
   border: 1px solid var(--border-color);
+  border-bottom-width: 3px;
   border-radius: 4px;
   background-color: var(--textarea-color);
 }
@@ -362,7 +369,7 @@ path:hover {
 .sidebar details a {
   display: block;
   width: 100%;
-  color: inherit;
+  color: var(--text-color);
   text-decoration: none;
   padding: 10px;
   margin: -3px 0;
@@ -373,6 +380,14 @@ path:hover {
 
 .sidebar details a:hover {
   background-color: var(--panel-hover-color);
+}
+
+.instructions {
+  color: var(--secondary-text-color);
+}
+
+.instructions:hover {
+  color: var(--text-color);
 }
 
 .locked .sidebar .instructions {
