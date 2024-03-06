@@ -240,7 +240,7 @@ path:hover {
 }
 
 .sidebar.collapsed {
-  right: -292px;
+  right: -289px;
 }
 
 .sidebar.collapsed:hover {
@@ -269,13 +269,12 @@ path:hover {
   background-color: var(--panel-hover-color);
   transition: background-color 0.2s;
   border-right: 1px solid var(--border-color);
-  cursor: w-resize;
   box-sizing: content-box;
+  cursor: e-resize;
 }
 
 .sidebar.collapsed .toggle-sidebar {
-  cursor: e-resize;
-  padding-left: 4px;
+  cursor: w-resize;
 }
 
 .sidebar .toggle-sidebar:hover {
@@ -284,23 +283,26 @@ path:hover {
 
 .sidebar h1 {
   color: #172A35;
-  text-shadow: 1px 1px #fff, -1px -1px #fff, 1px -1px #fff, -1px 1px #fff;
+  --outline-color: #fff;
+  text-shadow: 1px 1px var(--outline-color), -1px -1px var(--outline-color), 1px -1px var(--outline-color), -1px 1px var(--outline-color);
   padding: 10px 0 0;
   display: flex;
   align-items: center;
-  margin: 0 -9px;
-  gap: 10px;
+  margin: 0 -8px;
+  gap: 8px;
   line-height: 29px;
+  padding-left: 10px;
 }
 
-.sidebar h1:before {
+.sidebar h1:after {
+  flex: 1;
   content: '';
   display: block;
   width: 100px;
   height: 100px;
   background: url('/dinky-small.png') no-repeat left center;
   background-size: contain;
-  margin-top: -1px;
+  transform: scaleX(-1);
 }
 
 .locked [contenteditable] {
