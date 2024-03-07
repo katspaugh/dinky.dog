@@ -98,10 +98,6 @@ function renderNode({ id, ...nodeProps }) {
       _callbacks.onBackgroundChange(id, background)
     },
 
-    onFlip: (isFlipped) => {
-      _callbacks.onFlip(id, isFlipped)
-    },
-
     onClick: () => {
       if (_currentOutput || _currentInput) {
         onConnect()

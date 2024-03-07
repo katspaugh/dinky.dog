@@ -12,7 +12,7 @@ const BG_THRESHOLD = 200e3
 const BG_Z_INDEX = '1'
 const DEFAULT_Z_INDEX = '2'
 
-export function Node(id, { onClick, onInputClick, onOutputClick, onDrag, onResize, onBackgroundChange, onFlip }) {
+export function Node(id, { onClick, onInputClick, onOutputClick, onDrag, onResize, onBackgroundChange }) {
   let lastFlipped = false
   let lastBackground
 
@@ -43,12 +43,6 @@ export function Node(id, { onClick, onInputClick, onOutputClick, onDrag, onResiz
       },
     }),
   )
-
-  const flipButton = document.createElement('button')
-  flipButton.className = 'flip'
-  flipButton.innerHTML = '↺'
-  flipButton.onclick = () => onFlip(!lastFlipped)
-  container.appendChild(flipButton)
 
   // Event listeners
   if (onClick) {

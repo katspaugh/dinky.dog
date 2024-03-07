@@ -281,10 +281,6 @@ function onBackgroundChange(id, background) {
   onNodeUpate(id, { background })
 }
 
-function onFlip(id, flipped) {
-  onNodeUpate(id, { flipped })
-}
-
 function onSelect(id) {
   const node = state.nodes[id]
   if (!node) return
@@ -451,7 +447,6 @@ function init(appContainer, loadedState) {
     onDrag,
     onResize,
     onBackgroundChange,
-    onFlip,
     onEscape,
   })
 
