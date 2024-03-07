@@ -18,13 +18,13 @@ export function measureText(text, width, height) {
   }
 
   dummyDiv.style.width = width + 'px'
-  dummyDiv.innerText = text
+  dummyDiv.innerHTML = text
 
   if (dummyDiv.clientWidth < dummyDiv.scrollWidth) {
     dummyDiv.style.width = Math.min(MAX_WIDTH, dummyDiv.scrollWidth) + 'px'
   }
 
-  if (dummyDiv.clientHeight > height) {
+  if (dummyDiv.clientHeight >= height * 1.5) {
     dummyDiv.style.width = Math.min(MAX_WIDTH, Math.max(LARGE_WIDTH, width)) + 'px'
   }
 

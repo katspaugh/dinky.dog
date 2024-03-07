@@ -4,7 +4,7 @@ export function EditableText({ onInput = null } = {}) {
   const container = document.createElement('div')
   container.tabIndex = 0
   Object.assign(container.style, {
-    padding: '10px',
+    padding: '8px',
     overflow: 'auto',
     overflowWrap: 'normal',
   })
