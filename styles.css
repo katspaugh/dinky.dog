@@ -9,7 +9,7 @@
   --panel-color: #eee;
   --panel-hover-color: #dddeee;
   --edge-color: #aaf;
-  --edge-hover-color: #f00;
+  --edge-hover-color: #CD5C5C;
   --border-color: #D4D4D4;
   --border-hover-color: #a0a0a0;
   --textarea-color: #fff;
@@ -24,15 +24,12 @@
     --background-color: #999;
     --text-color: #fff;
     --secondary-text-color: #999;
-    --hover-color: #aaf;
-    --point-color: #faa;
-    --panel-color: #444;
+    --panel-color: #666;
     --panel-hover-color: #555;
     --edge-color: #444;
-    --edge-hover-color: #aaf;
     --border-color: #555;
     --border-hover-color: #333;
-    --textarea-color: #656565;
+    --textarea-color: #777;
     --text-dim-color: #aaa;
     --text-node-color: #000;
     --shadow-color: transparent;
