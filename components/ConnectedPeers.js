@@ -3,6 +3,7 @@ export function ConnectedPeers() {
 
   Object.assign(container.style, {
     display: 'flex',
+    flexWrap: 'wrap',
     alignItems: 'center',
     gap: '10px',
   })
