@@ -3,7 +3,7 @@ import { ConnectorPoint } from './ConnectorPoint.js'
 import { ResizeHandle } from './ResizeHandle.js'
 import { Colorwheel } from './Colorwheel.js'
 
-export const WIDTH = 180
+export const WIDTH = 160
 export const HEIGHT = 75
 export const MIN_WIDTH = 100
 export const MIN_HEIGHT = 42
@@ -12,15 +12,26 @@ const BG_THRESHOLD = 200e3
 const BG_Z_INDEX = '1'
 const DEFAULT_Z_INDEX = '2'
 
-export function Node(id, { onClick, onInputClick, onOutputClick, onDrag, onResize, onBackgroundChange }) {
+export function Node(id, { onClick, onInputClick, onOutputClick, onDrag, onResize, onBackgroundChange, onFlip }) {
+  let lastFlipped = false
+  let lastBackground
+
   const container = document.createElement('div')
   container.id = `node-${id}`
   container.className = 'node'
 
+  const content = document.createElement('div')
+  Object.assign(content.style, {
+    position: 'relative',
+    width: '100%',
+    height: '100%',
+  })
+  container.appendChild(content)
+
   const output = ConnectorPoint('100%', '50%').render()
-  container.appendChild(output)
+  content.appendChild(output)
   const input = ConnectorPoint('0', '50%').render()
-  container.appendChild(input)
+  content.appendChild(input)
 
   // Color wheel
   const colorwheel = Colorwheel()
@@ -32,6 +43,12 @@ export function Node(id, { onClick, onInputClick, onOutputClick, onDrag, onResiz
       },
     }),
   )
+
+  const flipButton = document.createElement('button')
+  flipButton.className = 'flip'
+  flipButton.innerHTML = '↺'
+  flipButton.onclick = () => onFlip(!lastFlipped)
+  container.appendChild(flipButton)
 
   // Event listeners
   if (onClick) {
@@ -55,7 +72,7 @@ export function Node(id, { onClick, onInputClick, onOutputClick, onDrag, onResiz
   // Resize
   if (onResize) {
     const resizeHandle = ResizeHandle({ onResize })
-    container.appendChild(resizeHandle.render())
+    content.appendChild(resizeHandle.render())
   }
 
   return {
@@ -65,7 +82,15 @@ export function Node(id, { onClick, onInputClick, onOutputClick, onDrag, onResiz
 
     output,
 
-    render: ({ x, y, width = WIDTH, height = HEIGHT, background = DEFAULT_BACKGROUND, children = null }) => {
+    render: ({
+      x,
+      y,
+      width = WIDTH,
+      height = HEIGHT,
+      background = DEFAULT_BACKGROUND,
+      flipped = false,
+      children = null,
+    }) => {
       const isBackground = background !== DEFAULT_BACKGROUND && width * height >= BG_THRESHOLD
 
       Object.assign(container.style, {
@@ -73,13 +98,24 @@ export function Node(id, { onClick, onInputClick, onOutputClick, onDrag, onResiz
         top: `${y}px`,
         width: `${width}px`,
         height: `${height}px`,
-        backgroundColor: background,
         zIndex: isBackground ? BG_Z_INDEX : DEFAULT_Z_INDEX,
       })
 
+      // Background
+      if (background !== lastBackground) {
+        lastBackground = background
+        content.style.backgroundColor = background
+      }
+
+      // Flip
+      if (flipped !== lastFlipped) {
+        lastFlipped = flipped
+        container.classList.toggle('flipped', flipped)
+      }
+
       // Children
       if (children) {
-        container.appendChild(children)
+        content.appendChild(children)
       }
 
       // Background color

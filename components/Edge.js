@@ -13,7 +13,7 @@ export function Edge({ inactive = false } = {}) {
       lastFromEl = fromEl
       lastToEl = toEl
 
-      const parent = (fromEl.parentElement || toEl.parentElement).parentElement
+      const parent = (fromEl.parentElement || toEl.parentElement).parentElement.parentElement
       if (!parent) return
       const parentBbox = parent.getBoundingClientRect()
       const x = -parentBbox.left

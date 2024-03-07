@@ -71,6 +71,7 @@ function renderNode({ id, ...nodeProps }) {
 
   const node = Node(id, {
     onInputClick: () => {
+      _currentNode = null
       _currentInput = id
       if (_currentOutput) {
         onConnect()
@@ -78,6 +79,7 @@ function renderNode({ id, ...nodeProps }) {
     },
 
     onOutputClick: () => {
+      _currentNode = null
       _currentOutput = id
       if (_currentInput) {
         onConnect()
@@ -94,6 +96,10 @@ function renderNode({ id, ...nodeProps }) {
 
     onBackgroundChange: (background) => {
       _callbacks.onBackgroundChange(id, background)
+    },
+
+    onFlip: (isFlipped) => {
+      _callbacks.onFlip(id, isFlipped)
     },
 
     onClick: () => {

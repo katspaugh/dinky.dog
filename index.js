@@ -72,15 +72,10 @@ function createNode(id, props, data) {
     connections: [],
   }
 
-  const { x, y, width, height, background } = props
   _graph.render({
     node: {
       id,
-      x,
-      y,
-      width,
-      height,
-      background,
+      ...props,
       children: operator.render(),
     },
   })
@@ -230,13 +225,6 @@ function onRemove(id) {
   broadcast('cmdRemoveNode', id)
 }
 
-function onSelect(id) {
-  const node = state.nodes[id]
-  if (!node) return
-
-  // TODO: Show node properties
-}
-
 function onEscape(id) {
   const node = state.nodes[id]
   if (!node) return
@@ -291,6 +279,16 @@ function onResize(id, dx, dy) {
 function onBackgroundChange(id, background) {
   _lastBackground = background
   onNodeUpate(id, { background })
+}
+
+function onFlip(id, flipped) {
+  onNodeUpate(id, { flipped })
+}
+
+function onSelect(id) {
+  const node = state.nodes[id]
+  if (!node) return
+  //
 }
 
 function initSidebar(onLockChange) {
@@ -453,6 +451,7 @@ function init(appContainer, loadedState) {
     onDrag,
     onResize,
     onBackgroundChange,
+    onFlip,
     onEscape,
   })
 

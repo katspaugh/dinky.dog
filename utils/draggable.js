@@ -69,18 +69,17 @@ export function makeDraggable(element, onDrag, onStart, onEnd, threshold = 3) {
     }
   }
 
-  const onClick = (event) => {
-    if (isDragging) {
-      event.stopPropagation()
-    }
-  }
+  // Prevent clicks after dragging
+  const onClick = (event) => isDragging && event.stopPropagation()
 
   element.addEventListener('pointerdown', onPointerDown)
   element.addEventListener('click', onClick, true)
+  document.addEventListener('click', onClick, true)
 
   return () => {
     unsubscribeDocument()
     element.removeEventListener('pointerdown', onPointerDown)
     element.removeEventListener('click', onClick, true)
+    document.removeEventListener('click', onClick, true)
   }
 }
