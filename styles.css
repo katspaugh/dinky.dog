@@ -192,6 +192,7 @@ a:hover {
 }
 
 .locked .node button {
+  visibility: hidden;
   pointer-events: none;
 }
 
