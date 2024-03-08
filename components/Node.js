@@ -20,18 +20,10 @@ export function Node(id, { onClick, onInputClick, onOutputClick, onDrag, onResiz
   container.id = `node-${id}`
   container.className = 'node'
 
-  const content = document.createElement('div')
-  Object.assign(content.style, {
-    position: 'relative',
-    width: '100%',
-    height: '100%',
-  })
-  container.appendChild(content)
-
   const output = ConnectorPoint('100%', '50%').render()
-  content.appendChild(output)
+  container.appendChild(output)
   const input = ConnectorPoint('0', '50%').render()
-  content.appendChild(input)
+  container.appendChild(input)
 
   // Color wheel
   const colorwheel = Colorwheel()
@@ -66,7 +58,7 @@ export function Node(id, { onClick, onInputClick, onOutputClick, onDrag, onResiz
   // Resize
   if (onResize) {
     const resizeHandle = ResizeHandle({ onResize })
-    content.appendChild(resizeHandle.render())
+    container.appendChild(resizeHandle.render())
   }
 
   return {
@@ -98,7 +90,7 @@ export function Node(id, { onClick, onInputClick, onOutputClick, onDrag, onResiz
       // Background
       if (background !== lastBackground) {
         lastBackground = background
-        content.style.backgroundColor = background
+        container.style.backgroundColor = background
       }
 
       // Flip
@@ -109,7 +101,7 @@ export function Node(id, { onClick, onInputClick, onOutputClick, onDrag, onResiz
 
       // Children
       if (children) {
-        content.appendChild(children)
+        container.appendChild(children)
       }
 
       // Background color
