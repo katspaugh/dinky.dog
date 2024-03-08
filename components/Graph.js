@@ -12,25 +12,25 @@ export function Graph({ onClick, onDblClick, onPointerUp, onPointerMove, onKeyDo
   pan.appendChild(svg)
 
   let wasFocused = false
-  {
-    let focusTimer = null
-    pan.addEventListener('focusin', (e) => {
-      if (e.target.tabIndex != null) {
-        if (focusTimer) clearTimeout(focusTimer)
-        wasFocused = true
-        pan.classList.add('focused')
-      }
-    })
-    pan.addEventListener('focusout', (e) => {
-      if (e.target.tabIndex != null) {
-        if (focusTimer) clearTimeout(focusTimer)
-        focusTimer = setTimeout(() => {
-          wasFocused = false
-          pan.classList.remove('focused')
-        }, 100)
-      }
-    })
+  let focusTimer = null
+  const onFocusIn = (e) => {
+    if (e.target.tabIndex != null) {
+      if (focusTimer) clearTimeout(focusTimer)
+      wasFocused = true
+      pan.classList.add('focused')
+    }
   }
+  const onFocusOut = (e) => {
+    if (e.target.tabIndex != null) {
+      if (focusTimer) clearTimeout(focusTimer)
+      focusTimer = setTimeout(() => {
+        wasFocused = false
+        pan.classList.remove('focused')
+      }, 100)
+    }
+  }
+  document.addEventListener('focusin', onFocusIn)
+  document.addEventListener('focusout', onFocusOut)
 
   const makeClickHandler = (callback) => (e) => {
     if (e.target === pan) {
@@ -92,6 +92,8 @@ export function Graph({ onClick, onDblClick, onPointerUp, onPointerMove, onKeyDo
       container.remove()
       window.removeEventListener('resize', onResize)
       document.removeEventListener('keydown', onKeyDown)
+      document.removeEventListener('focusin', onFocusIn)
+      document.removeEventListener('focusout', onFocusOut)
     },
   }
 }

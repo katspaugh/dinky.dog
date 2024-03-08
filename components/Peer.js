@@ -10,36 +10,21 @@ export function Peer({ id, onExpire, isMe = false }) {
   container.title = isMe ? `You (${browser})` : `Another peer (${browser})`
 
   Object.assign(container.style, {
-    width: '40px',
-  })
-
-  const emojiSpan = document.createElement('span')
-  Object.assign(emojiSpan.style, {
-    fontSize: '24px',
+    fontSize: '16px',
     textAlign: 'center',
     display: 'flex',
+    flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
-    width: '40px',
-    height: '40px',
+    width: '32px',
+    height: '32px',
     borderRadius: '50%',
     backgroundColor: '#fff',
     border: `3px solid ${color}`,
     cursor: 'default',
     transition: 'background-color 0.3s',
   })
-  emojiSpan.innerText = emoji
-  container.appendChild(emojiSpan)
-
-  const title = document.createElement('div')
-  title.innerText = isMe ? 'You' : browser.split('/')[0]
-  Object.assign(title.style, {
-    fontSize: '9px',
-    textAlign: 'center',
-    marginTop: '4px',
-    whiteSpace: 'nowrap',
-  })
-  container.appendChild(title)
+  container.innerText = emoji
 
   let animationTimer = null
   let expirationTimer = null
@@ -48,12 +33,12 @@ export function Peer({ id, onExpire, isMe = false }) {
     container,
 
     render: () => {
-      emojiSpan.style.backgroundColor = color
+      container.style.backgroundColor = color
 
       // Animation on activity
       if (animationTimer) clearTimeout(animationTimer)
       animationTimer = setTimeout(() => {
-        emojiSpan.style.backgroundColor = '#fff'
+        container.style.backgroundColor = '#fff'
       }, 300)
 
       // Expire after N seconds of inactivity

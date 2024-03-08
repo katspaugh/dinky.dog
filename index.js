@@ -1,6 +1,5 @@
 import { Sidebar } from './components/Sidebar.js'
 import { Peer } from './components/Peer.js'
-import { MyCharts } from './components/MyCharts.js'
 import { WIDTH, HEIGHT, MIN_WIDTH, MIN_HEIGHT } from './components/Node.js'
 import { initFlow } from './flow.js'
 import * as Operators from './operators/index.js'
@@ -42,6 +41,10 @@ const persist = debounce(() => {
     }
     return acc
   }, {})
+
+  if (!state.title && Object.keys(nodes).length !== 0) {
+    state.title = Object.values(state.nodes)[0].data.operatorData
+  }
 
   const serializedState = { ...state, nodes }
 
@@ -291,6 +294,8 @@ function initSidebar(onLockChange) {
   const sidebar = Sidebar({
     title: state.title,
 
+    savedFlows: getSavedStates(),
+
     setTitle: (title) => {
       if (state.isLocked) return
       state.title = title
@@ -424,12 +429,6 @@ async function initStreamClient() {
   })
 }
 
-function initMyCharts() {
-  const savedStates = getSavedStates()
-  const container = MyCharts().render({ charts: savedStates })
-  _sidebar.render({ children: container })
-}
-
 function init(appContainer, loadedState) {
   initState(loadedState)
 
@@ -450,14 +449,13 @@ function init(appContainer, loadedState) {
     onEscape,
   })
 
-  appContainer.appendChild(graph.container)
   appContainer.appendChild(sidebar.container)
+  appContainer.appendChild(graph.container)
   document.body.appendChild(appContainer)
 
   _sidebar = sidebar
   _graph = graph
 
-  initMyCharts()
   initStreamClient()
 }
 

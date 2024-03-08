@@ -6,8 +6,6 @@
   --link-hover-color: #CD5C5C;
   --hover-color: #aaf;
   --point-color: #faa;
-  --panel-color: #eee;
-  --panel-hover-color: #dddeee;
   --edge-color: #aaf;
   --edge-hover-color: #CD5C5C;
   --border-color: #D4D4D4;
@@ -17,6 +15,11 @@
   --text-node-color: #000;
   --shadow-color: #555;
   --button-color: #eee;
+  --menu-color: #fafafa;
+  --menu-text-color: #333;
+  --menu-hover-color: #aaf;
+  --menu-hover-text-color: #fff;
+  --menu-border-color: #555;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -24,8 +27,6 @@
     --background-color: #999;
     --text-color: #fff;
     --secondary-text-color: #999;
-    --panel-color: #666;
-    --panel-hover-color: #555;
     --edge-color: #444;
     --border-color: #555;
     --border-hover-color: #333;
@@ -33,6 +34,8 @@
     --text-dim-color: #aaa;
     --text-node-color: #000;
     --shadow-color: transparent;
+    --menu-color: #dfdfdf;
+    --menu-text-color: #000;
   }
 }
 
@@ -45,6 +48,11 @@ body {
   overscroll-behavior: none;
   background-color: var(--background-color);
   color: var(--text-color);
+}
+
+input,
+div[contenteditable] {
+  outline-color: var(--hover-color);
 }
 
 * {
@@ -221,15 +229,16 @@ path:hover {
   height: 100vh;
   width: 100vw;
   overflow: auto;
+  background-size: 30px 30px;
+  background-image: radial-gradient(circle, var(--border-color) 1px, transparent 1px);
 }
 
 .pan {
   position: relative;
   width: 3000px;
   height: 3000px;
-  background-size: 30px 30px;
-  background-image: radial-gradient(circle, var(--border-color) 1px, transparent 1px);
   cursor: crosshair;
+  margin-top: 30px;
 }
 
 .pan.focused {
@@ -237,178 +246,131 @@ path:hover {
 }
 
 .sidebar {
+  position: absolute;
+  z-index: 10;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  overflow-y: visible;
+  overflow-x: auto;
+  color: var(--menu-text-color);
+}
+
+.sidebar hr {
+  flex: 1;
+  border: none;
+}
+
+.sidebar ul {
+  background-color: var(--menu-color);
   position: fixed;
   z-index: 10;
-  right: 0;
-  top: 0;
-  width: 300px;
-  height: 100vh;
-  background-color: var(--panel-color);
-  padding: 0 20px;
-  padding-left: 30px;
-  overflow-y: auto;
-  transition: left .3s;
-  --sidebar-toggle-width: 10px;
-}
-
-.sidebar.collapsed {
-  right: -289px;
-}
-
-.sidebar.collapsed:hover {
-  transform: translateX(4px)
-}
-
-.sidebar .flex {
-  width: 100%;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  flex-wrap: wrap;
-  gap: 45px;
-  min-height: 100%;
-}
-
-.sidebar details {
-  border-top: 1px solid var(--border-color);
-  padding-top: 22px;
-  margin-top: -22px;
-}
-
-.sidebar .toggle-sidebar {
-  position: absolute;
-  z-index: 4;
-  left: -30px;
-  top: 0;
-  bottom: 0;
-  width: var(--sidebar-toggle-width);
-  border: none;
+  width: 200px;
+  margin-top: 8px;
+  margin-left: -21px;
   padding: 0;
-  background-color: var(--panel-hover-color);
-  transition: background-color 0.2s;
-  border-left: 1px solid var(--border-color);
-  box-sizing: content-box;
-  cursor: e-resize;
+  border: 1px solid var(--menu-border-color);
+  box-shadow: 2px 2px var(--shadow-color);
 }
 
-.sidebar.collapsed .toggle-sidebar {
-  cursor: w-resize;
+.sidebar ul hr {
+  border-top: 1px dashed var(--menu-border-color);
+  margin: 0;
+  padding: 0;
 }
 
-.sidebar .toggle-sidebar:hover {
-  background-color: var(--hover-color);
+.sidebar label,
+.sidebar summary {
+  user-select: none;
+  padding: 8px 20px;
 }
 
-.sidebar h1 {
-  color: #172A35;
-  --outline-color: #fff;
-  text-shadow: 2px 2px var(--outline-color), -2px -2px var(--outline-color), 2px -2px var(--outline-color), -2px 2px var(--outline-color);
-  padding: 10px 0 0;
+.sidebar label {
+  display: block;
+}
+
+.sidebar > div:not(.peers) {
+  line-height: 1.2;
+  border: 1px solid var(--menu-border-color);
+  box-shadow: 2px 2px var(--shadow-color);
+  background-color: var(--menu-color);
+}
+
+.sidebar > div:not(.peers):hover {
+  background-color: var(--menu-hover-color);
+  color: var(--menu-hover-text-color);
+}
+
+.peers {
+  opacity: 0.5;
+  transition: opacity 0.1s;
   display: flex;
-  align-items: center;
-  margin: 0 -8px;
-  gap: 8px;
-  line-height: 29px;
-  padding-left: 10px;
+  gap: 4px;
+  padding: 0 2px;
 }
 
-.sidebar h1:after {
-  flex: 1;
+.peers:hover {
+  opacity: 1;
+}
+
+.sidebar button {
+  margin: -4px 0;
+  transform: translateY(-1px);
+}
+
+.sidebar li {
+  color: var(--menu-text-color);
+  list-style: none;
+  padding: 10px 20px;
+  cursor: pointer;
+}
+
+.sidebar li a {
+  color: inherit;
+  text-decoration: none;
+  display: block;
+  padding: 10px 20px;
+  margin: -10px -20px;
+}
+
+.sidebar li:hover a,
+.sidebar li:hover {
+  background-color: var(--menu-hover-color);
+  color: var(--menu-hover-text-color);
+}
+
+.sidebar input[type="text"] {
+  padding: 8px;
+  margin: 0 10px;
+  border: none;
+  background-color: var(--menu-color);
+  border-bottom: 2px dashed var(--menu-border-color);
+  border-radius: 0;
+  font-size: 1em;
+  color: inherit;
+  border-radius: 0;
+}
+
+.sidebar label {
+  filter: hue-rotate(290deg);
+}
+
+.sidebar:after {
   content: '';
   display: block;
-  width: 100px;
-  height: 100px;
-  background: url('/images/dinky-small.png') no-repeat left center;
-  background-size: contain;
-  transform: scaleX(-1);
-}
-
-.locked [contenteditable] {
-  pointer-events: none;
-}
-
-.sidebar input.title {
-  width: 100%;
-  background-color: transparent;
-  font-size: 1.5em;
-  color: inherit;
-  padding: 10px;
-  border: 1px solid var(--border-color);
-  border-bottom-width: 3px;
-  border-radius: 4px;
-  background-color: var(--textarea-color);
-}
-
-.sidebar input.title::placeholder {
-  color: var(--text-dim-color);
-}
-
-.locked .sidebar input.title {
-  background-color: transparent;
-  border-color: transparent;
-  padding-left: 0 !important;
-  padding-right: 0 !important;
-}
-
-.sidebar h3 {
-  width: 100%;
-  overflow: auto;
-}
-
-.sidebar details {
-  transition: .3s;
-  width: 100%;
-}
-
-.sidebar details summary {
-  user-select: none;
-  color: var(--secondary-text-color);
-  cursor: pointer;
-  font-size: 0.8em;
-  margin-bottom: 1em;
-}
-
-.sidebar details ul {
-  padding-left: 0.6em;
-  text-indent: -0.2em;
-  margin: 0;
-}
-
-.sidebar details li {
-  list-style: none;
-}
-
-.sidebar details a {
-  display: block;
-  width: 100%;
-  color: var(--text-color);
-  text-decoration: none;
-  padding: 10px;
-  margin: -3px 0;
-  transition: background-color 0.2s;
-  border-radius: 4px;
-  background-color: transparent;
-}
-
-.sidebar details a:hover {
-  background-color: var(--panel-hover-color);
-}
-
-.instructions {
-  color: var(--secondary-text-color);
-}
-
-.instructions:hover {
-  color: var(--text-color);
-}
-
-.locked .sidebar .instructions {
-  display: none;
-}
-
-.sidebar footer {
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  width: 23px;
+  height: 23px;
+  padding: 6px;
+  background: url('/images/dinky-small.png') center no-repeat;
+  background-color: #fafafa;
+  background-size: 80%;
+  transform: rotateY(180deg);
+  line-height: 1.2;
+  border: 1px solid var(--menu-border-color);
+  box-shadow: 2px 2px var(--shadow-color);
+  background-color: var(--menu-color);
 }

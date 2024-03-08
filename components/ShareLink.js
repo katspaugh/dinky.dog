@@ -1,10 +1,13 @@
 import { getShortHash, setHash } from '../persist.js'
 
 export function ShareLink(label = '') {
+  const container = document.createElement('label')
+
   const button = document.createElement('button')
   button.innerText = label
   button.style.minWidth = '93px'
   button.style.minHeight = '24px'
+  container.appendChild(button)
 
   let timeoutId
 
@@ -32,8 +35,6 @@ export function ShareLink(label = '') {
       }, 1000)
     }
   }
-
-  const container = button
 
   return {
     container,

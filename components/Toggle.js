@@ -4,7 +4,6 @@ export function Toggle(label = '') {
   Object.assign(container.style, {
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center',
     gap: '5px',
     userSelect: 'none',
     cursor: 'pointer',
