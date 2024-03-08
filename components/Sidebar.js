@@ -2,10 +2,12 @@ import { Menu } from '../components/Menu.js'
 import { Toggle } from '../components/Toggle.js'
 import { ShareLink } from '../components/ShareLink.js'
 
+const isMobile = window.matchMedia('(max-width: 600px)').matches
 const originalDevicePixelRatio = Math.round(window.devicePixelRatio / (window.screen.availWidth / window.innerWidth))
 let pxRatio = originalDevicePixelRatio
 
 function resizeElementToCompensateZoom(element) {
+  if (isMobile) return
   const newPxRatio = window.devicePixelRatio
   if (newPxRatio !== pxRatio) {
     pxRatio = newPxRatio

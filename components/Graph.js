@@ -1,5 +1,3 @@
-import { makeDraggable } from '../utils/draggable.js'
-
 export function Graph({ onClick, onDblClick, onPointerUp, onPointerMove, onKeyDown }) {
   const container = document.createElement('div')
   container.className = 'graph'
@@ -46,21 +44,6 @@ export function Graph({ onClick, onDblClick, onPointerUp, onPointerMove, onKeyDo
   pan.addEventListener('pointerleave', onPointerUp)
 
   document.addEventListener('keydown', onKeyDown)
-
-  // Make the graph draggable
-  makeDraggable(
-    pan,
-    (dx, dy) => {
-      container.parentElement.scrollLeft -= dx
-      container.parentElement.scrollTop -= dy
-    },
-    () => {
-      pan.style.cursor = 'grabbing'
-    },
-    () => {
-      pan.style.cursor = ''
-    },
-  )
 
   // Scale the SVG on window resize
   const onResize = () => {
