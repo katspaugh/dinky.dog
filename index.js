@@ -42,10 +42,6 @@ const persist = debounce(() => {
     return acc
   }, {})
 
-  if (!state.title && Object.keys(nodes).length !== 0) {
-    state.title = Object.values(state.nodes)[0].data.operatorData
-  }
-
   const serializedState = { ...state, nodes }
 
   saveState(serializedState)
