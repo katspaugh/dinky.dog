@@ -2,8 +2,8 @@ import { Stream } from '../utils/stream.js'
 import { parseImageUrl } from '../text-transformers/index.js'
 import { ImagePreview } from '../components/ImagePreview.js'
 
-export function Image(text = '') {
-  const inputStream = new Stream(text)
+export function Image(src = '') {
+  const inputStream = new Stream()
   const outputStream = new Stream()
   const component = ImagePreview()
 
@@ -17,6 +17,10 @@ export function Image(text = '') {
   outputStream.subscribe((src) => {
     component.render({ src })
   })
+
+  if (src) {
+    outputStream.next(src)
+  }
 
   return {
     input: inputStream,
