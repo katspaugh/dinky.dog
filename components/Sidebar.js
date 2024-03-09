@@ -2,21 +2,6 @@ import { Menu } from '../components/Menu.js'
 import { Toggle } from '../components/Toggle.js'
 import { ShareLink } from '../components/ShareLink.js'
 
-const isMobile = window.matchMedia('(max-width: 600px)').matches
-const originalDevicePixelRatio = Math.round(window.devicePixelRatio / (window.screen.availWidth / window.innerWidth))
-let pxRatio = originalDevicePixelRatio
-
-function resizeElementToCompensateZoom(element) {
-  if (isMobile) return
-  const newPxRatio = window.devicePixelRatio
-  if (newPxRatio !== pxRatio) {
-    pxRatio = newPxRatio
-    element.style.transformOrigin = 'top left'
-    element.style.transform = `scale(${originalDevicePixelRatio / newPxRatio})`
-    element.style.width = 100 * (newPxRatio / originalDevicePixelRatio) + 'vw'
-  }
-}
-
 export function Sidebar({ title, setTitle, isLocked, setLocked, savedFlows }) {
   const container = document.createElement('div')
   container.className = 'sidebar'
@@ -34,10 +19,10 @@ export function Sidebar({ title, setTitle, isLocked, setLocked, savedFlows }) {
   container.appendChild(document.createElement('hr'))
 
   // Title input
+  const input = document.createElement('input')
   {
-    const input = document.createElement('input')
     input.type = 'text'
-    input.value = title
+    input.value = title || ''
     input.placeholder = 'Untitled'
     input.oninput = () => setTitle(input.value)
     container.appendChild(input)
@@ -77,10 +62,6 @@ export function Sidebar({ title, setTitle, isLocked, setLocked, savedFlows }) {
   // Share link
   div(ShareLink('Share link 🔗').render())
 
-  // Call the function on page load and whenever the window is resized
-  const onResize = () => resizeElementToCompensateZoom(container)
-  window.addEventListener('resize', onResize)
-
   return {
     container,
 
@@ -93,14 +74,11 @@ export function Sidebar({ title, setTitle, isLocked, setLocked, savedFlows }) {
         input.value = title
       }
 
-      onResize()
-
       return container
     },
 
     destroy: () => {
       container.remove()
-      window.removeEventListener('resize', onResize)
     },
   }
 }

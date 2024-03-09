@@ -238,7 +238,7 @@ path:hover {
   width: 3000px;
   height: 3000px;
   cursor: crosshair;
-  margin-top: 30px;
+  margin-top: 45px;
 }
 
 .pan.focused {
@@ -251,7 +251,7 @@ path:hover {
   left: 0;
   top: 0;
   width: 100vw;
-  padding: 2px;
+  padding: 4px 6px;
   display: flex;
   align-items: center;
   flex-wrap: nowrap;
@@ -270,8 +270,7 @@ path:hover {
   position: fixed;
   z-index: 10;
   width: 200px;
-  margin-top: 8px;
-  margin-left: -21px;
+  margin: 0;
   padding: 0;
   border: 1px solid var(--menu-border-color);
   box-shadow: 2px 2px var(--shadow-color);
@@ -306,11 +305,10 @@ path:hover {
 }
 
 .peers {
-  opacity: 0.5;
+  opacity: 0.8;
   transition: opacity 0.1s;
   display: flex;
   gap: 4px;
-  padding: 0 2px;
 }
 
 .peers:hover {
@@ -371,6 +369,6 @@ path:hover {
   transform: rotateY(180deg);
   line-height: 1.2;
   border: 1px solid var(--menu-border-color);
-  box-shadow: 2px 2px var(--shadow-color);
+  box-shadow: -2px 2px var(--shadow-color);
   background-color: var(--menu-color);
 }
