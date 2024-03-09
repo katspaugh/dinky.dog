@@ -4,19 +4,22 @@ import { WIDTH, HEIGHT, MIN_WIDTH, MIN_HEIGHT } from './components/Node.js'
 import { initFlow } from './flow.js'
 import * as Operators from './operators/index.js'
 import * as TextTransformers from './text-transformers/index.js'
-import { saveState, loadState, getSavedStates } from './persist.js'
+import { loadState, saveState, getSavedStates, getClientId } from './persist.js'
 import { debounce } from './utils/debounce.js'
-import { initDurableStream, getClientId } from './services/durable-stream.js'
+import { initDurableStream } from './services/durable-stream.js'
 import { measureText } from './utils/measure-text.js'
+import { randomId } from './utils/random.js'
 
-const PERSIST_DELAY = 300
 const BROADCAST_DELAY = 300
 const REMOVE_THRESHOLD_X = -70
 const REMOVE_THRESHOLD_Y = -30
 
 const clientId = getClientId()
+const sessionId = randomId()
+
 let state = {
   id: '',
+  creator: clientId,
   lastSequence: 0,
   isLocked: false,
   title: '',
@@ -28,7 +31,7 @@ let _graph
 let _streamClient
 let _lastBackground
 
-const persist = debounce(() => {
+function serializeState() {
   const nodes = Object.entries(state.nodes).reduce((acc, [id, node]) => {
     acc[id] = {
       props: node.props,
@@ -42,23 +45,21 @@ const persist = debounce(() => {
     return acc
   }, {})
 
-  const serializedState = { ...state, nodes }
+  return { ...state, nodes }
+}
 
-  saveState(serializedState)
-}, PERSIST_DELAY)
+function persistState(onUnload = false) {
+  saveState(serializeState(), onUnload)
+}
 
 function broadcast(command, ...args) {
   if (_streamClient) {
-    _streamClient.publish({ command, args, clientId })
+    _streamClient.publish({ command, args, clientId, sessionId })
   }
 }
 
 const debouncedBroadcastProps = debounce(broadcast, BROADCAST_DELAY)
 const debouncedBroadcastData = debounce(broadcast, BROADCAST_DELAY)
-
-function randomId() {
-  return Math.random().toString(36).slice(2)
-}
 
 function createNode(id, props, data) {
   const operatorType = data.operatorType || Operators.Text.name
@@ -152,7 +153,6 @@ function disconnectNodes(outputId, inputId) {
 
 function onCreateNode(id, props, data) {
   createNode(id, props, data)
-  persist()
   broadcast('cmdCreateNode', id, props, data)
 }
 
@@ -188,7 +188,6 @@ function onTextInput(id, value) {
     })
   }
 
-  persist()
   debouncedBroadcastData('cmdUpdateNodeData', id, { operatorData: value })
 
   Promise.resolve().then(() => {
@@ -226,7 +225,6 @@ function onTextInput(id, value) {
 function onRemove(id) {
   if (state.isLocked) return
   delete state.nodes[id]
-  persist()
   broadcast('cmdRemoveNode', id)
 }
 
@@ -242,13 +240,11 @@ function onEscape(id) {
 
 function onConnect(outputId, inputId) {
   connectNodes(outputId, inputId)
-  persist()
   broadcast('cmdConnect', outputId, inputId)
 }
 
 function onDisconnect(outputId, inputId) {
   disconnectNodes(outputId, inputId)
-  persist()
   broadcast('cmdDisconnect', outputId, inputId)
 }
 
@@ -256,7 +252,6 @@ function onNodeUpate(id, props) {
   if (state.isLocked) return
   if (!state.nodes[id]) return
   updateNode(id, props)
-  persist()
   debouncedBroadcastProps('cmdUpdateNode', id, state.nodes[id].props)
 }
 
@@ -289,32 +284,34 @@ function onBackgroundChange(id, background) {
 function onSelect(id) {
   const node = state.nodes[id]
   if (!node) return
-  //
+  // TODO
 }
 
 function initSidebar(onLockChange) {
   const sidebar = Sidebar({
     title: state.title,
 
-    savedFlows: getSavedStates(),
-
-    setTitle: (title) => {
+    onTitleChange: (title) => {
       if (state.isLocked) return
       state.title = title
-      persist()
+      //broadcast('cmdUpdateTitle', title)
     },
 
     isLocked: state.isLocked,
 
     setLocked:
-      state.isLocked && state.isLocked !== clientId
+      state.isLocked && state.creator !== clientId
         ? undefined
         : (isLocked) => {
-            state.isLocked = isLocked ? clientId : false
-            persist()
+            state.isLocked = isLocked
             onLockChange()
+            //broadcast('cmdSetLocked', isLocked)
             return isLocked
           },
+
+    savedFlows: getSavedStates(),
+
+    onShare: persistState,
   })
 
   onLockChange()
@@ -325,8 +322,9 @@ function initSidebar(onLockChange) {
 function initState(newState) {
   // Update state properties
   state.id = newState.id || randomId()
+  state.creator = newState.creator || clientId
   state.title = newState.title
-  state.isLocked = newState.isLocked
+  state.isLocked = newState.isLocked || false
   state.lastSequence = newState.lastSequence || 0
 
   // Re-create nodes and connections
@@ -349,6 +347,8 @@ function initState(newState) {
         }
       })
     })
+  } else {
+    newState.nodes = {}
   }
 
   console.log('State', state)
@@ -410,24 +410,30 @@ async function initStreamClient() {
 
     onPeerMessage(msg.data.clientId, msg.data.clientId === clientId)
 
-    if (msg.data.clientId !== clientId) {
+    if (msg.data.clientId !== clientId || msg.data.sessionId !== sessionId) {
       console.log('Received msg', msg)
 
       const { command, args } = msg.data
       if (commands[command]) {
         commands[command](...args)
       }
-
-      persist()
     }
   })
 
   // Send an initial message to announce our presence
-  broadcast('cmdHello')
+  broadcast('cmdHello', state.lastSequence)
 
   // Send a message when the user closes the tab
   window.addEventListener('beforeunload', () => {
     broadcast('cmdPeerDisconnect')
+  })
+}
+
+function initPersistance() {
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') {
+      persistState(true)
+    }
   })
 }
 
@@ -459,10 +465,10 @@ function init(appContainer, loadedState) {
   _graph = graph
 
   initStreamClient()
+  initPersistance()
 }
 
 const DEMO = {
-  id: randomId(),
   nodes: {
     q6jjaugt7vg: {
       props: { x: 79, y: 114 },
@@ -475,6 +481,7 @@ const DEMO = {
 
 loadState()
   .catch(() => DEMO)
-  .then((loadedState) => {
-    init(document.querySelector('#app'), loadedState || DEMO)
+  .then((newState) => {
+    console.log('New staet', newState)
+    init(document.querySelector('#app'), Object.keys(newState).length === 1 ? { ...DEMO, newState } : newState || DEMO)
   })

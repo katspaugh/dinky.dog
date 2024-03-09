@@ -34,7 +34,7 @@ export function Menu(title = '') {
         if (typeof content === 'string') {
           const a = document.createElement('a')
           a.href = href || ''
-          a.textContent = content
+          a.textContent = content.slice(0, 30)
           content = a
         }
         if (content) {

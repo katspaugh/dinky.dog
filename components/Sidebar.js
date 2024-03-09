@@ -1,8 +1,9 @@
 import { Menu } from '../components/Menu.js'
 import { Toggle } from '../components/Toggle.js'
 import { ShareLink } from '../components/ShareLink.js'
+import { randomId } from '../utils/random.js'
 
-export function Sidebar({ title, setTitle, isLocked, setLocked, savedFlows }) {
+export function Sidebar({ title, onTitleChange, isLocked, setLocked, savedFlows, onShare }) {
   const container = document.createElement('div')
   container.className = 'sidebar'
 
@@ -26,7 +27,7 @@ export function Sidebar({ title, setTitle, isLocked, setLocked, savedFlows }) {
     input.type = 'text'
     input.value = title || ''
     input.placeholder = 'Untitled'
-    input.oninput = () => setTitle(input.value)
+    input.oninput = () => onTitleChange(input.value)
     container.appendChild(input)
   }
 
@@ -34,22 +35,22 @@ export function Sidebar({ title, setTitle, isLocked, setLocked, savedFlows }) {
   {
     const flowsMenu = Menu('Flows')
 
-    const items = savedFlows.map((flow) => ({ content: flow.title || flow.id, href: `?${flow.id}#${flow.hash}` }))
-    items.unshift({ content: '＋ New flow', href: '?hello#world', separator: true })
+    const items = savedFlows.map((flow) => ({ content: flow.title || flow.id, href: `?q=${flow.id}` }))
+    items.unshift({ content: '＋ New flow', href: '?q=' + randomId(), separator: true })
 
     div(flowsMenu.render({ items }))
   }
 
   // Lock toggle
-  div(Toggle('Lock 🔒').render({ checked: !!isLocked, onChange: setLocked }))
+  div(Toggle('Lock').render({ checked: !!isLocked, onChange: setLocked }))
 
   // Share link
-  div(ShareLink('Share link 🔗').render())
+  div(ShareLink('🔗 Share link', onShare).render())
 
   const logo = div(
     Menu('').render({
       items: [
-        { content: 'About', href: 'https://dinky.dog/?about#fao65acvjmg' },
+        { content: 'About', href: 'https://dinky.dog/?q=shqk808twlq' },
         { content: 'GitHub', href: 'https://github.com/katspaugh/dinky.dog' },
       ],
     }),

@@ -246,10 +246,6 @@ path:hover {
   margin-top: 45px;
 }
 
-.pan.focused {
-  cursor: auto;
-}
-
 .sidebar {
   position: absolute;
   z-index: 10;
@@ -292,7 +288,6 @@ path:hover {
 .sidebar summary {
   user-select: none;
   padding: 6px 10px;
-  min-width: 100px;
 }
 
 .sidebar label {
@@ -344,6 +339,9 @@ path:hover {
   display: block;
   padding: 10px 20px;
   margin: -10px -20px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .sidebar li:hover a,
@@ -353,8 +351,8 @@ path:hover {
 }
 
 .sidebar input[type="text"] {
-  padding: 8px;
-  margin: 0 4px;
+  padding: 6px;
+  margin: 0 2px;
   border: none;
   background-color: var(--menu-color);
   border-bottom: 2px dashed var(--menu-border-color);
@@ -380,7 +378,6 @@ path:hover {
   height: 23px;
   padding: 4px;
   background: url('/images/dinky-small.png') center no-repeat;
-  background-color: #fafafa;
   background-size: 80%;
   transform: rotateY(180deg);
   pointer-events: none;
