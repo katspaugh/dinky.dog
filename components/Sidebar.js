@@ -8,7 +8,9 @@ export function Sidebar({ title, setTitle, isLocked, setLocked, savedFlows }) {
 
   const div = (node) => {
     const el = document.createElement('div')
-    node && el.appendChild(node)
+    if (node) {
+      el.appendChild(node)
+    }
     return container.appendChild(el)
   }
 
@@ -32,28 +34,10 @@ export function Sidebar({ title, setTitle, isLocked, setLocked, savedFlows }) {
   {
     const flowsMenu = Menu('Flows')
 
-    const newFlowLink = document.createElement('a')
-    newFlowLink.href = '?hello#world'
-    newFlowLink.textContent = '＋ New flow'
-    flowsMenu.render({
-      items: [
-        {
-          content: newFlowLink,
-          separator: true,
-        },
-      ],
-    })
+    const items = savedFlows.map((flow) => ({ content: flow.title || flow.id, href: `?${flow.id}#${flow.hash}` }))
+    items.unshift({ content: '＋ New flow', href: '?hello#world', separator: true })
 
-    div(
-      flowsMenu.render({
-        items: savedFlows.map((flow) => {
-          const link = document.createElement('a')
-          link.innerText = flow.title || flow.id
-          link.href = `?${flow.id}#${flow.hash}`
-          return { content: link }
-        }),
-      }),
-    )
+    div(flowsMenu.render({ items }))
   }
 
   // Lock toggle
@@ -61,6 +45,17 @@ export function Sidebar({ title, setTitle, isLocked, setLocked, savedFlows }) {
 
   // Share link
   div(ShareLink('Share link 🔗').render())
+
+  const logo = div(
+    Menu('').render({
+      items: [
+        { content: 'Dinky Dog', href: 'https://dinky.dog', separator: true },
+        { content: 'GitHub', href: 'https://github.com/katspaugh/dinky.dog' },
+        { content: 'About', href: 'https://dinky.dog/?hello#64o1g9qtooo' },
+      ],
+    }),
+  )
+  logo.className = 'logo'
 
   return {
     container,

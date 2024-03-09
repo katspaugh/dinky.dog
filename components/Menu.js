@@ -28,9 +28,18 @@ export function Menu(title = '') {
     container,
 
     render: ({ items = [] }) => {
-      items.forEach(({ content, onClick, separator = false }) => {
+      items.forEach(({ content, href, onClick, separator = false }) => {
         const li = document.createElement('li')
-        li.appendChild(content)
+
+        if (typeof content === 'string') {
+          const a = document.createElement('a')
+          a.href = href || ''
+          a.textContent = content
+          content = a
+        }
+        if (content) {
+          li.appendChild(content)
+        }
         li.onclick = onClick
         ul.appendChild(li)
         if (separator) {

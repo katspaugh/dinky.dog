@@ -368,7 +368,13 @@ path:hover {
   filter: hue-rotate(290deg);
 }
 
-.sidebar:after {
+.sidebar .logo summary {
+  min-width: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sidebar .logo summary:after {
   content: '';
   display: block;
   width: 23px;
@@ -378,8 +384,10 @@ path:hover {
   background-color: #fafafa;
   background-size: 80%;
   transform: rotateY(180deg);
-  line-height: 1.2;
-  border: 1px solid var(--menu-border-color);
-  box-shadow: -2px 2px var(--shadow-color);
-  background-color: var(--menu-color);
+  pointer-events: none;
+}
+
+.sidebar .logo ul {
+  transform: translateX(-100%);
+  margin-left: 36px;
 }
