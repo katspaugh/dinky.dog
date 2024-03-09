@@ -198,7 +198,11 @@ function onTextInput(id, value) {
       let newNodeType = null
       const size = { width: 300, height: 190 }
       if (TextTransformers.parseUrl(value)) {
-        newNodeType = TextTransformers.parseImageUrl(value) ? Operators.Image.name : Operators.LinkPreview.name
+        newNodeType = TextTransformers.parseImageUrl(value)
+          ? Operators.Image.name
+          : TextTransformers.parseAudioUrl(value)
+            ? Operators.Audio.name
+            : Operators.LinkPreview.name
       } else if (TextTransformers.parseMath(value)) {
         newNodeType = Operators.Math.name
       } else if (TextTransformers.parseEthAddress(value)) {

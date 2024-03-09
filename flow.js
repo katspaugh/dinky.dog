@@ -132,7 +132,7 @@ function initGraph() {
   const graph = Graph({
     onClick: (x, y, wasFocused) => {
       if (_currentOutput || _currentOutput || !wasFocused) {
-        _callbacks.onEmptyClick(x, y)
+        // Click on empty space
       }
     },
 

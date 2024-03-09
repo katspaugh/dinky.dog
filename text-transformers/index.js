@@ -10,6 +10,12 @@ export function parseImageUrl(text = '') {
   return /\.(jpe?g|png|gif|webp|svg)$/.test(url) ? url : ''
 }
 
+export function parseAudioUrl(text = '') {
+  const url = parseUrl(text)
+  if (!url) return ''
+  return /\.(mp3|wav|ogg|flac|aac|wma|alac|aiff|webm)$/.test(url) ? url : ''
+}
+
 export function parseMath(text = '') {
   const match = text.match(/^([-0-9+-/*^() ]+)=(?=&nbsp;|<br>)*$/)
   return match ? match[1] : ''

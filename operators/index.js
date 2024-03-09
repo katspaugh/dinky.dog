@@ -1,5 +1,6 @@
-export * from './Image.js'
 export * from './Text.js'
+export * from './Image.js'
+export * from './Audio.js'
 export * from './LinkPreview.js'
 export * from './Math.js'
 export * from './EthPreview.js'
