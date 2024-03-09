@@ -6,7 +6,6 @@ export function Toggle(label = '') {
     alignItems: 'center',
     gap: '5px',
     userSelect: 'none',
-    cursor: 'pointer',
   })
 
   const checkbox = document.createElement('input')

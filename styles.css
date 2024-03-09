@@ -84,7 +84,7 @@ a:hover {
 
 .node:hover {
   border-color: var(--hover-color);
-  box-shadow: 2px 2px 2px var(--shadow-color);
+  box-shadow: 2px 2px 1px var(--shadow-color);
 }
 
 @keyframes tilt {
@@ -127,6 +127,11 @@ a:hover {
   z-index: 2;
 }
 
+.node [contenteditable]:focus {
+  border-radius: 4px;
+  outline: 3px solid var(--hover-color);
+}
+
 .locked .resize-handle {
   display: none;
 }
@@ -140,8 +145,8 @@ a:hover {
 .resize-handle:after {
   content: '';
   z-index: 4;
-  bottom: 0;
-  right: 0;
+  bottom: 1px;
+  right: 1px;
   width: 10px;
   height: 10px;
   background: linear-gradient(135deg, transparent 0%, transparent 50%, #999 50%, #999 100%);
@@ -253,6 +258,7 @@ path:hover {
   width: 100vw;
   padding: 4px 6px;
   display: flex;
+  gap: 4px;
   align-items: center;
   flex-wrap: nowrap;
   overflow-y: visible;
@@ -285,7 +291,9 @@ path:hover {
 .sidebar label,
 .sidebar summary {
   user-select: none;
-  padding: 8px 20px;
+  padding: 8px 10px;
+  min-width: 100px;
+  height: 35px;
 }
 
 .sidebar label {
@@ -316,8 +324,12 @@ path:hover {
 }
 
 .sidebar button {
-  margin: -4px 0;
-  transform: translateY(-1px);
+  background: none;
+  border: none;
+  padding: 0;
+  display: block;
+  font-size: 1em;
+  line-height: 1.2;
 }
 
 .sidebar li {
@@ -343,14 +355,13 @@ path:hover {
 
 .sidebar input[type="text"] {
   padding: 8px;
-  margin: 0 10px;
+  margin: 0 4px;
   border: none;
   background-color: var(--menu-color);
   border-bottom: 2px dashed var(--menu-border-color);
   border-radius: 0;
   font-size: 1em;
   color: inherit;
-  border-radius: 0;
 }
 
 .sidebar label {

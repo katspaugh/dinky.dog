@@ -20,7 +20,7 @@ export function Menu(title = '') {
     if (container.open) {
       setTimeout(() => {
         container.open = false
-      }, 300)
+      }, 100)
     }
   }
 
