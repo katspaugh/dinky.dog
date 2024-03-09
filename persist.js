@@ -49,6 +49,8 @@ export async function loadState() {
 
   if (!hash) return
 
+  setHash(hash)
+
   // Short hash is a key to the full hash
   if (hash.length < 20) {
     hash = await loadFullHash(hash).catch(() => hash)
