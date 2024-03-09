@@ -114,8 +114,10 @@ function connectNodes(outputId, inputId, attempt = 0) {
   }
 
   // The node hasn't been created yet
-  if (!state.nodes[inputId] && attempt < 10) {
-    setTimeout(() => connectNodes(outputId, inputId, attempt + 1), 100)
+  if (!state.nodes[inputId]) {
+    if (attempt < 10) {
+      setTimeout(() => connectNodes(outputId, inputId, attempt + 1), 100)
+    }
     return
   }
 
