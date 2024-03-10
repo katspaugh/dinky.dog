@@ -16,7 +16,6 @@ const REMOVE_THRESHOLD_X = -70
 const REMOVE_THRESHOLD_Y = -30
 
 const clientId = getClientId()
-const sessionId = randomId()
 
 let state = {
   id: '',
@@ -65,7 +64,7 @@ function persist() {
 
 function broadcast(command, ...args) {
   if (_streamClient) {
-    _streamClient.publish({ command, args, clientId, sessionId })
+    _streamClient.publish({ command, args, clientId })
   }
 }
 
@@ -366,7 +365,9 @@ function initState(newState) {
   console.log('State', state)
 }
 
-function onPeerMessage(peerId, isMe) {
+function onPeerMessage(peerId, isMe, command) {
+  if (commands[command] === peerDisonnect) return
+
   if (!_peers[peerId]) {
     const peer = Peer({
       id: peerId,
@@ -433,9 +434,9 @@ async function initStreamClient() {
 
     state.lastSequence = msg.sequence
 
-    onPeerMessage(msg.data.clientId, msg.data.clientId === clientId)
+    onPeerMessage(msg.data.clientId, msg.data.clientId === clientId, msg.data.command)
 
-    if (msg.data.clientId !== clientId || msg.data.sessionId !== sessionId) {
+    if (msg.data.clientId !== clientId) {
       console.log('Received msg', msg)
 
       const { command, args } = msg.data
