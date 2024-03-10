@@ -56,7 +56,6 @@ function getPreviewContent(value) {
 
   const expression = TextTransformers.parseMath(value)
   if (expression) {
-    console.log('expression', expression)
     return Math().render({ expression })
   }
 }

@@ -211,6 +211,10 @@ input[disabled] {
   pointer-events: none;
 }
 
+.locked [contenteditable] {
+  pointer-events: none;
+}
+
 svg {
   position: absolute;
   z-index: 2;
