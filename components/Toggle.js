@@ -16,7 +16,9 @@ export function Toggle(label = '') {
     container,
 
     render: ({ checked, onChange }) => {
-      checkbox.checked = checked
+      if (checked != null) {
+        checkbox.checked = checked
+      }
       checkbox.onchange = () => {
         onChange(checkbox.checked)
       }

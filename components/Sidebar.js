@@ -3,7 +3,7 @@ import { Toggle } from '../components/Toggle.js'
 import { ShareLink } from '../components/ShareLink.js'
 import { randomId } from '../utils/random.js'
 
-export function Sidebar({ title, onTitleChange, isLocked, setLocked, savedFlows, onShare }) {
+export function Sidebar({ onTitleChange, setLocked, savedFlows, onShare }) {
   const container = document.createElement('div')
   container.className = 'sidebar'
 
@@ -25,9 +25,7 @@ export function Sidebar({ title, onTitleChange, isLocked, setLocked, savedFlows,
   const input = document.createElement('input')
   {
     input.type = 'text'
-    input.value = title || ''
     input.placeholder = 'Untitled'
-    input.disabled = isLocked
     input.oninput = () => onTitleChange(input.value)
     container.appendChild(input)
   }
@@ -43,7 +41,8 @@ export function Sidebar({ title, onTitleChange, isLocked, setLocked, savedFlows,
   }
 
   // Lock toggle
-  div(Toggle('Lock').render({ checked: !!isLocked, onChange: setLocked }))
+  const lockToggle = Toggle('Lock')
+  div(lockToggle.render({ checked: false, onChange: setLocked }))
 
   // Share link
   div(ShareLink('🔗 Share link', onShare).render())
@@ -61,13 +60,18 @@ export function Sidebar({ title, onTitleChange, isLocked, setLocked, savedFlows,
   return {
     container,
 
-    render: ({ title, peer }) => {
-      if (peer) {
-        allPeers.appendChild(peer)
+    render: ({ title, isLocked, peer }) => {
+      if (isLocked != null) {
+        lockToggle.render({ checked: isLocked, onChange: setLocked })
+        input.disabled = isLocked
       }
 
-      if (title) {
+      if (title != null && title !== input.value) {
         input.value = title
+      }
+
+      if (peer) {
+        allPeers.appendChild(peer)
       }
 
       return container

@@ -11,6 +11,7 @@ import { measureText } from './utils/measure-text.js'
 import { randomId } from './utils/random.js'
 
 const BROADCAST_DELAY = 300
+const PERSIST_DELAY = 5e3 // save every 5 seconds
 const REMOVE_THRESHOLD_X = -70
 const REMOVE_THRESHOLD_Y = -30
 
@@ -26,10 +27,12 @@ let state = {
   nodes: {},
 }
 const _peers = {}
+let _appContainer
 let _sidebar
 let _graph
 let _streamClient
 let _lastBackground
+let _unsavedChanges = 0
 
 function serializeState() {
   const nodes = Object.entries(state.nodes).reduce((acc, [id, node]) => {
@@ -49,7 +52,15 @@ function serializeState() {
 }
 
 function persistState(onUnload = false) {
+  _unsavedChanges = 0
   saveState(serializeState(), onUnload)
+}
+
+const debouncedPersist = debounce(persistState, PERSIST_DELAY)
+
+function persist() {
+  _unsavedChanges++
+  debouncedPersist()
 }
 
 function broadcast(command, ...args) {
@@ -154,6 +165,7 @@ function disconnectNodes(outputId, inputId) {
 function onCreateNode(id, props, data) {
   createNode(id, props, data)
   broadcast('cmdCreateNode', id, props, data)
+  persist()
 }
 
 function onEmptyClick(x, y) {
@@ -189,6 +201,7 @@ function onTextInput(id, value) {
   }
 
   debouncedBroadcastData('cmdUpdateNodeData', id, { operatorData: value })
+  persist()
 
   Promise.resolve().then(() => {
     // Parse data and create new nodes if needed
@@ -226,6 +239,7 @@ function onRemove(id) {
   if (state.isLocked) return
   delete state.nodes[id]
   broadcast('cmdRemoveNode', id)
+  persist()
 }
 
 function onEscape(id) {
@@ -234,18 +248,19 @@ function onEscape(id) {
 
   if (!node.operator.output.get()) {
     removeNode(id)
-    broadcast('cmdRemoveNode', id)
   }
 }
 
 function onConnect(outputId, inputId) {
   connectNodes(outputId, inputId)
   broadcast('cmdConnect', outputId, inputId)
+  persist()
 }
 
 function onDisconnect(outputId, inputId) {
   disconnectNodes(outputId, inputId)
   broadcast('cmdDisconnect', outputId, inputId)
+  persist()
 }
 
 function onNodeUpate(id, props) {
@@ -253,6 +268,7 @@ function onNodeUpate(id, props) {
   if (!state.nodes[id]) return
   updateNode(id, props)
   debouncedBroadcastProps('cmdUpdateNode', id, state.nodes[id].props)
+  persist()
 }
 
 function onDrag(id, dx, dy) {
@@ -287,26 +303,22 @@ function onSelect(id) {
   // TODO
 }
 
-function initSidebar(onLockChange) {
+function initSidebar() {
   const sidebar = Sidebar({
-    title: state.title,
-
     onTitleChange: (title) => {
       if (state.isLocked) return
-      state.title = title
-      //broadcast('cmdUpdateTitle', title)
+      setTitle(title)
+      debouncedBroadcastData('cmdSetTitle', title)
+      persist()
     },
 
-    isLocked: state.isLocked,
-
     setLocked:
-      state.isLocked && state.creator !== clientId
+      state.creator !== clientId
         ? undefined
         : (isLocked) => {
-            state.isLocked = isLocked
-            onLockChange()
-            //broadcast('cmdSetLocked', isLocked)
-            return isLocked
+            setLocked(isLocked)
+            broadcast('cmdSetLocked', isLocked)
+            persist()
           },
 
     savedFlows: getSavedStates(),
@@ -314,7 +326,7 @@ function initSidebar(onLockChange) {
     onShare: persistState,
   })
 
-  onLockChange()
+  sidebar.render({ title: state.title, isLocked: state.isLocked })
 
   return sidebar
 }
@@ -379,6 +391,17 @@ function peerDisonnect(peerId) {
   }
 }
 
+function setLocked(isLocked) {
+  state.isLocked = isLocked
+  _sidebar.render({ isLocked })
+  _appContainer.classList.toggle('locked', isLocked)
+}
+
+function setTitle(title) {
+  state.title = title
+  _sidebar.render({ title })
+}
+
 const commands = {
   cmdCreateNode: createNode,
   cmdRemoveNode: removeNode,
@@ -387,6 +410,8 @@ const commands = {
   cmdUpdateNode: updateNode,
   cmdUpdateNodeData: updateNodeData,
   cmdPeerDisconnect: peerDisonnect,
+  cmdSetLocked: setLocked,
+  cmdSetTitle: setTitle,
 }
 
 async function initStreamClient() {
@@ -404,7 +429,7 @@ async function initStreamClient() {
   _streamClient.subscribe(state.lastSequence, (msg, ack) => {
     ack()
 
-    if (state.isLocked || state.id !== streamId) return
+    if (state.id !== streamId) return
 
     state.lastSequence = msg.sequence
 
@@ -431,7 +456,7 @@ async function initStreamClient() {
 
 function initPersistance() {
   document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'hidden') {
+    if (_unsavedChanges && document.visibilityState === 'hidden') {
       persistState(true)
     }
   })
@@ -440,9 +465,7 @@ function initPersistance() {
 function init(appContainer, loadedState) {
   initState(loadedState)
 
-  const sidebar = initSidebar(() => {
-    appContainer.className = state.isLocked ? 'locked' : ''
-  })
+  const sidebar = initSidebar()
 
   const graph = initFlow({
     onEmptyClick,
@@ -463,6 +486,7 @@ function init(appContainer, loadedState) {
 
   _sidebar = sidebar
   _graph = graph
+  _appContainer = appContainer
 
   initStreamClient()
   initPersistance()
@@ -482,6 +506,6 @@ const DEMO = {
 loadState()
   .catch(() => DEMO)
   .then((newState) => {
-    console.log('New staet', newState)
-    init(document.querySelector('#app'), Object.keys(newState).length === 1 ? { ...DEMO, newState } : newState || DEMO)
+    newState = newState || DEMO
+    init(document.querySelector('#app'), Object.keys(newState).length === 1 ? { ...DEMO, newState } : newState)
   })

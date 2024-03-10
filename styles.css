@@ -67,6 +67,10 @@ a:hover {
   color: var(--link-hover-color);
 }
 
+input[disabled] {
+  cursor: not-allowed;
+}
+
 #app {
   height: 100vh;
   width: 100vw;
@@ -288,6 +292,7 @@ path:hover {
 .sidebar summary {
   user-select: none;
   padding: 6px 10px;
+  height: 31px;
 }
 
 .sidebar label {
@@ -359,10 +364,6 @@ path:hover {
   border-radius: 0;
   font-size: 1em;
   color: inherit;
-}
-
-.sidebar label {
-  filter: hue-rotate(290deg);
 }
 
 .sidebar .logo summary {
