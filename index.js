@@ -394,7 +394,7 @@ async function initStreamClient() {
       console.log('Received msg', msg)
 
       const { command, args } = msg.data
-      if (commands[command]) {
+      if (commands[command] && (!state.isLocked || command === 'cmdSetLocked')) {
         commands[command](...args)
       }
     }
