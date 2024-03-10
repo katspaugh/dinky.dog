@@ -7,6 +7,8 @@ export function EditableText({ onInput = null } = {}) {
     padding: '8px',
     overflow: 'auto',
     overflowWrap: 'normal',
+    maxWidth: '100%',
+    height: '100%',
   })
 
   if (onInput) {

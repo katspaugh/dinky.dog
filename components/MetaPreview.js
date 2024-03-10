@@ -1,3 +1,5 @@
+import { ImagePreview } from './ImagePreview.js'
+
 export function MetaPreview() {
   const container = document.createElement('div')
   Object.assign(container.style, {
@@ -16,6 +18,8 @@ export function MetaPreview() {
     textOverflow: 'ellipsis',
   })
 
+  const imagePreview = ImagePreview()
+
   return {
     container,
 
@@ -27,14 +31,7 @@ export function MetaPreview() {
       container.appendChild(titleEl)
 
       if (image) {
-        const iframe = document.createElement('iframe')
-        iframe.style.width = '100%'
-        iframe.setAttribute('sandbox', '')
-        iframe.style.pointerEvents = 'none'
-        iframe.src =
-          'data:text/html,' +
-          encodeURIComponent(`<style>* { margin: 0; }</style><img src="${image}" style="width: 100%; height: auto;">`)
-        container.appendChild(iframe)
+        container.appendChild(imagePreview.render({ src: image }))
       }
 
       return container

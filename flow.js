@@ -1,6 +1,6 @@
 import { Graph } from './components/Graph.js'
 import { DropContainer } from './components/DropContainer.js'
-import { Node, WIDTH, HEIGHT } from './components/Node.js'
+import { Node } from './components/Node.js'
 import { Edge } from './components/Edge.js'
 import { Tooltip } from './components/Tooltip.js'
 
@@ -90,8 +90,8 @@ function renderNode({ id, ...nodeProps }) {
       _callbacks.onDrag(id, dx, dy)
     },
 
-    onResize: (dx, dy) => {
-      _callbacks.onResize(id, dx, dy)
+    onResize: (dx, dy, width, height) => {
+      _callbacks.onResize(id, dx, dy, width, height)
     },
 
     onBackgroundChange: (background) => {
@@ -194,8 +194,8 @@ function initDropcontainer() {
     onDrop: (params) => {
       _callbacks.onDrop({
         ...params,
-        x: params.x - WIDTH / 2,
-        y: params.y - HEIGHT / 2,
+        x: params.x - 80,
+        y: params.y - 40,
       })
     },
   })

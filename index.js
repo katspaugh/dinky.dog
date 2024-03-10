@@ -1,13 +1,11 @@
 import { Sidebar } from './components/Sidebar.js'
 import { Peer } from './components/Peer.js'
-import { WIDTH, HEIGHT, MIN_WIDTH, MIN_HEIGHT } from './components/Node.js'
+import { MIN_WIDTH, MIN_HEIGHT } from './components/Node.js'
 import { initFlow } from './flow.js'
 import * as Operators from './operators/index.js'
-import * as TextTransformers from './text-transformers/index.js'
 import { loadState, saveState, getSavedStates, getClientId } from './persist.js'
 import { debounce } from './utils/debounce.js'
 import { initDurableStream } from './services/durable-stream.js'
-import { measureText } from './utils/measure-text.js'
 import { randomId } from './utils/random.js'
 
 const BROADCAST_DELAY = 300
@@ -188,50 +186,8 @@ function onTextInput(id, value) {
   const node = state.nodes[id]
   if (!node) return
 
-  // Update node size to fit the text
-  const curWidth = node.props.width || WIDTH
-  const curHeight = node.props.height || HEIGHT
-  const { width, height } = measureText(value, curWidth, curHeight)
-  if (width !== curWidth || height !== curHeight) {
-    onNodeUpate(id, {
-      width: Math.max(width, curWidth),
-      height: Math.max(height, curHeight),
-    })
-  }
-
   debouncedBroadcastData('cmdUpdateNodeData', id, { operatorData: value })
   persist()
-
-  Promise.resolve().then(() => {
-    // Parse data and create new nodes if needed
-    const newId = id + '-preview'
-    if (!state.nodes[newId]) {
-      let newNodeType = null
-      const size = { width: 300, height: 190 }
-      if (TextTransformers.parseUrl(value)) {
-        newNodeType = TextTransformers.parseImageUrl(value)
-          ? Operators.Image.name
-          : TextTransformers.parseAudioUrl(value)
-            ? Operators.Audio.name
-            : Operators.LinkPreview.name
-      } else if (TextTransformers.parseMath(value)) {
-        newNodeType = Operators.Math.name
-      } else if (TextTransformers.parseEthAddress(value)) {
-        newNodeType = Operators.EthPreview.name
-        size.width = 170
-        size.height = 85
-      }
-
-      if (newNodeType) {
-        const props = { x: node.props.x, y: node.props.y + (node.props.height || HEIGHT) + 10, ...size }
-        onCreateNode(newId, props, {
-          operatorType: newNodeType,
-          operatorData: value,
-        })
-        onConnect(id, newId, 0)
-      }
-    }
-  })
 }
 
 function onRemove(id) {
@@ -283,11 +239,11 @@ function onDrag(id, dx, dy) {
   }
 }
 
-function onResize(id, dx, dy) {
+function onResize(id, dx, dy, width, height) {
   const { props } = state.nodes[id]
   onNodeUpate(id, {
-    width: Math.max(MIN_WIDTH, Math.round((props.width || WIDTH) + dx)),
-    height: Math.max(MIN_HEIGHT, Math.round((props.height || HEIGHT) + dy)),
+    width: Math.max(MIN_WIDTH, Math.round(width + dx)),
+    height: Math.max(MIN_HEIGHT, Math.round(height + dy)),
   })
 }
 
@@ -299,7 +255,7 @@ function onBackgroundChange(id, background) {
 function onSelect(id) {
   const node = state.nodes[id]
   if (!node) return
-  // TODO
+  //
 }
 
 function initSidebar() {
@@ -324,8 +280,6 @@ function initSidebar() {
 
     onShare: persistState,
   })
-
-  sidebar.render({ title: state.title, isLocked: state.isLocked })
 
   return sidebar
 }
@@ -488,6 +442,9 @@ function init(appContainer, loadedState) {
   _sidebar = sidebar
   _graph = graph
   _appContainer = appContainer
+
+  setLocked(state.isLocked)
+  setTitle(state.title)
 
   initStreamClient()
   initPersistance()

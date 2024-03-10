@@ -1,29 +1,24 @@
 export function ImagePreview() {
-  const container = document.createElement('div')
-  Object.assign(container.style, {
-    width: '100%',
-    height: '100%',
-    overflow: 'hidden',
-    borderRadius: '4px',
-  })
-
-  const img = document.createElement('img')
-  Object.assign(img.style, {
-    display: 'block',
-    width: '100%',
-    height: 'auto',
-  })
-
-  container.appendChild(img)
+  const iframe = document.createElement('iframe')
+  iframe.style.width = '100%'
+  iframe.setAttribute('sandbox', '')
+  iframe.style.pointerEvents = 'none'
 
   return {
-    container,
+    container: iframe,
 
     render: ({ src }) => {
-      img.src = src
-      return container
+      iframe.src =
+        'data:text/html,' +
+        encodeURIComponent(
+          `
+           <style>* { margin: 0; padding: 0; }</style>
+           <img src="${src}" style="display: block; width: 100%; height: auto;">
+          `,
+        )
+      return iframe
     },
 
-    destroy: () => container.remove(),
+    destroy: () => iframe.remove(),
   }
 }

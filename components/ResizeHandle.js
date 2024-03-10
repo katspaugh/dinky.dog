@@ -1,6 +1,6 @@
 import { makeDraggable } from '../utils/draggable.js'
 
-export function ResizeHandle({ onResize, onResizeEnd }) {
+export function ResizeHandle({ onResize }) {
   const container = document.createElement('div')
   container.className = 'resize-handle'
 
@@ -10,7 +10,7 @@ export function ResizeHandle({ onResize, onResizeEnd }) {
   }
 
   if (onResize) {
-    makeDraggable(container, onResize, undefined, onResizeEnd)
+    makeDraggable(container, onResize)
   }
 
   return {
