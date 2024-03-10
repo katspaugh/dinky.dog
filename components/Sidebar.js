@@ -27,6 +27,7 @@ export function Sidebar({ title, onTitleChange, isLocked, setLocked, savedFlows,
     input.type = 'text'
     input.value = title || ''
     input.placeholder = 'Untitled'
+    input.disabled = isLocked
     input.oninput = () => onTitleChange(input.value)
     container.appendChild(input)
   }

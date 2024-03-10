@@ -2,6 +2,7 @@ import { Graph } from './components/Graph.js'
 import { DropContainer } from './components/DropContainer.js'
 import { Node, WIDTH, HEIGHT } from './components/Node.js'
 import { Edge } from './components/Edge.js'
+import { Tooltip } from './components/Tooltip.js'
 
 let _graph = null
 let _nodes = {}
@@ -10,6 +11,7 @@ let _currentNode = null
 let _currentInput = null
 let _currentOutput = null
 let _callbacks = {}
+let _tooltip = null
 
 function connectNodes(outputId, inputId) {
   const edge = Edge()
@@ -71,7 +73,6 @@ function renderNode({ id, ...nodeProps }) {
 
   const node = Node(id, {
     onInputClick: () => {
-      _currentNode = null
       _currentInput = id
       if (_currentOutput) {
         onConnect()
@@ -79,7 +80,6 @@ function renderNode({ id, ...nodeProps }) {
     },
 
     onOutputClick: () => {
-      _currentNode = null
       _currentOutput = id
       if (_currentInput) {
         onConnect()
@@ -130,13 +130,21 @@ function initGraph() {
   }
 
   const graph = Graph({
-    onClick: (x, y) => {
+    onClickAnywhere: () => {
+      _currentNode = null
+      _tooltip.render({})
+    },
+
+    onClick: (x, y, wasFocused) => {
       if (_currentOutput || _currentOutput) {
         _callbacks.onEmptyClick(x, y)
+      } else if (!wasFocused) {
+        _tooltip.render({ x, y, content: 'Double-click to create a card', delay: 300, expire: 900 })
       }
     },
 
     onDblClick: (x, y) => {
+      _tooltip.render({})
       _callbacks.onEmptyClick(x, y)
     },
 
@@ -202,6 +210,9 @@ export function initFlow(callbacks) {
 
   const dropContainer = initDropcontainer()
   dropContainer.appendChild(_graph.container)
+
+  _tooltip = Tooltip()
+  dropContainer.appendChild(_tooltip.container)
 
   return {
     container: dropContainer,
