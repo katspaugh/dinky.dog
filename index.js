@@ -3,7 +3,7 @@ import { Peer } from './components/Peer.js'
 import { MIN_WIDTH, MIN_HEIGHT } from './components/Node.js'
 import { initFlow } from './flow.js'
 import * as Operators from './operators/index.js'
-import { loadState, saveState, getSavedStates, getClientId } from './persist.js'
+import { loadState, saveState, getSavedStates, getClientId, slugify } from './persist.js'
 import { debounce } from './utils/debounce.js'
 import { initDurableStream } from './services/durable-stream.js'
 import { randomId } from './utils/random.js'
@@ -49,8 +49,10 @@ function serializeState() {
 }
 
 function persistState(onUnload = false) {
-  _unsavedChanges = 0
-  saveState(serializeState(), onUnload)
+  if (_unsavedChanges > 0) {
+    _unsavedChanges = 0
+    saveState(serializeState(), onUnload)
+  }
 }
 
 const debouncedPersist = debounce(persistState, PERSIST_DELAY)
@@ -178,11 +180,15 @@ function onEmptyClick(x, y) {
 }
 
 function onDrop({ x, y, fileType, data }) {
+  if (state.isLocked) return
+
   const id = randomId() + fileType
   onCreateNode(id, { x, y, background: _lastBackground }, { operatorType: Operators.Image.name, operatorData: data })
 }
 
 function onTextInput(id, value) {
+  if (state.isLocked) return
+
   const node = state.nodes[id]
   if (!node) return
 
@@ -198,6 +204,7 @@ function onRemove(id) {
 }
 
 function onEscape(id) {
+  if (state.isLocked) return
   const node = state.nodes[id]
   if (!node) return
 
@@ -207,19 +214,20 @@ function onEscape(id) {
 }
 
 function onConnect(outputId, inputId) {
+  if (state.isLocked) return
   connectNodes(outputId, inputId)
   broadcast('cmdConnect', outputId, inputId)
   persist()
 }
 
 function onDisconnect(outputId, inputId) {
+  if (state.isLocked) return
   disconnectNodes(outputId, inputId)
   broadcast('cmdDisconnect', outputId, inputId)
   persist()
 }
 
 function onNodeUpate(id, props) {
-  if (state.isLocked) return
   if (!state.nodes[id]) return
   updateNode(id, props)
   debouncedBroadcastProps('cmdUpdateNode', id, state.nodes[id].props)
@@ -227,6 +235,7 @@ function onNodeUpate(id, props) {
 }
 
 function onDrag(id, dx, dy) {
+  if (state.isLocked) return
   if (!state.nodes[id]) return
   const { props } = state.nodes[id]
   const x = Math.round(props.x + dx)
@@ -240,6 +249,7 @@ function onDrag(id, dx, dy) {
 }
 
 function onResize(id, dx, dy, width, height) {
+  if (state.isLocked) return
   const { props } = state.nodes[id]
   onNodeUpate(id, {
     width: Math.max(MIN_WIDTH, Math.round(width + dx)),
@@ -248,6 +258,7 @@ function onResize(id, dx, dy, width, height) {
 }
 
 function onBackgroundChange(id, background) {
+  if (state.isLocked) return
   _lastBackground = background
   onNodeUpate(id, { background })
 }
@@ -256,6 +267,21 @@ function onSelect(id) {
   const node = state.nodes[id]
   if (!node) return
   //
+}
+
+function onShare() {
+  if (state.isLocked) {
+    // Fork the current state
+    const newState = serializeState()
+    newState.id = state.title ? slugify(state.title) + '-' + randomId() : randomId()
+    newState.creator = clientId
+    saveState(newState)
+    return newState.id
+  } else {
+    // Save the current state
+    persistState()
+    return state.id
+  }
 }
 
 function initSidebar() {
@@ -278,7 +304,7 @@ function initSidebar() {
 
     savedFlows: getSavedStates(),
 
-    onShare: persistState,
+    onShare,
   })
 
   return sidebar

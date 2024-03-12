@@ -11,6 +11,18 @@ function getUrlId() {
   return url.searchParams.get('q')
 }
 
+export function makeUrl(id) {
+  return `${window.location.origin}/?q=${encodeURIComponent(id)}`
+}
+
+export function slugify(text) {
+  return text
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9-]/gi, '')
+}
+
 function saveToLocalStorage(state) {
   const key = `${STATE_STORAGE_PREFIX}${state.id}`
   const oldData = storage.getItem(key)
