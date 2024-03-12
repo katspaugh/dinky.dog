@@ -50,7 +50,7 @@ export function Sidebar({ onTitleChange, setLocked, savedFlows, onShare }) {
   const logo = div(
     Menu('').render({
       items: [
-        { content: 'About', href: 'https://dinky.dog/?q=shqk808twlq' },
+        { content: 'About', href: 'https://dinky.dog/?q=about-9315ba924c9d16e632145116d69ae72a' },
         { content: 'GitHub', href: 'https://github.com/katspaugh/dinky.dog' },
       ],
     }),
