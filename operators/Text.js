@@ -1,6 +1,6 @@
 import { Stream } from '../utils/stream.js'
 import { EditableText } from '../components/EditableText.js'
-import * as TextTransformers from '../text-transformers/index.js'
+import * as TextParsers from '../utils/parse-text.js'
 import { ImagePreview } from '../components/ImagePreview.js'
 import { AudioPreview } from '../components/AudioPreview.js'
 import { LinkPreview } from '../components/LinkPreview.js'
@@ -44,17 +44,17 @@ const Preview = () => {
 }
 
 function getPreviewContent(value) {
-  const url = TextTransformers.parseUrl(value)
+  const url = TextParsers.parseUrl(value)
   if (url) {
-    const Component = TextTransformers.parseImageUrl(value)
+    const Component = TextParsers.parseImageUrl(value)
       ? ImagePreview
-      : TextTransformers.parseAudioUrl(value)
+      : TextParsers.parseAudioUrl(value)
         ? AudioPreview
         : LinkPreview
     return Component().render({ src: url })
   }
 
-  const expression = TextTransformers.parseMath(value)
+  const expression = TextParsers.parseMath(value)
   if (expression) {
     return Math().render({ expression })
   }

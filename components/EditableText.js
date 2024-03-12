@@ -9,6 +9,7 @@ export function EditableText({ onInput = null } = {}) {
     overflowWrap: 'normal',
     maxWidth: '100%',
     height: '100%',
+    whiteSpace: 'pre-wrap',
   })
 
   if (onInput) {

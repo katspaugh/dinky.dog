@@ -1,5 +1,5 @@
 import { Stream } from '../utils/stream.js'
-import { parseImageUrl } from '../text-transformers/index.js'
+import { parseImageUrl } from '../utils/parse-text.js'
 import { ImagePreview } from '../components/ImagePreview.js'
 
 export function Image(src = '') {
