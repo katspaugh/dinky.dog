@@ -11,7 +11,7 @@ import { randomId } from './utils/random.js'
 const BROADCAST_DELAY = 300
 const PERSIST_DELAY = 5e3 // save every 5 seconds
 const REMOVE_THRESHOLD_X = -70
-const REMOVE_THRESHOLD_Y = -30
+const REMOVE_THRESHOLD_Y = -80
 
 const clientId = getClientId()
 
@@ -270,18 +270,9 @@ function onSelect(id) {
 }
 
 function onShare() {
-  if (state.isLocked) {
-    // Fork the current state
-    const newState = serializeState()
-    newState.id = state.title ? slugify(state.title) + '-' + randomId() : randomId()
-    newState.creator = clientId
-    saveState(newState)
-    return newState.id
-  } else {
-    // Save the current state
-    persistState()
-    return state.id
-  }
+  // Save the current state
+  persistState()
+  return state.id
 }
 
 function initSidebar() {
