@@ -2,7 +2,7 @@ import { Graph } from './components/Graph.js'
 import { DropContainer } from './components/DropContainer.js'
 import { Node } from './components/Node.js'
 import { Edge } from './components/Edge.js'
-import { Tooltip } from './components/Tooltip.js'
+import { Colorwheel } from './components/Colorwheel.js'
 
 let _graph = null
 let _nodes = {}
@@ -11,7 +11,6 @@ let _currentNode = null
 let _currentInput = null
 let _currentOutput = null
 let _callbacks = {}
-let _tooltip = null
 
 function connectNodes(outputId, inputId) {
   const edge = Edge()
@@ -132,19 +131,15 @@ function initGraph() {
   const graph = Graph({
     onClickAnywhere: () => {
       _currentNode = null
-      _tooltip.render({})
     },
 
     onClick: (x, y, wasFocused) => {
-      if (_currentOutput || _currentOutput) {
+      if (_currentOutput || _currentOutput || !wasFocused) {
         _callbacks.onEmptyClick(x, y)
-      } else if (!wasFocused) {
-        _tooltip.render({ x, y, content: 'Double-click to create a card', delay: 300, expire: 900 })
       }
     },
 
     onDblClick: (x, y) => {
-      _tooltip.render({})
       _callbacks.onEmptyClick(x, y)
     },
 
@@ -211,20 +206,33 @@ export function initFlow(callbacks) {
   const dropContainer = initDropcontainer()
   dropContainer.appendChild(_graph.container)
 
-  _tooltip = Tooltip()
-  dropContainer.appendChild(_tooltip.container)
+  const colorwheel = Colorwheel()
+  dropContainer.appendChild(colorwheel.render({ onChange: callbacks.onMainBackgroundChange }))
+  Object.assign(colorwheel.container.style, {
+    position: 'fixed',
+    zIndex: 100,
+    right: '10px',
+    bottom: '10px',
+  })
 
   return {
     container: dropContainer,
 
-    render: ({ node, edge }) => {
+    render: ({ node, edge, backgroundColor }) => {
       if (node) {
         renderNode(node)
         updateEdges(node.id)
       }
+
       if (edge) {
         connectNodes(edge.outputId, edge.inputId)
       }
+
+      if (backgroundColor) {
+        colorwheel.render({ color: backgroundColor })
+        dropContainer.style.backgroundColor = backgroundColor
+      }
+
       return dropContainer
     },
 

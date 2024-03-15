@@ -22,6 +22,7 @@ let state = {
   isLocked: false,
   title: '',
   nodes: {},
+  backgroundColor: '',
 }
 const _peers = {}
 let _appContainer
@@ -263,6 +264,12 @@ function onBackgroundChange(id, background) {
   onNodeUpate(id, { background })
 }
 
+function onMainBackgroundChange(backgroundColor) {
+  if (state.isLocked) return
+  setBackground(backgroundColor)
+  persist()
+}
+
 function onSelect(id) {
   const node = state.nodes[id]
   if (!node) return
@@ -320,6 +327,7 @@ function initState(newState) {
   state.title = newState.title
   state.isLocked = newState.isLocked || false
   state.lastSequence = newState.lastSequence || 0
+  state.backgroundColor = newState.backgroundColor || ''
 
   // Re-create nodes and connections
   if (newState.nodes) {
@@ -384,6 +392,11 @@ function setLocked(isLocked) {
 function setTitle(title) {
   state.title = title
   _sidebar.render({ title })
+}
+
+function setBackground(backgroundColor) {
+  state.backgroundColor = backgroundColor
+  _graph.render({ backgroundColor })
 }
 
 const commands = {
@@ -462,6 +475,7 @@ function init(appContainer, loadedState) {
     onResize,
     onBackgroundChange,
     onEscape,
+    onMainBackgroundChange,
   })
 
   appContainer.appendChild(sidebar.container)
@@ -474,6 +488,7 @@ function init(appContainer, loadedState) {
 
   setLocked(state.isLocked)
   setTitle(state.title)
+  setBackground(state.backgroundColor)
 
   initStreamClient()
   initPersistance()

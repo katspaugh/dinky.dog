@@ -1,5 +1,5 @@
 :root {
-  --background-color: #fff;
+  --background-color: #FFFFFA;
   --text-color: #333;
   --secondary-text-color: #555;
   --link-color: #A52A2A;
@@ -9,6 +9,7 @@
   --edge-color: #aaf;
   --edge-hover-color: #CD5C5C;
   --border-color: #D4D4D4;
+  --grid-color: #777;
   --border-hover-color: #a0a0a0;
   --textarea-color: #fff;
   --text-dim-color: #aaa;
@@ -29,11 +30,11 @@
     --secondary-text-color: #999;
     --edge-color: #444;
     --border-color: #555;
+    --grid-color: #000;
     --border-hover-color: #333;
     --textarea-color: #777;
     --text-dim-color: #aaa;
     --text-node-color: #000;
-    --shadow-color: transparent;
     --menu-color: #dfdfdf;
     --menu-text-color: #000;
   }
@@ -86,15 +87,15 @@ input[disabled] {
   transition: outline .1s, transform .2s;
 }
 
-.node.active,
-.node:hover {
+#app:not(.locked) .node.active,
+#app:not(.locked) .node:hover {
   border-color: var(--hover-color);
   box-shadow: 2px 2px 2px var(--shadow-color);
   transform: scale(1.01);
   outline: 1px solid var(--hover-color);
 }
 
-.node:active {
+#app:not(.locked) .node:active {
   transform: rotate(0.5deg);
 }
 
@@ -207,7 +208,7 @@ input[disabled] {
   opacity: 1;
 }
 
-.locked .node input[type="color"] {
+.locked input[type="color"] {
   display: none;
 }
 
@@ -248,8 +249,6 @@ path:hover {
   height: 100vh;
   width: 100vw;
   overflow: auto;
-  background-size: 30px 30px;
-  background-image: radial-gradient(circle, var(--border-color) 1px, transparent 1px);
 }
 
 .pan {
@@ -257,7 +256,22 @@ path:hover {
   width: 3000px;
   height: 3000px;
   cursor: crosshair;
-  margin-top: 45px;
+  margin-top: 30px;
+}
+
+.pan:after {
+  content: '';
+  z-index: 1;
+  position: absolute;
+  left: 0;
+  top: -30px;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  background-color: var(--background-color);
+  background-image: radial-gradient(circle, var(--grid-color) 1px, transparent 1px);
+  background-size: 30px 30px;
+  opacity: 0.5;
 }
 
 .sidebar {

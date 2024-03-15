@@ -37,7 +37,9 @@ export function Colorwheel() {
     container,
 
     render: ({ color, onChange }) => {
-      input.value = color
+      if (color && color !== input.value) {
+        input.value = color
+      }
 
       if (onChange) {
         input.oninput = () => {
