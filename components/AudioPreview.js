@@ -11,8 +11,6 @@ export function AudioPreview() {
     mediaControls: true,
   })
 
-  wavesurfer.on('click', () => wavesurfer.playPause())
-
   return {
     container,
     render: ({ src }) => {

@@ -1,6 +1,9 @@
-export function Menu(title = '') {
+export function Menu(title = '', className = '') {
   const container = document.createElement('details')
   container.tabIndex = -1
+  if (className) {
+    container.className = className
+  }
 
   const summary = document.createElement('summary')
   summary.tabIndex = 0
@@ -33,7 +36,7 @@ export function Menu(title = '') {
 
         if (typeof content === 'string') {
           const a = document.createElement('a')
-          a.href = href || ''
+          if (href) a.href = href
           a.textContent = content.slice(0, 30)
           content = a
         }

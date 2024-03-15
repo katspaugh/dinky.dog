@@ -1,9 +1,10 @@
 import { Menu } from '../components/Menu.js'
 import { Toggle } from '../components/Toggle.js'
 import { ShareLink } from '../components/ShareLink.js'
+import { makeUrl } from '../persist.js'
 import { randomId } from '../utils/random.js'
 
-export function Sidebar({ onTitleChange, setLocked, savedFlows, onShare }) {
+export function Sidebar({ onTitleChange, setLocked, savedFlows, onShare, onFork }) {
   const container = document.createElement('div')
   container.className = 'sidebar'
 
@@ -34,8 +35,8 @@ export function Sidebar({ onTitleChange, setLocked, savedFlows, onShare }) {
   {
     const flowsMenu = Menu('Flows')
 
-    const items = savedFlows.map((flow) => ({ content: flow.title || flow.id, href: `?q=${flow.id}` }))
-    items.unshift({ content: '＋ New flow', href: '?q=' + randomId(), separator: true })
+    const items = savedFlows.map((flow) => ({ content: flow.title || flow.id, href: makeUrl(flow.id) }))
+    items.unshift({ content: '＋ New flow', href: makeUrl(randomId()), separator: true })
 
     div(flowsMenu.render({ items }))
   }
@@ -47,15 +48,29 @@ export function Sidebar({ onTitleChange, setLocked, savedFlows, onShare }) {
   // Share link
   div(ShareLink('🔗 Share link', onShare).render())
 
+  const onForkClick = async () => {
+    let id
+    try {
+      id = await onFork()
+    } catch (e) {
+      console.error('Failed to fork the flow', e)
+      return
+    }
+    console.log('Forked flow:', id)
+    if (id) {
+      window.location.href = makeUrl(id)
+    }
+  }
+
   const logo = div(
-    Menu('').render({
+    Menu('', 'logo').render({
       items: [
-        { content: 'About', href: 'https://dinky.dog/?q=about-9315ba924c9d16e632145116d69ae72a' },
+        { content: '⑂ Fork flow', separator: true, onClick: onForkClick },
+        { content: 'About', href: makeUrl('about-9315ba924c9d16e632145116d69ae72a') },
         { content: 'GitHub', href: 'https://github.com/katspaugh/dinky.dog' },
       ],
     }),
   )
-  logo.className = 'logo'
 
   return {
     container,

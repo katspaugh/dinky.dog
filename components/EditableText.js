@@ -1,6 +1,6 @@
 import { sanitizeHtml } from '../utils/sanitize-html.js'
 
-export function EditableText({ onInput = null } = {}) {
+export function EditableText({ onInput }) {
   const container = document.createElement('div')
   container.tabIndex = 0
   Object.assign(container.style, {

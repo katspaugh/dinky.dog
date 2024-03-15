@@ -3,7 +3,7 @@ import { Peer } from './components/Peer.js'
 import { MIN_WIDTH, MIN_HEIGHT } from './components/Node.js'
 import { initFlow } from './flow.js'
 import * as Operators from './operators/index.js'
-import { loadState, saveState, getSavedStates, getClientId } from './persist.js'
+import { loadState, saveState, getSavedStates, getClientId, slugify } from './persist.js'
 import { debounce } from './utils/debounce.js'
 import { initDurableStream } from './services/durable-stream.js'
 import { randomId } from './utils/random.js'
@@ -275,6 +275,16 @@ function onShare() {
   return state.id
 }
 
+async function onFork() {
+  const newState = {
+    ...serializeState(),
+    id: state.title ? slugify(state.title) + '-' + randomId() : randomId(),
+    creator: clientId,
+  }
+  await saveState(newState)
+  return newState.id
+}
+
 function initSidebar() {
   const sidebar = Sidebar({
     onTitleChange: (title) => {
@@ -296,6 +306,8 @@ function initSidebar() {
     savedFlows: getSavedStates(),
 
     onShare,
+
+    onFork,
   })
 
   return sidebar
