@@ -43,6 +43,7 @@ export function Node(id, { onClick, onInputClick, onOutputClick, onDrag, onResiz
   )
 
   // Event listeners
+  let onClickElsewhere
   if (onClick) {
     // Click
     container.addEventListener('click', (e) => {
@@ -52,8 +53,17 @@ export function Node(id, { onClick, onInputClick, onOutputClick, onDrag, onResiz
         onInputClick()
       } else {
         onClick()
+        container.classList.add('active')
       }
     })
+
+    // Click elsewhere
+    onClickElsewhere = (e) => {
+      if (!container.contains(e.target)) {
+        container.classList.remove('active')
+      }
+    }
+    document.addEventListener('click', onClickElsewhere)
   }
 
   // Drag
@@ -126,6 +136,9 @@ export function Node(id, { onClick, onInputClick, onOutputClick, onDrag, onResiz
       return container
     },
 
-    destroy: () => container.remove(),
+    destroy: () => {
+      container.remove()
+      onClickElsewhere && document.removeEventListener('click', onClickElsewhere)
+    },
   }
 }

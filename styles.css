@@ -86,8 +86,12 @@ input[disabled] {
   transition: outline .1s, transform .2s;
 }
 
+.node.active,
 .node:hover {
-  outline: 3px solid var(--hover-color);
+  border-color: var(--hover-color);
+  box-shadow: 2px 2px 2px var(--shadow-color);
+  transform: scale(1.01);
+  outline: 1px solid var(--hover-color);
 }
 
 .node:active {
@@ -180,9 +184,10 @@ input[disabled] {
 .node input[type="color"] {
   position: absolute;
   z-index: 3;
-  top: -25px;
+  top: -3px;
   right: 0;
   opacity: 0;
+  transform: translateY(-100%);
   transition: opacity 0.2s;
 }
 
