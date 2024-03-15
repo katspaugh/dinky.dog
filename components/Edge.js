@@ -9,7 +9,7 @@ export function Edge({ inactive = false } = {}) {
   return {
     container,
 
-    render: ({ fromEl = lastFromEl, toEl = lastToEl, onClick = null }) => {
+    render: ({ fromEl = lastFromEl, toEl = lastToEl, onClick }) => {
       lastFromEl = fromEl
       lastToEl = toEl
 
