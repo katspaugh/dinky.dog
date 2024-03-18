@@ -30,7 +30,7 @@ export function Colorwheel({ onChange }) {
   const input = el('input', {
     type: 'color',
     tabIndex: 2,
-    onchange: (e) => {
+    oninput: (e) => {
       onChange(e.target.value)
     },
   })
