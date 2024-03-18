@@ -5,9 +5,7 @@ export function Toggle(label = '') {
 
   return Component({
     tag: 'label',
-    props: {
-      innerText: label,
-    },
+
     style: {
       display: 'flex',
       alignItems: 'center',

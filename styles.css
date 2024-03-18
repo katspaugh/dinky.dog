@@ -246,6 +246,11 @@ path:hover {
 
 .locked path {
   pointer-events: none;
+  cursor: default;
+}
+
+.locked path:hover {
+  stroke: var(--edge-color);
 }
 
 .drop {
@@ -258,6 +263,10 @@ path:hover {
   position: relative;
   cursor: crosshair;
   margin-top: 30px;
+}
+
+.locked .pan {
+  cursor: default;
 }
 
 .pan:after {

@@ -1,4 +1,5 @@
 import { Component, el } from '../utils/dom.js'
+import { makeDraggable } from '../utils/draggable.js'
 
 const SIZE = 3000
 
@@ -54,6 +55,10 @@ export function Graph({ onClickAnywhere, onClick, onDblClick, onPointerUp, onPoi
   pan.addEventListener('pointerleave', onPointerUp)
 
   document.addEventListener('keydown', onKeyDown)
+
+  makeDraggable(pan, () => {
+    // Do nothing, just to prevent clicks after dragging
+  })
 
   return Component({
     props: {

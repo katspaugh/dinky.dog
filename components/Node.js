@@ -10,7 +10,7 @@ const INITIAL_WIDTH = 160
 const INITIAL_HEIGHT = 75
 const MAX_WIDTH = 240
 const DEFAULT_BACKGROUND = '#f9f9f9'
-const BG_THRESHOLD = 200e3
+const BG_THRESHOLD = 100e3
 const BG_Z_INDEX = '1'
 const DEFAULT_Z_INDEX = '2'
 
@@ -121,6 +121,7 @@ export function Node(id, { onClick, onInputClick, onOutputClick, onDrag, onResiz
           minHeight: `${MIN_HEIGHT}px`,
           height: `${height}px`,
           zIndex: isBackground ? BG_Z_INDEX : DEFAULT_Z_INDEX,
+          boxShadow: isBackground ? 'none' : '',
         })
       }
 
