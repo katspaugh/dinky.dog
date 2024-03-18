@@ -1,4 +1,4 @@
-export function randomId(length = 16) {
+export function randomId(length = 8) {
   let array = new Uint8Array(length)
   window.crypto.getRandomValues(array)
 
