@@ -1,14 +1,14 @@
 :root {
-  --background-color: #FFFFFA;
+  --background-color: #fffffa;
   --text-color: #333;
   --secondary-text-color: #555;
-  --link-color: #A52A2A;
-  --link-hover-color: #CD5C5C;
+  --link-color: #a52a2a;
+  --link-hover-color: #cd5c5c;
   --hover-color: #aaf;
   --point-color: #faa;
   --edge-color: #aaf;
-  --edge-hover-color: #CD5C5C;
-  --border-color: #D4D4D4;
+  --edge-hover-color: #cd5c5c;
+  --border-color: #d4d4d4;
   --grid-color: #777;
   --border-hover-color: #a0a0a0;
   --textarea-color: #fff;
@@ -84,7 +84,9 @@ input[disabled] {
   border-radius: 4px;
   border: 1px solid var(--border-color);
   box-shadow: 1px 1px 1px var(--shadow-color);
-  transition: outline .1s, transform .2s;
+  transition:
+    outline 0.1s,
+    transform 0.2s;
 }
 
 #app:not(.locked) .node.active,
@@ -118,7 +120,7 @@ input[disabled] {
   max-height: 80vh;
 }
 
-.node input[type="color"],
+.node input[type='color'],
 .node button {
   background-color: var(--point-color);
   border: 1px solid var(--border-color);
@@ -147,13 +149,14 @@ input[disabled] {
 }
 
 .resize-handle:after,
-.resize-handle div {
+.resize-handle:before,
+.resize-handle > div {
+  content: '';
   position: absolute;
   z-index: 3;
 }
 
 .resize-handle:after {
-  content: '';
   z-index: 4;
   bottom: 1px;
   right: 1px;
@@ -165,7 +168,7 @@ input[disabled] {
 }
 
 /* Bottom line */
-.resize-handle div:nth-child(1) {
+.resize-handle > div {
   bottom: -1px;
   left: 0;
   width: 100%;
@@ -174,7 +177,7 @@ input[disabled] {
 }
 
 /* Right line */
-.resize-handle div:nth-child(2) {
+.resize-handle:before {
   top: 0;
   right: -1px;
   width: 10px;
@@ -182,7 +185,7 @@ input[disabled] {
   cursor: ew-resize;
 }
 
-.node input[type="color"] {
+.node input[type='color'] {
   position: absolute;
   z-index: 3;
   top: -3px;
@@ -193,22 +196,22 @@ input[disabled] {
 }
 
 @media (min-width: 600px) {
-  .node input[type="color"] {
+  .node input[type='color'] {
     width: 50px;
     height: 20px;
     padding: 0;
     background-color: var(--button-color);
   }
-  .node input[type="color"]:hover {
+  .node input[type='color']:hover {
     background-color: var(--hover-color);
   }
 }
 
-.node:hover input[type="color"] {
+.node:hover input[type='color'] {
   opacity: 1;
 }
 
-.locked input[type="color"] {
+.locked input[type='color'] {
   display: none;
 }
 
@@ -253,8 +256,6 @@ path:hover {
 
 .pan {
   position: relative;
-  width: 3000px;
-  height: 3000px;
   cursor: crosshair;
   margin-top: 30px;
 }
@@ -379,7 +380,7 @@ path:hover {
   color: var(--menu-hover-text-color);
 }
 
-.sidebar input[type="text"] {
+.sidebar input[type='text'] {
   padding: 6px;
   margin: 0 2px;
   border: none;

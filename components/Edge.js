@@ -1,13 +1,15 @@
+import { Component, el } from '../utils/dom.js'
+
 export function Edge({ inactive = false } = {}) {
-  const container = document.createElementNS('http://www.w3.org/2000/svg', 'path')
-  if (inactive) {
-    container.style.pointerEvents = 'none'
-  }
   let lastFromEl = null
   let lastToEl = null
 
-  return {
-    container,
+  const component = Component({
+    tag: 'path',
+
+    style: {
+      pointerEvents: inactive ? 'none' : 'auto',
+    },
 
     render: ({ fromEl = lastFromEl, toEl = lastToEl, onClick }) => {
       lastFromEl = fromEl
@@ -15,6 +17,7 @@ export function Edge({ inactive = false } = {}) {
 
       const parent = (fromEl.parentElement || toEl.parentElement).parentElement
       if (!parent) return
+
       const parentBbox = parent.getBoundingClientRect()
       const x = -parentBbox.left
       const y = -parentBbox.top
@@ -26,15 +29,13 @@ export function Edge({ inactive = false } = {}) {
       const toX = x + toPoint.left + toPoint.width / 2
       const toY = y + toPoint.top + toPoint.height / 2
 
+      const { container } = component
       container.setAttribute('d', `M ${fromX} ${fromY} C ${fromX + 100} ${fromY} ${toX - 100} ${toY} ${toX} ${toY}`)
-
       if (onClick) {
         container.onclick = onClick
       }
-
-      return container
     },
+  })
 
-    destroy: () => container.remove(),
-  }
+  return component
 }

@@ -1,3 +1,5 @@
+import { Component, el } from '../utils/dom.js'
+
 // Paster colors
 const PASTEL_COLORS = [
   '#F9F9F9',
@@ -12,44 +14,36 @@ const PASTEL_COLORS = [
   '#fff2d9',
 ]
 
+// Share the same datalist for all colorwheels
 let _datalist
 
-export function Colorwheel() {
-  const container = document.createElement('label')
-  const input = document.createElement('input')
-  input.type = 'color'
-  input.tabIndex = 2
-  input.setAttribute('list', 'colors')
-  container.appendChild(input)
-
+export function Colorwheel({ onChange }) {
   if (!_datalist) {
-    _datalist = document.createElement('datalist')
-    _datalist.id = 'colors'
-    for (const color of PASTEL_COLORS) {
-      const option = document.createElement('option')
-      option.value = color
-      _datalist.appendChild(option)
-    }
+    _datalist = el(
+      'datalist',
+      { id: 'colors' },
+      PASTEL_COLORS.map((color) => el('option', { value: color })),
+    )
     document.body.appendChild(_datalist)
   }
 
-  return {
-    container,
+  const input = el('input', {
+    type: 'color',
+    tabIndex: 2,
+    onchange: (e) => {
+      onChange(e.target.value)
+    },
+  })
 
-    render: ({ color, onChange }) => {
+  input.setAttribute('list', 'colors')
+
+  return Component({
+    children: [input],
+
+    render: ({ color }) => {
       if (color && color !== input.value) {
         input.value = color
       }
-
-      if (onChange) {
-        input.oninput = () => {
-          onChange(input.value)
-        }
-      }
-
-      return container
     },
-
-    destroy: () => container.remove(),
-  }
+  })
 }

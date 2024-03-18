@@ -1,3 +1,4 @@
+import { Component, el } from '../utils/dom.js'
 import { Menu } from '../components/Menu.js'
 import { Toggle } from '../components/Toggle.js'
 import { ShareLink } from '../components/ShareLink.js'
@@ -5,48 +6,40 @@ import { makeUrl } from '../persist.js'
 import { randomId } from '../utils/random.js'
 
 export function Sidebar({ onTitleChange, setLocked, savedFlows, onShare, onFork }) {
-  const container = document.createElement('div')
-  container.className = 'sidebar'
-
-  const div = (node) => {
-    const el = document.createElement('div')
-    if (node) {
-      el.appendChild(node)
-    }
-    return container.appendChild(el)
+  const children = []
+  const add = (...args) => {
+    const child = el(...args)
+    children.push(child)
+    return child
   }
+  const addDiv = (children, props = {}) => add('div', props, children)
 
-  const allPeers = div()
-  allPeers.className = 'peers'
+  const allPeers = addDiv([], { className: 'peers' })
 
   // Divider
-  container.appendChild(document.createElement('hr'))
+  add('hr')
 
   // Title input
-  const input = document.createElement('input')
-  {
-    input.type = 'text'
-    input.placeholder = 'Untitled'
-    input.oninput = () => onTitleChange(input.value)
-    container.appendChild(input)
-  }
+  const input = add('input', {
+    type: 'text',
+    placeholder: 'Untitled',
+    oninput: (e) => onTitleChange(e.target.value),
+  })
 
   // Flows menu
   {
     const flowsMenu = Menu('Flows')
-
     const items = savedFlows.map((flow) => ({ content: flow.title || flow.id, href: makeUrl(flow.id) }))
     items.unshift({ content: '＋ New flow', href: makeUrl(randomId()), separator: true })
-
-    div(flowsMenu.render({ items }))
+    addDiv(flowsMenu.render({ items }))
   }
 
   // Lock toggle
   const lockToggle = Toggle('Lock')
-  div(lockToggle.render({ checked: false, onChange: setLocked }))
+  addDiv(lockToggle.render({ checked: false, onChange: setLocked }))
 
   // Share link
-  div(ShareLink('🔗 Share link', onShare).render())
+  addDiv(ShareLink('🔗 Share link', onShare).render())
 
   const onForkClick = async () => {
     let id
@@ -62,7 +55,7 @@ export function Sidebar({ onTitleChange, setLocked, savedFlows, onShare, onFork 
     }
   }
 
-  const logo = div(
+  const logo = addDiv(
     Menu('', 'logo').render({
       items: [
         { content: '⑂ Fork flow', separator: true, onClick: onForkClick },
@@ -72,8 +65,9 @@ export function Sidebar({ onTitleChange, setLocked, savedFlows, onShare, onFork 
     }),
   )
 
-  return {
-    container,
+  return Component({
+    props: { className: 'sidebar' },
+    children,
 
     render: ({ title, isLocked, peer }) => {
       if (isLocked != null) {
@@ -88,12 +82,6 @@ export function Sidebar({ onTitleChange, setLocked, savedFlows, onShare, onFork 
       if (peer) {
         allPeers.appendChild(peer)
       }
-
-      return container
     },
-
-    destroy: () => {
-      container.remove()
-    },
-  }
+  })
 }

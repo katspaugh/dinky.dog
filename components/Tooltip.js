@@ -1,23 +1,24 @@
-export function Tooltip() {
-  const container = document.createElement('div')
-  Object.assign(container.style, {
-    position: 'absolute',
-    zIndex: 1000,
-    padding: '8px',
-    background: '#fafafa',
-    color: '#333',
-    border: '1px solid #ccc',
-    boxShadow: '2px 2px 4px rgba(0,0,0,0.2)',
-    pointerEvents: 'none',
-  })
+import { Component } from '../utils/dom.js'
 
+export function Tooltip() {
   let expireTimer = null
   let showTimer = null
 
-  return {
-    container,
+  const component = Component({
+    style: {
+      position: 'absolute',
+      zIndex: 1000,
+      padding: '8px',
+      background: '#fafafa',
+      color: '#333',
+      border: '1px solid #ccc',
+      boxShadow: '2px 2px 4px rgba(0,0,0,0.2)',
+      pointerEvents: 'none',
+    },
 
     render: ({ x, y, content = '', delay = 0, expire = 0 }) => {
+      const { container } = component
+
       expireTimer && clearTimeout(expireTimer)
       showTimer && clearTimeout(showTimer)
 
@@ -44,10 +45,8 @@ export function Tooltip() {
           }, expire)
         }
       }, delay)
-
-      return container
     },
+  })
 
-    destroy: () => container.remove(),
-  }
+  return component
 }

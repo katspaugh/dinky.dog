@@ -1,3 +1,4 @@
+import { Component, el } from '../utils/dom.js'
 import { makeDraggable } from '../utils/draggable.js'
 import { ConnectorPoint } from './ConnectorPoint.js'
 import { ResizeHandle } from './ResizeHandle.js'
@@ -14,38 +15,58 @@ const BG_Z_INDEX = '1'
 const DEFAULT_Z_INDEX = '2'
 
 export function Node(id, { onClick, onInputClick, onOutputClick, onDrag, onResize, onBackgroundChange }) {
-  let _background
-  let _width
-  let _height
-
-  const container = document.createElement('div')
-  container.id = `node-${id}`
-  container.className = 'node'
-  Object.assign(container.style, {
-    minWidth: `${INITIAL_WIDTH}px`,
-    minHeight: `${INITIAL_HEIGHT}px`,
-    maxWidth: `${MAX_WIDTH}px`,
-    zIndex: DEFAULT_Z_INDEX,
-  })
-
-  const output = ConnectorPoint('100%', '50%').render()
-  container.appendChild(output)
   const input = ConnectorPoint('0', '50%').render()
-  container.appendChild(input)
+  const output = ConnectorPoint('100%', '50%').render()
 
   // Color wheel
-  const colorwheel = Colorwheel()
-  container.appendChild(
-    colorwheel.render({
-      color: DEFAULT_BACKGROUND,
-      onChange: onBackgroundChange,
-    }),
-  )
+  const colorwheel = Colorwheel({
+    onChange: onBackgroundChange,
+  })
+
+  // Resize handle
+  const resizeHandle = ResizeHandle({
+    onResize: (dx, dy) => {
+      onResize(dx, dy, _width, _height)
+    },
+    onResizeStart: () => {
+      _width = container.offsetWidth
+      _height = container.offsetHeight
+    },
+  })
+
+  const component = Component({
+    props: {
+      id: `node-${id}`,
+      className: 'node',
+    },
+    style: {
+      minWidth: `${INITIAL_WIDTH}px`,
+      minHeight: `${INITIAL_HEIGHT}px`,
+      maxWidth: `${MAX_WIDTH}px`,
+      zIndex: DEFAULT_Z_INDEX,
+    },
+    children: [
+      input,
+      output,
+      resizeHandle.container,
+      colorwheel.render({
+        color: DEFAULT_BACKGROUND,
+      }),
+    ],
+  })
 
   // Event listeners
+  const { container } = component
+
+  // Drag
+  if (onDrag) {
+    makeDraggable(container, onDrag)
+  }
+
+  // Click
   let onClickElsewhere
   if (onClick) {
-    // Click
+    // Click inside the node
     container.addEventListener('click', (e) => {
       if (e.target === output) {
         onOutputClick()
@@ -66,33 +87,19 @@ export function Node(id, { onClick, onInputClick, onOutputClick, onDrag, onResiz
     document.addEventListener('click', onClickElsewhere)
   }
 
-  // Drag
-  if (onDrag) {
-    makeDraggable(container, onDrag)
-  }
-
-  // Resize
-  if (onResize) {
-    const resizeHandle = ResizeHandle({
-      onResize: (dx, dy) => {
-        onResize(dx, dy, _width, _height)
-      },
-      onResizeStart: () => {
-        _width = container.offsetWidth
-        _height = container.offsetHeight
-      },
-    })
-    container.appendChild(resizeHandle.render())
-  }
+  let _background
+  let _width
+  let _height
 
   return {
-    container: container,
+    ...component,
 
     input,
 
     output,
 
     render: ({ x, y, width, height, background = DEFAULT_BACKGROUND, children = null }) => {
+      const { container } = component
       const isBackground = background !== DEFAULT_BACKGROUND && width * height >= BG_THRESHOLD
 
       // Position
@@ -133,12 +140,12 @@ export function Node(id, { onClick, onInputClick, onOutputClick, onDrag, onResiz
         colorwheel.render({ color: background })
       }
 
-      return container
+      return component.render()
     },
 
     destroy: () => {
-      container.remove()
       onClickElsewhere && document.removeEventListener('click', onClickElsewhere)
+      component.destroy()
     },
   }
 }

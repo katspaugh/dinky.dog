@@ -1,34 +1,43 @@
-export function Graph({ onClickAnywhere, onClick, onDblClick, onPointerUp, onPointerMove, onKeyDown }) {
-  const container = document.createElement('div')
-  container.className = 'graph'
+import { Component, el } from '../utils/dom.js'
 
-  const pan = document.createElement('div')
-  pan.className = 'pan'
-  container.appendChild(pan)
+const SIZE = 3000
 
-  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
-  pan.appendChild(svg)
-
-  let wasFocused = false
+const onDocumentFocus = (callback) => {
   let focusTimer = null
+
   const onFocusIn = (e) => {
     if (e.target.tabIndex != null) {
       if (focusTimer) clearTimeout(focusTimer)
-      wasFocused = true
-      pan.style.cursor = 'auto'
+      callback(true)
     }
   }
   const onFocusOut = (e) => {
     if (e.target.tabIndex != null) {
       if (focusTimer) clearTimeout(focusTimer)
       focusTimer = setTimeout(() => {
-        wasFocused = false
-        pan.style.cursor = ''
+        callback(false)
       }, 100)
     }
   }
   document.addEventListener('focusin', onFocusIn)
   document.addEventListener('focusout', onFocusOut)
+
+  return () => {
+    document.removeEventListener('focusin', onFocusIn)
+    document.removeEventListener('focusout', onFocusOut)
+  }
+}
+
+export function Graph({ onClickAnywhere, onClick, onDblClick, onPointerUp, onPointerMove, onKeyDown }) {
+  const svg = el('svg', { style: { width: '100%', height: '100%', viewBox: `0 0 ${SIZE} ${SIZE}` } })
+  const pan = el('div', { style: { width: `${SIZE}px`, height: `${SIZE}px` }, className: 'pan' }, [svg])
+
+  let wasFocused = false
+
+  const unsubscribeFocus = onDocumentFocus((focused) => {
+    wasFocused = focused
+    pan.style.cursor = focused ? 'auto' : ''
+  })
 
   const makeClickHandler = (callback) => (e) => {
     if (e.target === pan) {
@@ -46,38 +55,26 @@ export function Graph({ onClickAnywhere, onClick, onDblClick, onPointerUp, onPoi
 
   document.addEventListener('keydown', onKeyDown)
 
-  // Scale the SVG on window resize
-  const onResize = () => {
-    const width = pan.clientWidth
-    const height = pan.clientHeight
-    svg.setAttribute('viewBox', `0 0 ${width} ${height}`)
-    svg.setAttribute('width', `${width}px`)
-    svg.setAttribute('height', `${height}px`)
-  }
+  return Component({
+    props: {
+      className: 'graph',
+    },
 
-  window.addEventListener('resize', onResize)
-
-  return {
-    container,
+    children: [pan],
 
     render: ({ node = null, edge = null }) => {
       if (node) {
         pan.appendChild(node)
       }
       if (edge) {
-        onResize()
         svg.appendChild(edge)
       }
-
-      return container
     },
 
     destroy: () => {
-      container.remove()
-      window.removeEventListener('resize', onResize)
       document.removeEventListener('keydown', onKeyDown)
-      document.removeEventListener('focusin', onFocusIn)
-      document.removeEventListener('focusout', onFocusOut)
+      unsubscribeFocus()
+      unsubscribeResize()
     },
-  }
+  })
 }

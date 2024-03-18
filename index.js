@@ -9,7 +9,7 @@ import { initDurableStream } from './services/durable-stream.js'
 import { randomId } from './utils/random.js'
 
 const BROADCAST_DELAY = 300
-const PERSIST_DELAY = 5e3 // save every 5 seconds
+const PERSIST_DELAY = 5e3
 const REMOVE_THRESHOLD_X = -70
 const REMOVE_THRESHOLD_Y = -80
 

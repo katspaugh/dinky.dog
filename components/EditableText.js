@@ -1,54 +1,56 @@
+import { Component } from '../utils/dom.js'
 import { sanitizeHtml } from '../utils/sanitize-html.js'
 
 export function EditableText({ onInput }) {
-  const container = document.createElement('div')
-  container.tabIndex = 0
-  Object.assign(container.style, {
-    padding: '8px',
-    overflow: 'auto',
-    overflowWrap: 'normal',
-    maxWidth: '100%',
-    height: '100%',
-    whiteSpace: 'pre-wrap',
-  })
+  const component = Component({
+    style: {
+      padding: '8px',
+      overflow: 'auto',
+      overflowWrap: 'normal',
+      maxWidth: '100%',
+      height: '100%',
+      whiteSpace: 'pre-wrap',
+    },
 
-  if (onInput) {
-    container.contentEditable = 'true'
+    props: {
+      tabIndex: 0,
 
-    container.oninput = () => {
-      const value = container.innerHTML
-      const html = sanitizeHtml(value)
-      if (html !== value) {
-        container.innerHTML = html
-      }
-      onInput(html)
-    }
+      contentEditable: onInput ? 'true' : 'false',
 
-    container.onkeydown = (e) => {
-      if (e.key === 'Escape') {
-        container.blur()
-      } else if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault()
-        container.blur()
-      }
-    }
+      oninput: () => {
+        const { container } = component
+        const value = container.innerHTML
+        const html = sanitizeHtml(value)
+        if (html !== value) {
+          container.innerHTML = html
+        }
+        onInput && onInput(html)
+      },
 
-    container.onblur = () => {
-      container.scrollLeft = 0
-    }
-  }
+      onkeydown: (e) => {
+        const { container } = component
+        if (e.key === 'Escape') {
+          container.blur()
+        } else if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault()
+          container.blur()
+        }
+      },
 
-  return {
-    container,
+      onblur: () => {
+        const { container } = component
+        container.scrollLeft = 0
+      },
+    },
 
     render: ({ text = '' }) => {
+      const { container } = component
       const html = sanitizeHtml(text)
       if (html !== container.innerHTML) {
         container.innerHTML = html
       }
-      return container
     },
+  })
 
-    destroy: () => container.remove(),
-  }
+  return component
 }

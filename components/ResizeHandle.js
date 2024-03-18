@@ -1,23 +1,15 @@
+import { Component, el } from '../utils/dom.js'
 import { makeDraggable } from '../utils/draggable.js'
 
 export function ResizeHandle({ onResize, onResizeStart }) {
-  const container = document.createElement('div')
-  container.className = 'resize-handle'
+  const component = Component({
+    props: {
+      className: 'resize-handle',
+    },
+    children: [el('div')],
+  })
 
-  for (let i = 0; i < 2; i++) {
-    const div = document.createElement('div')
-    container.appendChild(div)
-  }
+  makeDraggable(component.container, onResize, onResizeStart)
 
-  if (onResize) {
-    makeDraggable(container, onResize, onResizeStart)
-  }
-
-  return {
-    container,
-
-    render: () => container,
-
-    destroy: () => container.remove(),
-  }
+  return component
 }

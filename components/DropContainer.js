@@ -1,20 +1,18 @@
+import { Component } from '../utils/dom.js'
 import { makeDroppable } from '../utils/droppable.js'
 
 export function DropContainer({ fileTypes, onDrop }) {
-  const container = document.createElement('div')
-  container.className = 'drop'
+  const component = Component({
+    props: {
+      className: 'drop',
+    },
+  })
 
   makeDroppable({
-    container,
+    container: component.container,
     fileTypes,
     onDrop,
   })
 
-  return {
-    container,
-
-    render: () => container,
-
-    destroy: () => container.remove(),
-  }
+  return component
 }

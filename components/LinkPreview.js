@@ -7,7 +7,7 @@ export function LinkPreview() {
   metaPreview.container.style.maxWidth = '300px'
 
   return {
-    container: metaPreview.container,
+    ...metaPreview,
 
     render: ({ src }) => {
       fetchPreview(src)

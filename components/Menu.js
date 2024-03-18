@@ -1,43 +1,39 @@
+import { Component, el } from '../utils/dom.js'
+
 export function Menu(title = '', className = '') {
-  const container = document.createElement('details')
-  container.tabIndex = -1
-  if (className) {
-    container.className = className
-  }
+  const summary = el('summary', { tabIndex: 0 }, title)
+  const ul = el('ul')
 
-  const summary = document.createElement('summary')
-  summary.tabIndex = 0
-  summary.textContent = title
-  container.appendChild(summary)
+  const component = Component({
+    tag: 'details',
 
-  const ul = document.createElement('ul')
-  container.appendChild(ul)
+    props: {
+      tabIndex: -1,
 
-  container.onclick = (e) => {
-    if (e.target === summary) {
-      container.focus()
-    }
-  }
+      className,
 
-  container.onblur = () => {
-    if (container.open) {
-      setTimeout(() => {
-        container.open = false
-      }, 100)
-    }
-  }
+      onclick: (e) => {
+        if (e.target === summary) {
+          component.container.focus()
+        }
+      },
 
-  return {
-    container,
+      onblur: () => {
+        if (component.container.open) {
+          setTimeout(() => {
+            component.container.open = false
+          }, 100)
+        }
+      },
+    },
+
+    children: [summary, ul],
 
     render: ({ items = [] }) => {
-      items.forEach(({ content, href, onClick, separator = false }) => {
-        const li = document.createElement('li')
-
+      items.forEach(({ content, href = '', onClick, separator = false }) => {
+        const li = el('li')
         if (typeof content === 'string') {
-          const a = document.createElement('a')
-          if (href) a.href = href
-          a.textContent = content.slice(0, 30)
+          const a = el('a', { href }, content.slice(0, 30))
           content = a
         }
         if (content) {
@@ -46,13 +42,11 @@ export function Menu(title = '', className = '') {
         li.onclick = onClick
         ul.appendChild(li)
         if (separator) {
-          ul.appendChild(document.createElement('hr'))
+          ul.appendChild(el('hr'))
         }
       })
-
-      return container
     },
+  })
 
-    destroy: () => container.remove(),
-  }
+  return component
 }

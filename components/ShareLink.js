@@ -1,11 +1,13 @@
+import { Component, el } from '../utils/dom.js'
 import { makeUrl } from '../persist.js'
 
 export function ShareLink(label = '', onShare) {
-  const container = document.createElement('label')
+  const button = el('button', {}, label)
 
-  const button = document.createElement('button')
-  button.innerText = label
-  container.appendChild(button)
+  const component = Component({
+    tag: 'label',
+    children: [button],
+  })
 
   let timeoutId
   const showCopied = () => {
@@ -37,13 +39,5 @@ export function ShareLink(label = '', onShare) {
     showCopied()
   }
 
-  return {
-    container,
-
-    render: () => {
-      return container
-    },
-
-    destroy: () => container.remove(),
-  }
+  return component
 }

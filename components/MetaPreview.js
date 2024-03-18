@@ -1,42 +1,36 @@
+import { Component, el } from '../utils/dom.js'
 import { ImagePreview } from './ImagePreview.js'
 
 export function MetaPreview() {
-  const container = document.createElement('div')
-  Object.assign(container.style, {
-    width: '100%',
-    height: '100%',
-    overflow: 'hidden',
-  })
-
-  const titleEl = document.createElement('a')
-  titleEl.target = '_blank'
-  Object.assign(titleEl.style, {
-    display: 'block',
-    margin: '10px',
-    whiteSpace: 'nowrap',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-  })
-
   const imagePreview = ImagePreview()
 
-  return {
-    container,
+  const titleEl = el('a', {
+    target: '_blank',
+    style: {
+      display: 'block',
+      margin: '10px',
+      whiteSpace: 'nowrap',
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
+    },
+  })
 
-    render: ({ url, title = url, description, image }) => {
-      container.innerHTML = ''
+  return Component({
+    children: [titleEl, imagePreview.container],
 
-      titleEl.innerText = title
-      titleEl.href = url
-      container.appendChild(titleEl)
-
-      if (image) {
-        container.appendChild(imagePreview.render({ src: image }))
-      }
-
-      return container
+    style: {
+      width: '100%',
+      height: '100%',
+      overflow: 'hidden',
     },
 
-    destroy: () => container.remove(),
-  }
+    render: ({ url, title = url, image }) => {
+      titleEl.innerText = title
+      titleEl.href = url
+
+      if (image) {
+        imagePreview.render({ src: image })
+      }
+    },
+  })
 }

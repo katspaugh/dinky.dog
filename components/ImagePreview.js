@@ -1,14 +1,23 @@
-export function ImagePreview() {
-  const iframe = document.createElement('iframe')
-  iframe.style.width = '100%'
-  iframe.setAttribute('sandbox', '')
-  iframe.style.pointerEvents = 'none'
+import { Component } from '../utils/dom.js'
 
-  return {
-    container: iframe,
+export function ImagePreview() {
+  const component = Component({
+    tag: 'iframe',
+
+    style: {
+      display: 'none',
+      width: '100%',
+      pointerEvents: 'none',
+    },
+
+    props: {
+      sandbox: '',
+    },
 
     render: ({ src }) => {
-      iframe.src =
+      component.container.style.display = 'block'
+
+      component.container.src =
         'data:text/html,' +
         encodeURIComponent(
           `
@@ -16,9 +25,8 @@ export function ImagePreview() {
            <img src="${src}" style="display: block; width: 100%; height: auto;">
           `,
         )
-      return iframe
     },
+  })
 
-    destroy: () => iframe.remove(),
-  }
+  return component
 }

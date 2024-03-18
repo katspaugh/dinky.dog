@@ -1,19 +1,21 @@
+import { Component, el } from '../utils/dom.js'
+
 export function Toggle(label = '') {
-  const container = document.createElement('label')
-  container.innerText = label
-  Object.assign(container.style, {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '5px',
-    userSelect: 'none',
-  })
+  const checkbox = el('input', { type: 'checkbox' })
 
-  const checkbox = document.createElement('input')
-  checkbox.type = 'checkbox'
-  container.prepend(checkbox)
+  return Component({
+    tag: 'label',
+    props: {
+      innerText: label,
+    },
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '5px',
+      userSelect: 'none',
+    },
 
-  return {
-    container,
+    children: [checkbox, label],
 
     render: ({ checked, onChange }) => {
       if (checked != null) {
@@ -25,9 +27,6 @@ export function Toggle(label = '') {
       if (!onChange) {
         checkbox.disabled = true
       }
-      return container
     },
-
-    destroy: () => container.remove(),
-  }
+  })
 }

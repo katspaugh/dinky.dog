@@ -206,8 +206,9 @@ export function initFlow(callbacks) {
   const dropContainer = initDropcontainer()
   dropContainer.appendChild(_graph.container)
 
-  const colorwheel = Colorwheel()
-  dropContainer.appendChild(colorwheel.render({ onChange: callbacks.onMainBackgroundChange }))
+  const colorwheel = Colorwheel({ onChange: callbacks.onMainBackgroundChange })
+  dropContainer.appendChild(colorwheel.container)
+
   Object.assign(colorwheel.container.style, {
     position: 'fixed',
     zIndex: 100,

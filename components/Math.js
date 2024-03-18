@@ -4,7 +4,7 @@ export function Math() {
   const editor = EditableText({})
 
   return {
-    container: editor.container,
+    ...editor,
 
     render: ({ expression = '' }) => {
       let result = NaN
@@ -13,10 +13,6 @@ export function Math() {
       } catch {}
 
       return editor.render({ text: isNaN(result) ? '' : result.toString() })
-    },
-
-    destroy: () => {
-      editor.destroy()
     },
   }
 }
