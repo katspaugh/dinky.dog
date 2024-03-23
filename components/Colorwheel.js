@@ -17,7 +17,7 @@ const PASTEL_COLORS = [
 // Share the same datalist for all colorwheels
 let _datalist
 
-export function Colorwheel({ onChange }) {
+export function Colorwheel({ onChange, style }) {
   if (!_datalist) {
     _datalist = el(
       'datalist',
@@ -38,6 +38,8 @@ export function Colorwheel({ onChange }) {
   input.setAttribute('list', 'colors')
 
   return Component({
+    style,
+
     children: [input],
 
     render: ({ color }) => {

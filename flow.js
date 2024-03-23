@@ -1,3 +1,4 @@
+import { Component } from './utils/dom.js'
 import { Graph } from './components/Graph.js'
 import { DropContainer } from './components/DropContainer.js'
 import { Node } from './components/Node.js'
@@ -134,6 +135,7 @@ function initGraph(width, height) {
 
     onClickAnywhere: () => {
       _currentNode = null
+      _callbacks.onUnselect()
     },
 
     onClick: (x, y, wasFocused) => {
@@ -175,15 +177,13 @@ function initGraph(width, height) {
         _currentOutput = null
         _currentInput = null
 
-        if (_currentNode) {
-          _callbacks.onEscapeKey(_currentNode, isFocused)
-        }
+        _callbacks.onEscapeKey(isFocused)
       } else if (e.key === 'Delete' || e.key === 'Backspace') {
-        if (_currentNode) {
-          _callbacks.onDeleteKey(_currentNode, isFocused)
-        }
+        _callbacks.onDeleteKey(isFocused)
       }
     },
+
+    onSelect: _callbacks.onSelectBox,
   })
 
   return graph
@@ -210,22 +210,23 @@ export function initFlow({ width, height, ...callbacks }) {
   _graph = initGraph(width, height)
 
   const dropContainer = initDropcontainer()
-  dropContainer.appendChild(_graph.container)
 
-  const colorwheel = Colorwheel({ onChange: callbacks.onMainBackgroundChange })
-  dropContainer.appendChild(colorwheel.container)
-
-  Object.assign(colorwheel.container.style, {
-    position: 'fixed',
-    zIndex: 100,
-    right: '10px',
-    bottom: '10px',
+  const colorwheel = Colorwheel({
+    onChange: callbacks.onMainBackgroundChange,
+    style: {
+      position: 'fixed',
+      zIndex: 100,
+      right: '10px',
+      bottom: '10px',
+    },
   })
 
-  return {
+  return Component({
     container: dropContainer,
 
-    render: ({ node, edge, backgroundColor }) => {
+    children: [_graph.container, colorwheel.container],
+
+    render: ({ node, edge, backgroundColor, nodeToRemove, edgeToRemove }) => {
       if (node) {
         renderNode(node)
         updateEdges(node.id)
@@ -235,22 +236,18 @@ export function initFlow({ width, height, ...callbacks }) {
         connectNodes(edge.outputId, edge.inputId)
       }
 
+      if (nodeToRemove) {
+        onNodeRemove(nodeToRemove)
+      }
+
+      if (edgeToRemove) {
+        removeEdge(_edges.find((e) => e.outputId === edgeToRemove.outputId && e.inputId === edgeToRemove.inputId))
+      }
+
       if (backgroundColor) {
         colorwheel.render({ color: backgroundColor })
         dropContainer.style.backgroundColor = backgroundColor
       }
-
-      return dropContainer
     },
-
-    remove: ({ node, edge }) => {
-      if (node) {
-        onNodeRemove(node)
-      }
-
-      if (edge) {
-        removeEdge(_edges.find((e) => e.outputId === edge.outputId && e.inputId === edge.inputId))
-      }
-    },
-  }
+  })
 }

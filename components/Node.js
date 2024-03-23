@@ -7,8 +7,8 @@ import { throttle } from '../utils/debounce.js'
 
 export const MIN_WIDTH = 100
 export const MIN_HEIGHT = 42
-const INITIAL_WIDTH = 160
-const INITIAL_HEIGHT = 75
+export const INITIAL_WIDTH = 160
+export const INITIAL_HEIGHT = 75
 const MAX_WIDTH = 240
 const DEFAULT_BACKGROUND = '#f9f9f9'
 const BG_THRESHOLD = 100e3
@@ -75,17 +75,8 @@ export function Node(id, { onClick, onInputClick, onOutputClick, onDrag, onResiz
         onInputClick()
       } else {
         onClick()
-        container.classList.add('active')
       }
     })
-
-    // Click elsewhere
-    onClickElsewhere = (e) => {
-      if (!container.contains(e.target)) {
-        container.classList.remove('active')
-      }
-    }
-    document.addEventListener('click', onClickElsewhere)
   }
 
   let _background
@@ -93,6 +84,7 @@ export function Node(id, { onClick, onInputClick, onOutputClick, onDrag, onResiz
   let _height
   let _x
   let _y
+  let _selected = false
 
   const updatePosition = throttle(() => {
     container.style.transform = `translate(${_x}px, ${_y}px)`
@@ -105,7 +97,7 @@ export function Node(id, { onClick, onInputClick, onOutputClick, onDrag, onResiz
 
     output,
 
-    render: ({ x, y, width, height, background = DEFAULT_BACKGROUND, children = null }) => {
+    render: ({ x, y, width, height, background = DEFAULT_BACKGROUND, children = null, selected = false }) => {
       // Position
       if (x != null && y != null && (x !== _x || y !== _y)) {
         _x = x
@@ -139,6 +131,11 @@ export function Node(id, { onClick, onInputClick, onOutputClick, onDrag, onResiz
       // Children
       if (children) {
         container.appendChild(children)
+      }
+
+      if (selected != null && selected !== _selected) {
+        _selected = selected
+        container.classList.toggle('active', selected)
       }
 
       return container

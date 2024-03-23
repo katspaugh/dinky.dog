@@ -35,8 +35,18 @@ export function el(tagName, props, children) {
   return el
 }
 
-export function Component({ render, destroy, tag = 'div', props, style, children }) {
-  let container = el(tag, { ...props, style }, children)
+export function Component({ render, destroy, tag = 'div', props, style, children, container }) {
+  if (container) {
+    if (children) container.append(...children)
+    if (style) css(container, style)
+    if (props) {
+      for (let key in props) {
+        container[key] = props[key]
+      }
+    }
+  } else {
+    container = el(tag, { ...props, style }, children)
+  }
 
   return {
     container,

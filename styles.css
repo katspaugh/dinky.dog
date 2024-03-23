@@ -236,7 +236,7 @@ svg {
   position: absolute;
   z-index: 2;
   pointer-events: none;
-  top: -40px;
+  top: 0;
   left: 0;
 }
 
@@ -269,10 +269,19 @@ path:hover {
   overflow: auto;
 }
 
-.pan {
+.graph {
   position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: auto;
+}
+
+.pan {
+  position: absolute;
   cursor: crosshair;
-  margin-top: 40px;
+  left: 0;
+  top: 0;
+  z-index: 1;
 }
 
 .locked .pan {
@@ -284,7 +293,7 @@ path:hover {
   z-index: 1;
   position: absolute;
   left: 0;
-  top: -40px;
+  top: 0;
   right: 0;
   bottom: 0;
   pointer-events: none;

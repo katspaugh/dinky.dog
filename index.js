@@ -1,6 +1,6 @@
 import { Sidebar } from './components/Sidebar.js'
 import { Peer } from './components/Peer.js'
-import { MIN_WIDTH, MIN_HEIGHT } from './components/Node.js'
+import { MIN_WIDTH, MIN_HEIGHT, INITIAL_WIDTH, INITIAL_HEIGHT } from './components/Node.js'
 import { initFlow } from './flow.js'
 import * as Operators from './operators/index.js'
 import { loadState, saveState, getSavedStates, getClientId, slugify } from './persist.js'
@@ -69,7 +69,6 @@ function broadcast(command, ...args) {
   }
 }
 
-const debouncedBroadcastProps = debounce(broadcast, BROADCAST_DELAY)
 const debouncedBroadcastData = debounce(broadcast, BROADCAST_DELAY)
 
 function createNode(id, props, data) {
@@ -99,7 +98,7 @@ function createNode(id, props, data) {
 }
 
 function removeNode(id) {
-  _graph.remove({ node: id })
+  _graph.render({ nodeToRemove: id })
 }
 
 function updateNode(id, props) {
@@ -154,8 +153,8 @@ function disconnectNodes(outputId, inputId) {
 
   state.nodes[outputId].connections = state.nodes[outputId].connections.filter((c) => c.inputId !== inputId)
 
-  _graph.remove({
-    edge: {
+  _graph.render({
+    edgeToRemove: {
       outputId,
       inputId,
     },
@@ -193,6 +192,10 @@ function getUnlockedNode(id) {
   return node
 }
 
+function getSelectedNodes() {
+  return Object.entries(state.nodes).filter(([id, node]) => node.props.selected)
+}
+
 function onTextInput(id, value) {
   const node = getUnlockedNode(id)
   if (!node) return
@@ -208,15 +211,17 @@ function onRemove(id) {
   persist()
 }
 
-function onDeleteKey(id, isFocused) {
-  const node = getUnlockedNode(id)
-  if (!node) return
+function onDeleteKey(isFocused) {
+  if (state.isLocked) return
 
-  const hasData = !!node.operator.output.get()
+  const nodes = getSelectedNodes()
+  if (!nodes.length) return
+
+  const hasData = nodes.some(([id, node]) => !!node.operator.output.get())
   const isConfirmed = hasData ? !isFocused && confirm('Delete card?') : true
 
   if (isConfirmed) {
-    removeNode(id)
+    nodes.forEach(([id, node]) => removeNode(id))
   }
 }
 
@@ -237,7 +242,7 @@ function onDisconnect(outputId, inputId) {
 function onNodeUpate(id, props) {
   if (!state.nodes[id]) return
   updateNode(id, props)
-  debouncedBroadcastProps('cmdUpdateNode', id, state.nodes[id].props)
+  broadcast('cmdUpdateNode', id, state.nodes[id].props)
   persist()
 }
 
@@ -247,13 +252,20 @@ function clamp(value, max, min = 0) {
 
 function onDrag(id, dx, dy) {
   if (state.isLocked) return
-  if (!state.nodes[id]) return
-  const { props } = state.nodes[id]
-  const THRESHOLD = 50
-  const x = clamp(Math.round(props.x + dx), WIDTH - THRESHOLD)
-  const y = clamp(Math.round(props.y + dy), HEIGHT - THRESHOLD)
 
-  onNodeUpate(id, { x, y })
+  let nodes = getSelectedNodes()
+  if (nodes.length <= 1) {
+    nodes = [[id, state.nodes[id]]]
+  }
+
+  nodes.forEach(([id, node]) => {
+    const { props } = node
+    const THRESHOLD = 50
+    const x = clamp(Math.round(props.x + dx), WIDTH - THRESHOLD)
+    const y = clamp(Math.round(props.y + dy), HEIGHT - THRESHOLD)
+
+    onNodeUpate(id, { x, y })
+  })
 }
 
 function onResize(id, dx, dy, width, height) {
@@ -277,10 +289,32 @@ function onMainBackgroundChange(backgroundColor) {
   persist()
 }
 
+function onUnselect() {
+  if (state.isLocked) return
+  getSelectedNodes().forEach(([id]) => {
+    onNodeUpate(id, { ...state.nodes[id].props, selected: false })
+  })
+}
+
 function onSelect(id) {
   const node = getUnlockedNode(id)
   if (!node) return
-  //
+  onNodeUpate(id, { ...node.props, selected: true })
+}
+
+function onSelectBox(x1, y1, x2, y2) {
+  if (state.isLocked) return
+
+  const matchingNodes = Object.entries(state.nodes).filter(([id, node]) => {
+    const { x, y, width = INITIAL_WIDTH, height = INITIAL_HEIGHT } = node.props
+    // Check if the node intersects with the selection box
+    return (
+      (x > x1 && y > y1 && x + width < x2 && y + height < y2) || (x + width > x1 && y + height > y1 && x < x2 && y < y2)
+    )
+  })
+  matchingNodes.forEach(([id]) => {
+    onSelect(id)
+  })
 }
 
 function onShare() {
@@ -478,6 +512,8 @@ function init(appContainer, loadedState) {
     onDrop,
     onRemove,
     onSelect,
+    onSelectBox,
+    onUnselect,
     onConnect,
     onDisconnect,
     onDrag,
