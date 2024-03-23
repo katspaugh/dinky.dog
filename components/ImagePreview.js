@@ -14,7 +14,9 @@ export function ImagePreview() {
       sandbox: '',
     },
 
-    render: ({ src }) => {
+    render: ({ src = '' }) => {
+      if (!src) return
+
       component.container.style.display = 'block'
 
       component.container.src =

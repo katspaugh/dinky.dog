@@ -8,7 +8,7 @@ export function Edge({ inactive = false } = {}) {
 
   const updatePath = throttle(() => {
     if (!scrollParent) {
-      scrollParent = component.container.closest('.graph')
+      scrollParent = component.container.closest('.drop')
     }
     const { scrollLeft, scrollTop } = scrollParent
     const fromPoint = lastFromEl.getBoundingClientRect()

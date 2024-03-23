@@ -1,8 +1,12 @@
-import { Component } from '../utils/dom.js'
+import { Component, css } from '../utils/dom.js'
 import { sanitizeHtml } from '../utils/sanitize-html.js'
+
+const INITIAL_WIDTH = 160
+const INITIAL_HEIGHT = 75
 
 export function EditableText({ onInput }) {
   let lastValue = ''
+  let resetSize = false
 
   const update = (html) => {
     component.container.innerHTML = html
@@ -10,7 +14,7 @@ export function EditableText({ onInput }) {
 
   const component = Component({
     style: {
-      padding: '8px',
+      padding: '10px',
       overflow: 'auto',
       overflowWrap: 'normal',
       maxWidth: '100%',
@@ -48,6 +52,14 @@ export function EditableText({ onInput }) {
       onblur: () => {
         update(lastValue)
         component.container.scrollLeft = 0
+
+        if (lastValue && !resetSize) {
+          resetSize = true
+          css(component.container, {
+            minWidth: 0,
+            minHeight: 0,
+          })
+        }
       },
     },
 
@@ -56,6 +68,13 @@ export function EditableText({ onInput }) {
       if (text !== lastValue) {
         lastValue = text
         update(lastValue)
+      }
+
+      if (!resetSize && !text) {
+        css(container, {
+          minWidth: `${INITIAL_WIDTH}px`,
+          minHeight: `${INITIAL_HEIGHT}px`,
+        })
       }
     },
   })

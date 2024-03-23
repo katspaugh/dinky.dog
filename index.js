@@ -1,6 +1,6 @@
 import { Sidebar } from './components/Sidebar.js'
 import { Peer } from './components/Peer.js'
-import { MIN_WIDTH, MIN_HEIGHT, INITIAL_WIDTH, INITIAL_HEIGHT } from './components/Node.js'
+import { MIN_WIDTH, MIN_HEIGHT } from './components/Node.js'
 import { initFlow } from './flow.js'
 import * as Operators from './operators/index.js'
 import { loadState, saveState, getSavedStates, getClientId, slugify } from './persist.js'
@@ -34,8 +34,9 @@ let _unsavedChanges = 0
 
 function serializeState() {
   const nodes = Object.entries(state.nodes).reduce((acc, [id, node]) => {
+    const { selected, ...props } = node.props
     acc[id] = {
-      props: node.props,
+      props,
       connections: node.connections.length ? node.connections : undefined,
       data: {
         ...node.data,
@@ -306,8 +307,8 @@ function onSelectBox(x1, y1, x2, y2) {
   if (state.isLocked) return
 
   const matchingNodes = Object.entries(state.nodes).filter(([id, node]) => {
-    const { x, y, width = INITIAL_WIDTH, height = INITIAL_HEIGHT } = node.props
-    // Check if the node intersects with the selection box
+    const { container } = node.operator
+    const { x, y, width = container.offsetWidth, height = container.offsetHeight } = node.props
     return (
       (x > x1 && y > y1 && x + width < x2 && y + height < y2) || (x + width > x1 && y + height > y1 && x < x2 && y < y2)
     )

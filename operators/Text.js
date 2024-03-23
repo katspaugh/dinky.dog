@@ -91,6 +91,8 @@ export function Text(initialValue) {
   }
 
   return {
+    ...preview,
+
     input: inputStream,
 
     output: outputStream,

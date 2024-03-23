@@ -271,9 +271,6 @@ path:hover {
 
 .graph {
   position: relative;
-  width: 100vw;
-  height: 100vh;
-  overflow: auto;
 }
 
 .pan {
@@ -317,6 +314,14 @@ path:hover {
   overflow-y: visible;
   overflow-x: auto;
   color: var(--menu-text-color);
+  pointer-events: none;
+}
+
+.sidebar input,
+.sidebar button,
+.sidebar label,
+.sidebar details {
+  pointer-events: auto;
 }
 
 .sidebar hr {

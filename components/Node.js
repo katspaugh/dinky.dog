@@ -7,8 +7,6 @@ import { throttle } from '../utils/debounce.js'
 
 export const MIN_WIDTH = 100
 export const MIN_HEIGHT = 42
-export const INITIAL_WIDTH = 160
-export const INITIAL_HEIGHT = 75
 const MAX_WIDTH = 240
 const DEFAULT_BACKGROUND = '#f9f9f9'
 const BG_THRESHOLD = 100e3
@@ -41,8 +39,8 @@ export function Node(id, { onClick, onInputClick, onOutputClick, onDrag, onResiz
       className: 'node',
     },
     style: {
-      minWidth: `${INITIAL_WIDTH}px`,
-      minHeight: `${INITIAL_HEIGHT}px`,
+      minWidth: `${MIN_WIDTH}px`,
+      minHeight: `${MIN_HEIGHT}px`,
       maxWidth: `${MAX_WIDTH}px`,
       zIndex: DEFAULT_Z_INDEX,
     },
@@ -112,9 +110,7 @@ export function Node(id, { onClick, onInputClick, onOutputClick, onDrag, onResiz
         _height = height
         css(container, {
           maxWidth: '',
-          minWidth: `${MIN_WIDTH}px`,
           width: `${width}px`,
-          minHeight: `${MIN_HEIGHT}px`,
           height: `${height}px`,
           zIndex: isBackground ? BG_Z_INDEX : DEFAULT_Z_INDEX,
           boxShadow: isBackground ? 'none' : '',

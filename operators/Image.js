@@ -15,6 +15,8 @@ export function Image(src = '') {
   }
 
   return {
+    ...component,
+
     input: inputStream,
 
     output: outputStream,
