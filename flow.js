@@ -170,15 +170,13 @@ function initGraph(width, height) {
     },
 
     onKeyDown: (e, isFocused) => {
-      console.log(e.key)
       if (e.key === 'Escape') {
         resetMouseEdge()
         _currentOutput = null
         _currentInput = null
 
         if (_currentNode) {
-          _callbacks.onEscapeKey(_currentNode)
-          _currentNode = null
+          _callbacks.onEscapeKey(_currentNode, isFocused)
         }
       } else if (e.key === 'Delete' || e.key === 'Backspace') {
         if (_currentNode) {

@@ -2,6 +2,12 @@ import { Component } from '../utils/dom.js'
 import { sanitizeHtml } from '../utils/sanitize-html.js'
 
 export function EditableText({ onInput }) {
+  let lastValue = ''
+
+  const update = (html) => {
+    component.container.innerHTML = html
+  }
+
   const component = Component({
     style: {
       padding: '8px',
@@ -18,12 +24,8 @@ export function EditableText({ onInput }) {
       contentEditable: onInput ? 'true' : 'false',
 
       oninput: () => {
-        const { container } = component
-        const value = container.innerHTML
-        const html = sanitizeHtml(value)
-        if (html !== value) {
-          container.innerHTML = html
-        }
+        const html = sanitizeHtml(component.container.innerHTML)
+        lastValue = html
         onInput && onInput(html)
       },
 
@@ -37,17 +39,23 @@ export function EditableText({ onInput }) {
         }
       },
 
+      onpaste: () => {
+        requestAnimationFrame(() => {
+          update(lastValue)
+        })
+      },
+
       onblur: () => {
-        const { container } = component
-        container.scrollLeft = 0
+        update(lastValue)
+        component.container.scrollLeft = 0
       },
     },
 
     render: ({ text = '' }) => {
       const { container } = component
-      const html = sanitizeHtml(text)
-      if (html !== container.innerHTML) {
-        container.innerHTML = html
+      if (text !== lastValue) {
+        lastValue = text
+        update(lastValue)
       }
     },
   })

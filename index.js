@@ -194,7 +194,9 @@ function getUnlockedNode(id) {
 }
 
 function onTextInput(id, value) {
-  if (!getUnlockedNode(id)) return
+  const node = getUnlockedNode(id)
+  if (!node) return
+  updateNode(id, node.props)
   debouncedBroadcastData('cmdUpdateNodeData', id, { operatorData: value })
   persist()
 }
@@ -206,19 +208,9 @@ function onRemove(id) {
   persist()
 }
 
-function onEscapeKey(id) {
-  const node = getUnlockedNode(id)
-  if (!node) return
-
-  if (!node.operator.output.get()) {
-    removeNode(id)
-  }
-}
-
 function onDeleteKey(id, isFocused) {
   const node = getUnlockedNode(id)
   if (!node) return
-  console.log('Delete', id)
 
   const hasData = !!node.operator.output.get()
   const isConfirmed = hasData ? !isFocused && confirm('Delete card?') : true
@@ -491,7 +483,7 @@ function init(appContainer, loadedState) {
     onDrag,
     onResize,
     onBackgroundChange,
-    onEscapeKey,
+    onEscapeKey: onDeleteKey,
     onDeleteKey,
     onMainBackgroundChange,
   })

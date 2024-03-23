@@ -148,6 +148,10 @@ input[disabled] {
   outline: none;
 }
 
+.node [contenteditable] *:first-of-type {
+  margin-top: 0;
+}
+
 .locked .resize-handle {
   display: none;
 }
