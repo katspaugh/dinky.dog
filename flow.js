@@ -118,7 +118,7 @@ function renderNode({ id, ...nodeProps }) {
   }
 }
 
-function initGraph() {
+function initGraph(width, height) {
   let mouseEdge = null
 
   const resetMouseEdge = () => {
@@ -129,6 +129,9 @@ function initGraph() {
   }
 
   const graph = Graph({
+    width,
+    height,
+
     onClickAnywhere: () => {
       _currentNode = null
     },
@@ -166,15 +169,20 @@ function initGraph() {
       resetMouseEdge()
     },
 
-    onKeyDown: (e) => {
+    onKeyDown: (e, isFocused) => {
+      console.log(e.key)
       if (e.key === 'Escape') {
         resetMouseEdge()
         _currentOutput = null
         _currentInput = null
 
         if (_currentNode) {
-          _callbacks.onEscape(_currentNode)
+          _callbacks.onEscapeKey(_currentNode)
           _currentNode = null
+        }
+      } else if (e.key === 'Delete' || e.key === 'Backspace') {
+        if (_currentNode) {
+          _callbacks.onDeleteKey(_currentNode, isFocused)
         }
       }
     },
@@ -198,10 +206,10 @@ function initDropcontainer() {
   return drop.render()
 }
 
-export function initFlow(callbacks) {
+export function initFlow({ width, height, ...callbacks }) {
   _callbacks = callbacks
 
-  _graph = initGraph()
+  _graph = initGraph(width, height)
 
   const dropContainer = initDropcontainer()
   dropContainer.appendChild(_graph.container)

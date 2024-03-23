@@ -91,9 +91,11 @@ export function Node(id, { onClick, onInputClick, onOutputClick, onDrag, onResiz
   let _background
   let _width
   let _height
+  let _x
+  let _y
 
-  const updatePosition = throttle((x, y) => {
-    container.style.transform = `translate(${x}px, ${y}px)`
+  const updatePosition = throttle(() => {
+    container.style.transform = `translate(${_x}px, ${_y}px)`
   }, 20)
 
   return {
@@ -105,8 +107,10 @@ export function Node(id, { onClick, onInputClick, onOutputClick, onDrag, onResiz
 
     render: ({ x, y, width, height, background = DEFAULT_BACKGROUND, children = null }) => {
       // Position
-      if (x != null && y != null) {
-        updatePosition(x, y)
+      if (x != null && y != null && (x !== _x || y !== _y)) {
+        _x = x
+        _y = y
+        updatePosition()
       }
 
       // Size

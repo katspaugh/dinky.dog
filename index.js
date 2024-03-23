@@ -8,10 +8,10 @@ import { debounce } from './utils/debounce.js'
 import { initDurableStream } from './services/durable-stream.js'
 import { randomId } from './utils/random.js'
 
+const WIDTH = 3000
+const HEIGHT = 3000
 const BROADCAST_DELAY = 300
 const PERSIST_DELAY = 5e3
-const REMOVE_THRESHOLD_X = -70
-const REMOVE_THRESHOLD_Y = -80
 
 const clientId = getClientId()
 
@@ -187,29 +187,43 @@ function onDrop({ x, y, fileType, data }) {
   onCreateNode(id, { x, y, background: _lastBackground }, { operatorType: Operators.Image.name, operatorData: data })
 }
 
-function onTextInput(id, value) {
+function getUnlockedNode(id) {
   if (state.isLocked) return
-
   const node = state.nodes[id]
-  if (!node) return
+  return node
+}
 
+function onTextInput(id, value) {
+  if (!getUnlockedNode(id)) return
   debouncedBroadcastData('cmdUpdateNodeData', id, { operatorData: value })
   persist()
 }
 
 function onRemove(id) {
-  if (state.isLocked) return
+  if (!getUnlockedNode(id)) return
   delete state.nodes[id]
   broadcast('cmdRemoveNode', id)
   persist()
 }
 
-function onEscape(id) {
-  if (state.isLocked) return
-  const node = state.nodes[id]
+function onEscapeKey(id) {
+  const node = getUnlockedNode(id)
   if (!node) return
 
   if (!node.operator.output.get()) {
+    removeNode(id)
+  }
+}
+
+function onDeleteKey(id, isFocused) {
+  const node = getUnlockedNode(id)
+  if (!node) return
+  console.log('Delete', id)
+
+  const hasData = !!node.operator.output.get()
+  const isConfirmed = hasData ? !isFocused && confirm('Delete card?') : true
+
+  if (isConfirmed) {
     removeNode(id)
   }
 }
@@ -235,18 +249,19 @@ function onNodeUpate(id, props) {
   persist()
 }
 
+function clamp(value, max, min = 0) {
+  return Math.min(Math.max(value, min), max)
+}
+
 function onDrag(id, dx, dy) {
   if (state.isLocked) return
   if (!state.nodes[id]) return
   const { props } = state.nodes[id]
-  const x = Math.round(props.x + dx)
-  const y = Math.round(props.y + dy)
+  const THRESHOLD = 50
+  const x = clamp(Math.round(props.x + dx), WIDTH - THRESHOLD)
+  const y = clamp(Math.round(props.y + dy), HEIGHT - THRESHOLD)
 
-  if (x < REMOVE_THRESHOLD_X || y < REMOVE_THRESHOLD_Y) {
-    removeNode(id)
-  } else {
-    onNodeUpate(id, { x, y })
-  }
+  onNodeUpate(id, { x, y })
 }
 
 function onResize(id, dx, dy, width, height) {
@@ -271,7 +286,7 @@ function onMainBackgroundChange(backgroundColor) {
 }
 
 function onSelect(id) {
-  const node = state.nodes[id]
+  const node = getUnlockedNode(id)
   if (!node) return
   //
 }
@@ -305,10 +320,10 @@ function initSidebar() {
       state.creator !== clientId
         ? undefined
         : (isLocked) => {
-            setLocked(isLocked)
-            broadcast('cmdSetLocked', isLocked)
-            persist()
-          },
+          setLocked(isLocked)
+          broadcast('cmdSetLocked', isLocked)
+          persist()
+        },
 
     savedFlows: getSavedStates(),
 
@@ -465,6 +480,8 @@ function init(appContainer, loadedState) {
   const sidebar = initSidebar()
 
   const graph = initFlow({
+    width: WIDTH,
+    height: HEIGHT,
     onEmptyClick,
     onDrop,
     onRemove,
@@ -474,7 +491,8 @@ function init(appContainer, loadedState) {
     onDrag,
     onResize,
     onBackgroundChange,
-    onEscape,
+    onEscapeKey,
+    onDeleteKey,
     onMainBackgroundChange,
   })
 

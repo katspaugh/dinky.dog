@@ -1,7 +1,5 @@
 import { Component, el } from '../utils/dom.js'
 
-const SIZE = 3000
-
 const onDocumentFocus = (callback) => {
   let focusTimer = null
 
@@ -28,9 +26,9 @@ const onDocumentFocus = (callback) => {
   }
 }
 
-export function Graph({ onClickAnywhere, onClick, onDblClick, onPointerUp, onPointerMove, onKeyDown }) {
-  const svg = el('svg', { style: { width: '100%', height: '100%', viewBox: `0 0 ${SIZE} ${SIZE}` } })
-  const pan = el('div', { style: { width: `${SIZE}px`, height: `${SIZE}px` }, className: 'pan' }, [svg])
+export function Graph({ width, height, onClickAnywhere, onClick, onDblClick, onPointerUp, onPointerMove, onKeyDown }) {
+  const svg = el('svg', { style: { width: '100%', height: '100%', viewBox: `0 0 ${width} ${height}` } })
+  const pan = el('div', { style: { width: `${width}px`, height: `${height}px` }, className: 'pan' }, [svg])
 
   let wasFocused = false
 
@@ -53,7 +51,8 @@ export function Graph({ onClickAnywhere, onClick, onDblClick, onPointerUp, onPoi
   pan.addEventListener('pointerup', onPointerUp)
   pan.addEventListener('pointerleave', onPointerUp)
 
-  document.addEventListener('keydown', onKeyDown)
+  const keydownHandler = (e) => onKeyDown(e, wasFocused)
+  document.addEventListener('keydown', keydownHandler)
 
   return Component({
     props: {
@@ -72,9 +71,8 @@ export function Graph({ onClickAnywhere, onClick, onDblClick, onPointerUp, onPoi
     },
 
     destroy: () => {
-      document.removeEventListener('keydown', onKeyDown)
+      document.removeEventListener('keydown', keydownHandler)
       unsubscribeFocus()
-      unsubscribeResize()
     },
   })
 }
