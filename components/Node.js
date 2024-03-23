@@ -1,8 +1,9 @@
-import { Component, el } from '../utils/dom.js'
+import { Component, css } from '../utils/dom.js'
 import { makeDraggable } from '../utils/draggable.js'
 import { ConnectorPoint } from './ConnectorPoint.js'
 import { ResizeHandle } from './ResizeHandle.js'
 import { Colorwheel } from './Colorwheel.js'
+import { throttle } from '../utils/debounce.js'
 
 export const MIN_WIDTH = 100
 export const MIN_HEIGHT = 42
@@ -91,6 +92,10 @@ export function Node(id, { onClick, onInputClick, onOutputClick, onDrag, onResiz
   let _width
   let _height
 
+  const updatePosition = throttle((x, y) => {
+    container.style.transform = `translate(${x}px, ${y}px)`
+  }, 20)
+
   return {
     ...component,
 
@@ -99,22 +104,17 @@ export function Node(id, { onClick, onInputClick, onOutputClick, onDrag, onResiz
     output,
 
     render: ({ x, y, width, height, background = DEFAULT_BACKGROUND, children = null }) => {
-      const { container } = component
-      const isBackground = background !== DEFAULT_BACKGROUND && width * height >= BG_THRESHOLD
-
       // Position
       if (x != null && y != null) {
-        Object.assign(container.style, {
-          left: `${x}px`,
-          top: `${y}px`,
-        })
+        updatePosition(x, y)
       }
 
       // Size
-      if (width != null && height != null) {
+      if (width != null && height != null && (width !== _width || height !== _height)) {
+        const isBackground = background !== DEFAULT_BACKGROUND && width * height >= BG_THRESHOLD
         _width = width
         _height = height
-        Object.assign(container.style, {
+        css(container, {
           maxWidth: '',
           minWidth: `${MIN_WIDTH}px`,
           width: `${width}px`,
@@ -129,6 +129,7 @@ export function Node(id, { onClick, onInputClick, onOutputClick, onDrag, onResiz
       if (background !== _background) {
         _background = background
         container.style.backgroundColor = background
+        colorwheel.render({ color: background })
       }
 
       // Children
@@ -136,12 +137,7 @@ export function Node(id, { onClick, onInputClick, onOutputClick, onDrag, onResiz
         container.appendChild(children)
       }
 
-      // Background color
-      if (background) {
-        colorwheel.render({ color: background })
-      }
-
-      return component.render()
+      return container
     },
 
     destroy: () => {

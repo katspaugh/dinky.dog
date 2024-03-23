@@ -1,5 +1,11 @@
 const svgTags = ['svg', 'path']
 
+export function css(el, props) {
+  for (let key in props) {
+    el.style[key] = props[key]
+  }
+}
+
 export function el(tagName, props, children) {
   const el = svgTags.includes(tagName)
     ? document.createElementNS('http://www.w3.org/2000/svg', tagName)
@@ -8,7 +14,7 @@ export function el(tagName, props, children) {
   if (props) {
     for (let key in props) {
       if (key === 'style' && typeof props[key] === 'object') {
-        Object.assign(el.style, props[key])
+        css(el, props[key])
       } else {
         el[key] = props[key]
       }

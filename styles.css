@@ -84,9 +84,7 @@ input[disabled] {
   border-radius: 4px;
   border: 1px solid var(--border-color);
   box-shadow: 1px 1px 1px var(--shadow-color);
-  transition:
-    outline 0.1s,
-    transform 0.2s;
+  transition: outline 0.1s;
 }
 
 #app:not(.locked) .node.active,
@@ -97,9 +95,11 @@ input[disabled] {
   outline: 1px solid var(--hover-color);
 }
 
+/*
 #app:not(.locked) .node:active {
   transform: rotate(0.5deg);
 }
+*/
 
 .node .preview {
   border-top: 1px dashed var(--border-color);
@@ -125,6 +125,10 @@ input[disabled] {
   background-color: var(--point-color);
   border: 1px solid var(--border-color);
   transition: 0.2s;
+}
+
+.node button {
+  cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='48' viewport='0 0 100 100' style='fill:black;font-size:24px;'><text y='50%'>∿</text></svg>") 0 16, pointer;
 }
 
 .node button:hover {
@@ -228,6 +232,8 @@ svg {
   position: absolute;
   z-index: 2;
   pointer-events: none;
+  top: -30px;
+  left: 0;
 }
 
 path {

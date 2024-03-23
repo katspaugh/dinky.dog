@@ -134,7 +134,7 @@ function initGraph() {
     },
 
     onClick: (x, y, wasFocused) => {
-      if (_currentOutput || _currentOutput || !wasFocused) {
+      if (_currentOutput || _currentOutput) {
         _callbacks.onEmptyClick(x, y)
       }
     },

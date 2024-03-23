@@ -1,8 +1,23 @@
 import { Component, el } from '../utils/dom.js'
+import { throttle } from '../utils/debounce.js'
 
 export function Edge({ inactive = false } = {}) {
   let lastFromEl = null
   let lastToEl = null
+
+  const updatePath = throttle(() => {
+    const fromPoint = lastFromEl.getBoundingClientRect()
+    const toPoint = lastToEl.getBoundingClientRect()
+    const fromX = fromPoint.left + fromPoint.width / 2
+    const fromY = fromPoint.top + fromPoint.height / 2
+    const toX = toPoint.left + toPoint.width / 2
+    const toY = toPoint.top + toPoint.height / 2
+
+    component.container.setAttribute(
+      'd',
+      `M ${fromX} ${fromY} C ${fromX + 100} ${fromY} ${toX - 100} ${toY} ${toX} ${toY}`,
+    )
+  }, 20)
 
   const component = Component({
     tag: 'path',
@@ -15,24 +30,12 @@ export function Edge({ inactive = false } = {}) {
       lastFromEl = fromEl
       lastToEl = toEl
 
-      const parent = (fromEl.parentElement || toEl.parentElement).parentElement
-      if (!parent) return
+      if (lastFromEl && lastToEl) {
+        updatePath()
+      }
 
-      const parentBbox = parent.getBoundingClientRect()
-      const x = -parentBbox.left
-      const y = -parentBbox.top
-
-      const fromPoint = fromEl.getBoundingClientRect()
-      const toPoint = toEl.getBoundingClientRect()
-      const fromX = x + fromPoint.left + fromPoint.width / 2
-      const fromY = y + fromPoint.top + fromPoint.height / 2
-      const toX = x + toPoint.left + toPoint.width / 2
-      const toY = y + toPoint.top + toPoint.height / 2
-
-      const { container } = component
-      container.setAttribute('d', `M ${fromX} ${fromY} C ${fromX + 100} ${fromY} ${toX - 100} ${toY} ${toX} ${toY}`)
       if (onClick) {
-        container.onclick = onClick
+        component.container.onclick = onClick
       }
     },
   })
