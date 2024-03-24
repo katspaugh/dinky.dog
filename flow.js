@@ -222,7 +222,7 @@ export function initFlow({ width, height, ...callbacks }) {
   return Component({
     container: dropContainer,
 
-    children: [_graph.container, colorwheel.container],
+    children: [_graph.container, colorwheel.render({ color: '#fffffa' })],
 
     render: ({ node, edge, backgroundColor, nodeToRemove, edgeToRemove }) => {
       if (node) {
