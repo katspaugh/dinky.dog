@@ -2,9 +2,15 @@ import * as storage from './services/local-storage.js'
 import { loadData, saveData, saveDataBeacon } from './services/database.js'
 import { compressObjectToString, decompressStringToObject } from './utils/compress.js'
 import { randomEmoji, randomId } from './utils/random.js'
+import { debounce } from './utils/debounce.js'
+
+const LOCAL_DEBOUNCE_TIME = 300
+const DB_DEBOUNCE_TIME = 5e3
 
 const STATE_STORAGE_PREFIX = 'state-'
 const CLIENT_ID_KEY = 'stream-clientId'
+
+const maxSavedStates = 100
 
 function getUrlId() {
   const url = new URL(window.location.href)
@@ -24,35 +30,57 @@ export function slugify(text) {
 }
 
 function saveToLocalStorage(state) {
-  const key = `${STATE_STORAGE_PREFIX}${state.id}`
-  const oldData = storage.getItem(key)
-
-  const newData = {
-    id: state.id,
-    title: state.title,
-    timestamp: Date.now(),
+  // Save meta data to localStorage if it has a title
+  if (state.title) {
+    const key = `${STATE_STORAGE_PREFIX}${state.id}`
+    const oldData = storage.getItem(key)
+    const newData = {
+      id: state.id,
+      title: state.title,
+      timestamp: Date.now(),
+    }
+    if (!oldData || JSON.stringify(oldData) !== JSON.stringify(newData)) {
+      try {
+        storage.setItem(key, newData)
+      } catch (e) {
+        console.error('Error saving to localStorage', e)
+      }
+    }
   }
 
-  if (oldData && JSON.stringify(oldData) === JSON.stringify(newData)) {
-    return
-  }
-
-  try {
-    storage.setItem(key, newData)
-  } catch (e) {
-    console.error('Error saving to localStorage', e)
+  // Save entire state to sessionStorage
+  {
+    const prefix = `${STATE_STORAGE_PREFIX}-${state.id}`
+    const count = storage.getItem(`${prefix}-count`, true) || 0
+    const newCount = count + 1
+    storage.setItem(`${prefix}-state-${newCount}`, state, true)
+    storage.setItem(`${prefix}-count`, newCount, true)
   }
 }
 
-export async function saveState(state, useBeacon = false) {
-  if (!state.id) return
+export function loadPreviousState(stateId) {
+  const prefix = `${STATE_STORAGE_PREFIX}-${stateId}`
+  const count = storage.getItem(`${prefix}-count`, true)
+  if (!count) return null
+  const newCount = count - 1
+  storage.removeItem(`${prefix}-state-${count}`, true)
+  storage.setItem(`${prefix}-count`, newCount, true)
+  return storage.getItem(`${prefix}-state-${newCount}`, true)
+}
 
-  if (state.title) {
-    saveToLocalStorage(state)
-  }
-
+async function saveToDatabase(state, useBeacon = false) {
   const data = await compressObjectToString(state)
   return await (useBeacon ? saveDataBeacon : saveData)(state.id, data)
+}
+
+const debouncedDbSave = debounce(saveToDatabase, DB_DEBOUNCE_TIME)
+
+const debouncedLocalSave = debounce(saveToLocalStorage, LOCAL_DEBOUNCE_TIME)
+
+export function saveState(state, immediate = false, useBeacon = false) {
+  if (!state.id) return
+  debouncedLocalSave(state)
+  return immediate ? saveToDatabase(state, useBeacon) : debouncedDbSave(state, useBeacon)
 }
 
 export async function loadState() {
@@ -70,7 +98,7 @@ export async function loadState() {
           window.history.replaceState({}, '', `?q=${id}`)
           return state
         }
-      } catch {}
+      } catch { }
     } else if (hash.length > 7) {
       id = hash
       window.history.replaceState({}, '', `?q=${id}`)

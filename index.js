@@ -3,7 +3,7 @@ import { Peer } from './components/Peer.js'
 import { MIN_WIDTH, MIN_HEIGHT } from './components/Node.js'
 import { initFlow } from './flow.js'
 import * as Operators from './operators/index.js'
-import { loadState, saveState, getSavedStates, getClientId, slugify } from './persist.js'
+import * as Persistance from './persist.js'
 import { debounce } from './utils/debounce.js'
 import { initDurableStream } from './services/durable-stream.js'
 import { randomId } from './utils/random.js'
@@ -11,9 +11,8 @@ import { randomId } from './utils/random.js'
 const WIDTH = 3000
 const HEIGHT = 3000
 const BROADCAST_DELAY = 300
-const PERSIST_DELAY = 5e3
 
-const clientId = getClientId()
+const clientId = Persistance.getClientId()
 
 let state = {
   id: '',
@@ -30,7 +29,6 @@ let _sidebar
 let _graph
 let _streamClient
 let _lastBackground
-let _unsavedChanges = 0
 
 function serializeState() {
   const nodes = Object.entries(state.nodes).reduce((acc, [id, node]) => {
@@ -50,18 +48,8 @@ function serializeState() {
   return { ...state, nodes }
 }
 
-function persistState(onUnload = false) {
-  if (_unsavedChanges > 0) {
-    _unsavedChanges = 0
-    saveState(serializeState(), onUnload)
-  }
-}
-
-const debouncedPersist = debounce(persistState, PERSIST_DELAY)
-
-function persist() {
-  _unsavedChanges++
-  debouncedPersist()
+function persist(isImmediate, onUnload) {
+  return Persistance.saveState(serializeState(), isImmediate, onUnload)
 }
 
 function broadcast(command, ...args) {
@@ -99,6 +87,7 @@ function createNode(id, props, data) {
 }
 
 function removeNode(id) {
+  delete state.nodes[id]
   _graph.render({ nodeToRemove: id })
 }
 
@@ -205,24 +194,36 @@ function onTextInput(id, value) {
   persist()
 }
 
-function onRemove(id) {
-  if (!getUnlockedNode(id)) return
-  delete state.nodes[id]
-  broadcast('cmdRemoveNode', id)
-  persist()
-}
-
-function onDeleteKey(isFocused) {
+function onDelete(isFocused) {
   if (state.isLocked) return
 
   const nodes = getSelectedNodes()
   if (!nodes.length) return
 
-  const hasData = nodes.some(([id, node]) => !!node.operator.output.get())
+  const hasData = nodes.some(([, node]) => !!node.operator.output.get())
   const isConfirmed = hasData ? !isFocused && confirm('Delete card?') : true
 
   if (isConfirmed) {
-    nodes.forEach(([id, node]) => removeNode(id))
+    nodes.forEach(([id]) => {
+      removeNode(id)
+      broadcast('cmdRemoveNode', id)
+      persist()
+    })
+  }
+}
+
+function afterUndo() {
+  location.reload()
+}
+
+async function onUndo() {
+  if (state.isLocked) return
+  const prevState = Persistance.loadPreviousState(state.id)
+
+  if (prevState) {
+    await Persistance.saveState(prevState, true)
+    broadcast('cmdUndo')
+    afterUndo()
   }
 }
 
@@ -293,14 +294,14 @@ function onMainBackgroundChange(backgroundColor) {
 function onUnselect() {
   if (state.isLocked) return
   getSelectedNodes().forEach(([id]) => {
-    onNodeUpate(id, { ...state.nodes[id].props, selected: false })
+    updateNode(id, { ...state.nodes[id].props, selected: false })
   })
 }
 
 function onSelect(id) {
   const node = getUnlockedNode(id)
   if (!node) return
-  onNodeUpate(id, { ...node.props, selected: true })
+  updateNode(id, { ...node.props, selected: true })
 }
 
 function onSelectBox(x1, y1, x2, y2) {
@@ -320,17 +321,17 @@ function onSelectBox(x1, y1, x2, y2) {
 
 function onShare() {
   // Save the current state
-  persistState()
+  persist(true)
   return state.id
 }
 
 async function onFork() {
   const newState = {
     ...serializeState(),
-    id: state.title ? slugify(state.title) + '-' + randomId() : randomId(),
+    id: state.title ? Persistance.slugify(state.title) + '-' + randomId() : randomId(),
     creator: clientId,
   }
-  await saveState(newState)
+  await persist(true)
   return newState.id
 }
 
@@ -352,7 +353,7 @@ function initSidebar() {
           persist()
         },
 
-    savedFlows: getSavedStates(),
+    savedFlows: Persistance.getSavedStates(),
 
     onShare,
 
@@ -451,6 +452,7 @@ const commands = {
   cmdPeerDisconnect: peerDisonnect,
   cmdSetLocked: setLocked,
   cmdSetTitle: setTitle,
+  cmdUndo: afterUndo,
 }
 
 async function initStreamClient() {
@@ -493,14 +495,6 @@ async function initStreamClient() {
   })
 }
 
-function initPersistance() {
-  document.addEventListener('visibilitychange', () => {
-    if (_unsavedChanges && document.visibilityState === 'hidden') {
-      persistState(true)
-    }
-  })
-}
-
 function init(appContainer, loadedState) {
   initState(loadedState)
 
@@ -511,7 +505,6 @@ function init(appContainer, loadedState) {
     height: HEIGHT,
     onEmptyClick,
     onDrop,
-    onRemove,
     onSelect,
     onSelectBox,
     onUnselect,
@@ -520,9 +513,9 @@ function init(appContainer, loadedState) {
     onDrag,
     onResize,
     onBackgroundChange,
-    onEscapeKey: onDeleteKey,
-    onDeleteKey,
+    onDelete,
     onMainBackgroundChange,
+    onUndo,
   })
 
   appContainer.appendChild(sidebar.container)
@@ -538,7 +531,6 @@ function init(appContainer, loadedState) {
   setBackground(state.backgroundColor)
 
   initStreamClient()
-  initPersistance()
 }
 
 const DEMO = {
@@ -552,7 +544,7 @@ const DEMO = {
   },
 }
 
-loadState()
+Persistance.loadState()
   .catch(() => DEMO)
   .then((newState) => {
     newState = newState || DEMO

@@ -1,9 +1,10 @@
 const PREFIX = 'dinky_'
 const MAX_SIZE = 100 * 1024 // 100 KB
 
-export function getItem(key) {
+export function getItem(key, session = false) {
+  const storage = session ? sessionStorage : localStorage
   try {
-    const item = localStorage.getItem(PREFIX + key)
+    const item = storage.getItem(PREFIX + key)
     return item == null ? item : JSON.parse(item)
   } catch (e) {
     console.error('Error getting item from localStorage', e)
@@ -11,21 +12,34 @@ export function getItem(key) {
   }
 }
 
-export function setItem(key, value) {
+export function setItem(key, value, session = false) {
   const json = JSON.stringify(value)
   if (json.length > MAX_SIZE) {
     throw new Error('Item too large')
   }
-  localStorage.setItem(PREFIX + key, json)
+  const storage = session ? sessionStorage : localStorage
+  storage.setItem(PREFIX + key, json)
 }
 
-export function getMatchingItems(keyStart) {
-  return Object.keys(localStorage)
+export function removeItem(key, session = false) {
+  const storage = session ? sessionStorage : localStorage
+  storage.removeItem(PREFIX + key)
+}
+
+export function getMatchingItems(keyStart, session = false) {
+  const storage = session ? sessionStorage : localStorage
+
+  return Object.keys(storage)
     .filter((key) => key.startsWith(PREFIX + keyStart))
     .reduce((acc, key) => {
       const noPrefixKey = key.slice(PREFIX.length)
-      const value = getItem(noPrefixKey)
+      const value = getItem(noPrefixKey, session)
       acc[noPrefixKey] = value
       return acc
     }, {})
+}
+
+export function clear(session = false) {
+  const storage = session ? sessionStorage : localStorage
+  storage.clear()
 }

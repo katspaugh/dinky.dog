@@ -8,7 +8,6 @@ import { Colorwheel } from './components/Colorwheel.js'
 let _graph = null
 let _nodes = {}
 let _edges = []
-let _currentNode = null
 let _currentInput = null
 let _currentOutput = null
 let _callbacks = {}
@@ -42,8 +41,6 @@ function onNodeRemove(id) {
 
   node.destroy()
   delete _nodes[id]
-
-  _callbacks.onRemove(id)
 }
 
 const removeEdge = (edge) => {
@@ -102,7 +99,6 @@ function renderNode({ id, ...nodeProps }) {
       if (_currentOutput || _currentInput) {
         onConnect()
       } else {
-        _currentNode = id
         _callbacks.onSelect(id)
       }
     },
@@ -111,7 +107,6 @@ function renderNode({ id, ...nodeProps }) {
   const container = node.render(nodeProps)
   _nodes[id] = node
   _graph.render({ node: container })
-  _currentNode = id
 
   // Immediately connect to the current input/output
   if (_currentOutput || _currentInput) {
@@ -134,11 +129,10 @@ function initGraph(width, height) {
     height,
 
     onClickAnywhere: () => {
-      _currentNode = null
       _callbacks.onUnselect()
     },
 
-    onClick: (x, y, wasFocused) => {
+    onClick: (x, y) => {
       if (_currentOutput || _currentOutput) {
         _callbacks.onEmptyClick(x, y)
       }
@@ -177,9 +171,13 @@ function initGraph(width, height) {
         _currentOutput = null
         _currentInput = null
 
-        _callbacks.onEscapeKey(isFocused)
+        _callbacks.onDelete(isFocused)
       } else if (e.key === 'Delete' || e.key === 'Backspace') {
-        _callbacks.onDeleteKey(isFocused)
+        _callbacks.onDelete(isFocused)
+      } else if (e.key === 'z' && (e.ctrlKey || e.metaKey)) {
+        if (!isFocused) {
+          _callbacks.onUndo()
+        }
       }
     },
 
