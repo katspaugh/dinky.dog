@@ -1,64 +1,6 @@
 import { Stream } from '../utils/stream.js'
+import { EditorPreview } from '../components/EditorPreview.js'
 import { EditableText } from '../components/EditableText.js'
-import * as TextParsers from '../utils/parse-text.js'
-import { ImagePreview } from '../components/ImagePreview.js'
-import { AudioPreview } from '../components/AudioPreview.js'
-import { LinkPreview } from '../components/LinkPreview.js'
-import { Math } from '../components/Math.js'
-
-const Preview = () => {
-  const container = document.createElement('div')
-  Object.assign(container.style, {
-    width: '100%',
-    height: '100%',
-    overflow: 'auto',
-    borderRadius: 'inherit',
-    display: 'flex',
-    flexDirection: 'column',
-  })
-  const editorContainer = document.createElement('div')
-  const previewContainer = document.createElement('div')
-  previewContainer.className = 'preview'
-  container.appendChild(editorContainer)
-  container.appendChild(previewContainer)
-
-  return {
-    container,
-
-    render: ({ editor = null, preview = null }) => {
-      if (editor) {
-        editorContainer.innerHTML = ''
-        editorContainer.appendChild(editor)
-      }
-      previewContainer.innerHTML = ''
-      if (preview) {
-        previewContainer.appendChild(preview)
-      }
-      return container
-    },
-
-    destroy: () => {
-      container.remove()
-    },
-  }
-}
-
-function getPreviewContent(value) {
-  const url = TextParsers.parseUrl(value)
-  if (url) {
-    const Component = TextParsers.parseImageUrl(value)
-      ? ImagePreview
-      : TextParsers.parseAudioUrl(value)
-        ? AudioPreview
-        : LinkPreview
-    return Component().render({ src: url })
-  }
-
-  const expression = TextParsers.parseMath(value)
-  if (expression) {
-    return Math().render({ expression })
-  }
-}
 
 export function Text(initialValue) {
   let lastInput = ''
@@ -69,20 +11,15 @@ export function Text(initialValue) {
     outputStream.next(value)
   }
 
-  const preview = Preview()
   const editor = EditableText({ onInput })
-  preview.render({ editor: editor.container })
+  const preview = EditorPreview(editor.container)
 
   // Mirror output in the UI
   outputStream.subscribe((value) => {
     if (value !== lastInput) {
       lastInput = value
       editor.render({ text: value })
-
-      const previewContent = getPreviewContent(value)
-      if (previewContent) {
-        preview.render({ preview: previewContent })
-      }
+      preview.render({ value })
     }
   })
 
@@ -104,7 +41,7 @@ export function Text(initialValue) {
 
       // Focus the input if requested
       if (focus) {
-        editor.container.focus()
+        requestAnimationFrame(() => editor.container.focus())
       }
 
       return preview.container

@@ -79,11 +79,7 @@ export function Graph({
 
     render: ({ node = null, edge = null }) => {
       if (node) {
-        const { scrollLeft, scrollTop } = component.container
         pan.appendChild(node)
-        requestAnimationFrame(() => {
-          component.container.scrollTo(scrollLeft, scrollTop)
-        })
       }
       if (edge) {
         svg.appendChild(edge)
