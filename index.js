@@ -435,6 +435,10 @@ function setLocked(isLocked) {
 function setTitle(title) {
   state.title = title
   _sidebar.render({ title })
+
+  if (title) {
+    document.title = 'Dinky Dog — ' + title
+  }
 }
 
 function setBackground(backgroundColor) {

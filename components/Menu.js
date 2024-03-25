@@ -22,7 +22,7 @@ export function Menu(title = '', className = '') {
         if (component.container.open) {
           setTimeout(() => {
             component.container.open = false
-          }, 100)
+          }, 300)
         }
       },
     },
@@ -31,22 +31,25 @@ export function Menu(title = '', className = '') {
 
     render: ({ items = [] }) => {
       items.forEach(({ content, href = '', onClick, separator = false }) => {
-        const li = el('li')
         if (typeof content === 'string') {
           const a = el('a', {}, content.slice(0, 30))
-          if (href) {
-            a.href = href
-          }
+          if (href) a.href = href
           if (a.href === location.href) {
             a.classList.add('active')
           }
           content = a
         }
-        if (content) {
-          li.appendChild(content)
-        }
-        li.onclick = onClick
-        ul.appendChild(li)
+
+        ul.appendChild(
+          el(
+            'li',
+            {
+              onclick: onClick,
+            },
+            content,
+          ),
+        )
+
         if (separator) {
           ul.appendChild(el('hr'))
         }
