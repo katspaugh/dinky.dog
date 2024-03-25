@@ -8,8 +8,8 @@ import { debounce } from './utils/debounce.js'
 import { initDurableStream } from './services/durable-stream.js'
 import { randomId } from './utils/random.js'
 
-const WIDTH = 3000
-const HEIGHT = 3000
+const WIDTH = 5000
+const HEIGHT = 5000
 const BROADCAST_DELAY = 300
 
 const clientId = Persistance.getClientId()

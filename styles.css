@@ -83,23 +83,17 @@ input[disabled] {
   color: var(--text-node-color);
   border-radius: 4px;
   border: 1px solid var(--border-color);
-  box-shadow: 1px 1px 1px var(--shadow-color);
+  box-shadow: 1px 1px var(--shadow-color);
   transition: outline 0.1s;
 }
 
 #app:not(.locked) .node.active,
 #app:not(.locked) .node:hover {
-  border-color: var(--hover-color);
-  box-shadow: 2px 2px 2px var(--shadow-color);
+  box-shadow: 3px 3px 1px var(--shadow-color);
   transform: scale(1.01);
+  border-color: var(--hover-color);
   outline: 1px solid var(--hover-color);
 }
-
-/*
-#app:not(.locked) .node:active {
-  transform: rotate(0.5deg);
-}
-*/
 
 .node .preview {
   border-top: 1px dashed var(--border-color);
@@ -337,7 +331,8 @@ path:hover {
   margin: 0;
   padding: 0;
   border: 1px solid var(--menu-border-color);
-  box-shadow: 2px 2px var(--shadow-color);
+  box-shadow: 1px 1px 2px var(--shadow-color);
+  font-size: 0.9em;
 }
 
 .sidebar ul hr {
@@ -350,24 +345,31 @@ path:hover {
 .sidebar summary {
   user-select: none;
   padding: 6px 10px;
-  height: 31px;
+  background-color: var(--menu-color);
+  border: 1px solid transparent;
+  border-radius: 4px;
+  transition: box-shadow 0.1s;
+  box-shadow: 1px 1px var(--shadow-color);
+  font-size: 0.9em;
+  line-height: 1.3;
 }
+
+.sidebar label:hover,
+.sidebar summary:hover {
+  box-shadow: 1px 1px 2px var(--shadow-color);
+  background-color: var(--menu-hover-color);
+  color: var(--menu-hover-text-color);
+}
+
+.sidebar label:active,
+.sidebar details[open] summary,
+.sidebar summary:active {
+  box-shadow: -1px -1px var(--shadow-color);
+}
+
 
 .sidebar label {
   display: block;
-}
-
-.sidebar > div:not(.peers) {
-  line-height: 1.3;
-  border: 1px solid var(--menu-border-color);
-  box-shadow: 2px 2px var(--shadow-color);
-  background-color: var(--menu-color);
-  font-size: 0.9em;
-}
-
-.sidebar > div:not(.peers):hover {
-  background-color: var(--menu-hover-color);
-  color: var(--menu-hover-text-color);
 }
 
 .peers {

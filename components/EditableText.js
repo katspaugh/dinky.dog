@@ -16,7 +16,6 @@ export function EditableText({ onInput }) {
     style: {
       padding: '10px',
       overflow: 'auto',
-      overflowWrap: 'normal',
       maxWidth: '100%',
       height: '100%',
       whiteSpace: 'pre-wrap',

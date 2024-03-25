@@ -7,14 +7,14 @@ import { randomId } from '../utils/random.js'
 
 export function Sidebar({ onTitleChange, setLocked, savedFlows, onShare, onFork }) {
   const children = []
+
   const add = (...args) => {
     const child = el(...args)
     children.push(child)
     return child
   }
-  const addDiv = (children, props = {}) => add('div', props, children)
 
-  const allPeers = addDiv([], { className: 'peers' })
+  const allPeers = add('div', { className: 'peers' })
 
   // Divider
   add('hr')
@@ -31,15 +31,15 @@ export function Sidebar({ onTitleChange, setLocked, savedFlows, onShare, onFork 
     const flowsMenu = Menu('Flows')
     const items = savedFlows.map((flow) => ({ content: flow.title || flow.id, href: makeUrl(flow.id) }))
     items.unshift({ content: '＋ New flow', href: makeUrl(randomId()), separator: true })
-    addDiv(flowsMenu.render({ items }))
+    children.push(flowsMenu.render({ items }))
   }
 
   // Lock toggle
   const lockToggle = Toggle('Lock')
-  addDiv(lockToggle.render({ checked: false, onChange: setLocked }))
+  children.push(lockToggle.render({ checked: false, onChange: setLocked }))
 
   // Share link
-  addDiv(ShareLink('🔗 Share link', onShare).render())
+  children.push(ShareLink('🔗 Share link', onShare).render())
 
   const onForkClick = async () => {
     let id
@@ -55,7 +55,7 @@ export function Sidebar({ onTitleChange, setLocked, savedFlows, onShare, onFork 
     }
   }
 
-  addDiv(
+  children.push(
     Menu('', 'logo').render({
       items: [
         { content: '⑂ Fork flow', separator: true, onClick: onForkClick },
