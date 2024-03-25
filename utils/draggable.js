@@ -1,12 +1,15 @@
-export function makeDraggable(element, onDrag, onStart, onEnd, threshold = 3) {
+export function makeDraggable(element, onDrag, onStart, onEnd, threshold = 3, longTouchThreshold = 300) {
   if (!element) return () => void 0
 
   let unsubscribeDocument = () => void 0
   let isDragging = false
-  let isShift = false
+  let touchStartTime = 0
+  const isTouchDevice = matchMedia('(pointer: coarse)').matches
 
   const onPointerDown = (event) => {
-    if (isShift || event.button !== 0) return
+    if (event.button !== 0) return
+
+    touchStartTime = Date.now()
 
     event.stopPropagation()
 
@@ -15,7 +18,11 @@ export function makeDraggable(element, onDrag, onStart, onEnd, threshold = 3) {
     isDragging = false
 
     const onPointerMove = (event) => {
-      if (isShift) return
+      console.log('onPointerMove', touchStartTime)
+      // Check long press on touch devices
+      if (isTouchDevice && Date.now() - touchStartTime < longTouchThreshold) {
+        return
+      }
 
       event.preventDefault()
       event.stopPropagation()
@@ -74,21 +81,12 @@ export function makeDraggable(element, onDrag, onStart, onEnd, threshold = 3) {
   element.addEventListener('click', onClick, true)
   document.addEventListener('click', onClick, true)
 
-  const onKeyDown = (event) => {
-    isShift = event.shiftKey
-  }
-  const onKeyUp = () => {
-    isShift = false
-  }
-  document.addEventListener('keydown', onKeyDown)
-  document.addEventListener('keyup', onKeyUp)
-
   return () => {
     unsubscribeDocument()
     element.removeEventListener('pointerdown', onPointerDown)
     element.removeEventListener('click', onClick, true)
     document.removeEventListener('click', onClick, true)
-    document.removeEventListener('keydown', onKeyDown)
-    document.removeEventListener('keyup', onKeyUp)
+    element.removeEventListener('touchstart', onTouchStart)
+    element.removeEventListener('touchend', touchEnd)
   }
 }

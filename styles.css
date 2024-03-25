@@ -81,7 +81,7 @@ input[disabled] {
   position: absolute;
   cursor: auto;
   color: var(--text-node-color);
-  border-radius: 4px;
+  border-radius: 6px;
   border: 1px solid var(--border-color);
   box-shadow: 1px 1px var(--shadow-color);
   transition: outline 0.1s;
@@ -135,6 +135,11 @@ input[disabled] {
   height: 100%;
   position: relative;
   z-index: 2;
+}
+
+::selection {
+  background-color: var(--menu-hover-color);
+  color: var(--menu-hover-text-color);
 }
 
 .node [contenteditable]:focus {
@@ -309,6 +314,7 @@ path:hover {
   overflow-x: auto;
   color: var(--menu-text-color);
   pointer-events: none;
+  user-select: none;
 }
 
 .sidebar input,
