@@ -48,8 +48,8 @@ function serializeState() {
   return { ...state, nodes }
 }
 
-function persist(isImmediate, onUnload) {
-  return Persistance.saveState(serializeState(), isImmediate, onUnload)
+function persist(isImmediate) {
+  return Persistance.saveState(serializeState(), isImmediate)
 }
 
 function broadcast(command, ...args) {
@@ -331,7 +331,7 @@ async function onFork() {
     id: state.title ? Persistance.slugify(state.title) + '-' + randomId() : randomId(),
     creator: clientId,
   }
-  await persist(true)
+  await Persistance.saveState(newState, true)
   return newState.id
 }
 

@@ -3,12 +3,11 @@ export function makeDraggable(element, onDrag, onStart, onEnd, threshold = 3) {
 
   let unsubscribeDocument = () => void 0
   let isDragging = false
+  let isShift = false
 
   const onPointerDown = (event) => {
-    //if (event.currentTarget !== event.target) return
-    if (event.button !== 0) return
+    if (isShift || event.button !== 0) return
 
-    //event.preventDefault()
     event.stopPropagation()
 
     let startX = event.clientX
@@ -16,6 +15,8 @@ export function makeDraggable(element, onDrag, onStart, onEnd, threshold = 3) {
     isDragging = false
 
     const onPointerMove = (event) => {
+      if (isShift) return
+
       event.preventDefault()
       event.stopPropagation()
 
@@ -73,10 +74,21 @@ export function makeDraggable(element, onDrag, onStart, onEnd, threshold = 3) {
   element.addEventListener('click', onClick, true)
   document.addEventListener('click', onClick, true)
 
+  const onKeyDown = (event) => {
+    isShift = event.shiftKey
+  }
+  const onKeyUp = () => {
+    isShift = false
+  }
+  document.addEventListener('keydown', onKeyDown)
+  document.addEventListener('keyup', onKeyUp)
+
   return () => {
     unsubscribeDocument()
     element.removeEventListener('pointerdown', onPointerDown)
     element.removeEventListener('click', onClick, true)
     document.removeEventListener('click', onClick, true)
+    document.removeEventListener('keydown', onKeyDown)
+    document.removeEventListener('keyup', onKeyUp)
   }
 }

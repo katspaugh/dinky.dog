@@ -55,7 +55,7 @@ export function Sidebar({ onTitleChange, setLocked, savedFlows, onShare, onFork 
     }
   }
 
-  const logo = addDiv(
+  addDiv(
     Menu('', 'logo').render({
       items: [
         { content: '⑂ Fork flow', separator: true, onClick: onForkClick },

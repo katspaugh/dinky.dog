@@ -33,7 +33,13 @@ export function Menu(title = '', className = '') {
       items.forEach(({ content, href = '', onClick, separator = false }) => {
         const li = el('li')
         if (typeof content === 'string') {
-          const a = el('a', { href }, content.slice(0, 30))
+          const a = el('a', {}, content.slice(0, 30))
+          if (href) {
+            a.href = href
+          }
+          if (a.href === location.href) {
+            a.classList.add('active')
+          }
           content = a
         }
         if (content) {

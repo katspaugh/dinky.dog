@@ -20,8 +20,3 @@ export async function saveData(id, data) {
   const json = await res.json()
   return json
 }
-
-export async function saveDataBeacon(id, data) {
-  const json = JSON.stringify({ id, data })
-  navigator.sendBeacon(API_URL, json)
-}

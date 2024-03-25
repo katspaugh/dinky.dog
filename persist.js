@@ -1,5 +1,5 @@
 import * as storage from './services/local-storage.js'
-import { loadData, saveData, saveDataBeacon } from './services/database.js'
+import { loadData, saveData } from './services/database.js'
 import { compressObjectToString, decompressStringToObject } from './utils/compress.js'
 import { randomEmoji, randomId } from './utils/random.js'
 import { debounce } from './utils/debounce.js'
@@ -68,19 +68,19 @@ export function loadPreviousState(stateId) {
   return storage.getItem(`${prefix}-state-${newCount}`, true)
 }
 
-async function saveToDatabase(state, useBeacon = false) {
+async function saveToDatabase(state) {
   const data = await compressObjectToString(state)
-  return await (useBeacon ? saveDataBeacon : saveData)(state.id, data)
+  return saveData(state.id, data)
 }
 
 const debouncedDbSave = debounce(saveToDatabase, DB_DEBOUNCE_TIME)
 
 const debouncedLocalSave = debounce(saveToLocalStorage, LOCAL_DEBOUNCE_TIME)
 
-export function saveState(state, immediate = false, useBeacon = false) {
+export function saveState(state, immediate = false) {
   if (!state.id) return
   debouncedLocalSave(state)
-  return immediate ? saveToDatabase(state, useBeacon) : debouncedDbSave(state, useBeacon)
+  return immediate ? saveToDatabase(state) : debouncedDbSave(state)
 }
 
 export async function loadState() {

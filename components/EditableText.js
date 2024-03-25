@@ -43,12 +43,6 @@ export function EditableText({ onInput }) {
         }
       },
 
-      onpaste: () => {
-        requestAnimationFrame(() => {
-          update(lastValue)
-        })
-      },
-
       onblur: () => {
         update(lastValue)
         component.container.scrollLeft = 0

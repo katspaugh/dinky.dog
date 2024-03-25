@@ -375,6 +375,7 @@ path:hover {
   transition: opacity 0.1s;
   display: flex;
   gap: 4px;
+  pointer-events: auto;
 }
 
 .peers:hover {
@@ -407,6 +408,7 @@ path:hover {
   text-overflow: ellipsis;
 }
 
+.sidebar li a.active,
 .sidebar li:hover a,
 .sidebar li:hover {
   background-color: var(--menu-hover-color);
