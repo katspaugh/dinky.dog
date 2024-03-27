@@ -554,7 +554,7 @@ Persistance.loadState()
   .catch(() => DEMO)
   .then((newState) => {
     newState = newState || DEMO
-    init(document.querySelector('#app'), Object.keys(newState).length === 1 ? { ...DEMO, newState } : newState)
+    init(document.querySelector('#app'), Object.keys(newState).length === 1 ? { ...DEMO, ...newState } : newState)
   })
 
 /* Console API */
