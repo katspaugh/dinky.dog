@@ -29,27 +29,38 @@ export function Node(id, { onClick, onInputClick, onOutputClick, onDrag, onResiz
       onResize(dx, dy, _width, _height)
     },
     onResizeStart: () => {
-      _width = container.offsetWidth
-      _height = container.offsetHeight
+      _width = component.container.offsetWidth
+      _height = component.container.offsetHeight
     },
   })
 
   // Peer indicator
   const peer = PeerIndicator()
 
-  const component = Component({
-    props: {
-      id: `node-${id}`,
-      className: 'node',
+  // Content
+  const content = el(
+    'div',
+    {
+      className: 'card',
+
+      style: {
+        minWidth: `${MIN_WIDTH}px`,
+        minHeight: `${MIN_HEIGHT}px`,
+        maxWidth: `${MAX_WIDTH}px`,
+        backgroundColor: DEFAULT_BACKGROUND,
+      },
+
+      onclick: (e) => {
+        if (e.target === output) {
+          onOutputClick()
+        } else if (e.target === input) {
+          onInputClick()
+        } else {
+          onClick()
+        }
+      },
     },
-    style: {
-      minWidth: `${MIN_WIDTH}px`,
-      minHeight: `${MIN_HEIGHT}px`,
-      maxWidth: `${MAX_WIDTH}px`,
-      zIndex: DEFAULT_Z_INDEX,
-      backgroundColor: DEFAULT_BACKGROUND,
-    },
-    children: [
+    [
       input,
       output,
       resizeHandle.container,
@@ -58,29 +69,11 @@ export function Node(id, { onClick, onInputClick, onOutputClick, onDrag, onResiz
       }),
       peer.container,
     ],
-  })
-
-  // Event listeners
-  const { container } = component
+  )
 
   // Drag
   if (onDrag) {
-    makeDraggable(container, onDrag)
-  }
-
-  // Click
-  let onClickElsewhere
-  if (onClick) {
-    // Click inside the node
-    container.addEventListener('click', (e) => {
-      if (e.target === output) {
-        onOutputClick()
-      } else if (e.target === input) {
-        onInputClick()
-      } else {
-        onClick()
-      }
-    })
+    makeDraggable(content, onDrag)
   }
 
   let _background = DEFAULT_BACKGROUND
@@ -94,15 +87,20 @@ export function Node(id, { onClick, onInputClick, onOutputClick, onDrag, onResiz
   const isBackground = () => _background !== DEFAULT_BACKGROUND && _width * _height >= BG_THRESHOLD
 
   const updatePosition = throttle(() => {
-    container.style.transform = `translate(${_x}px, ${_y}px)`
+    component.container.style.transform = `translate(${_x}px, ${_y}px)`
   }, 16)
 
-  return {
-    ...component,
+  const component = Component({
+    props: {
+      id: `node-${id}`,
+      className: 'node',
+    },
 
-    input,
+    style: {
+      zIndex: DEFAULT_Z_INDEX,
+    },
 
-    output,
+    children: [content],
 
     render: ({ x, y, width, height, background, children = null, selected = false, clientId = null }) => {
       // Position
@@ -116,7 +114,7 @@ export function Node(id, { onClick, onInputClick, onOutputClick, onDrag, onResiz
       if (width != null && height != null && (width !== _width || height !== _height)) {
         _width = width
         _height = height
-        css(container, {
+        css(content, {
           maxWidth: '',
           width: `${width}px`,
           height: `${height}px`,
@@ -126,21 +124,20 @@ export function Node(id, { onClick, onInputClick, onOutputClick, onDrag, onResiz
       // Background
       if (background !== _background) {
         _background = background
-        container.style.backgroundColor = background
-        container.style.zIndex = isBackground() ? BG_Z_INDEX : DEFAULT_Z_INDEX
+        content.style.backgroundColor = background
         colorwheel.render({ color: background })
       }
 
       // Children
       if (children) {
-        container.appendChild(children)
+        content.appendChild(children)
       }
 
       // Z-index
       const isBg = isBackground()
       if (isBg !== _lastIsBg) {
         _lastIsBg = isBg
-        css(container, {
+        css(component.container, {
           zIndex: isBg ? BG_Z_INDEX : DEFAULT_Z_INDEX,
           boxShadow: isBackground() ? 'none' : '',
         })
@@ -149,19 +146,20 @@ export function Node(id, { onClick, onInputClick, onOutputClick, onDrag, onResiz
       // Selected
       if (selected != null && selected !== _selected) {
         _selected = selected
-        container.classList.toggle('active', selected)
-        container.style.zIndex = isBg ? BG_Z_INDEX : selected ? ACTIVE_Z_INDEX : DEFAULT_Z_INDEX
+        content.classList.toggle('active', selected)
+        component.container.style.zIndex = isBg ? BG_Z_INDEX : selected ? ACTIVE_Z_INDEX : DEFAULT_Z_INDEX
       }
 
       // Peer indicator
       peer.render({ clientId })
-
-      return container
     },
+  })
 
-    destroy: () => {
-      onClickElsewhere && document.removeEventListener('click', onClickElsewhere)
-      component.destroy()
-    },
+  return {
+    ...component,
+
+    input,
+
+    output,
   }
 }

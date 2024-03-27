@@ -85,22 +85,45 @@ input[disabled] {
 
 .node {
   position: absolute;
+}
+
+.card {
+  position: relative;
   cursor: auto;
   color: var(--text-node-color);
   border-radius: 4px;
   border: 1px solid var(--border-color);
   box-shadow: 1px 1px var(--shadow-color);
-  transition: box-shadow 0.1s;
+  width: 100%;
+  height: 100%;
+  transition: box-shadow 0.1s, transform 0.2s;
 }
 
-#app:not(.locked) .node.active,
-#app:not(.locked) .node:hover {
+#app:not(.locked) .card.active,
+#app:not(.locked) .card:hover {
   box-shadow: 2px 2px var(--shadow-color);
-  border-color: var(--hover-color);
 }
 
-#app:not(.locked) .node.active {
+#app:not(.locked) .card:hover {
+  transform: scale(1.005);
+}
+
+#app:not(.locked) .card.active {
+  border-color: var(--hover-color);
   outline: 1px solid var(--hover-color);
+}
+
+@keyframes jiggle {
+  0% {
+    transform: rotate(0deg) scale(1.01);
+  }
+  100% {
+    transform: rotate(1deg) scale(1.01);
+  }
+}
+
+#app:not(.locked) .card:active {
+  animation: jiggle 0.2s 0.1s alternate infinite;
 }
 
 .node .editor-preview {
@@ -136,8 +159,9 @@ input[disabled] {
   padding: 0;
   width: 22px;
   height: 22px;
+  margin-left: -11px;
   border-radius: 100%;
-  transform: translateY(-50%) translateX(-11px);
+  transform: translateY(-50%);
   position: absolute;
   z-index: 5;
   top: 50%;
