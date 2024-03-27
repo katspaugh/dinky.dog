@@ -433,7 +433,14 @@ function setBackground(backgroundColor) {
   _flow.render({ backgroundColor })
 }
 
+function sayHello() {
+  if (document.visibilityState === 'visible') {
+    broadcast('cmdHelloYourself', state.lastSequence)
+  }
+}
+
 const commands = {
+  cmdHello: sayHello,
   cmdCreateNode: createNode,
   cmdRemoveNode: removeNode,
   cmdConnect: connectNodes,
