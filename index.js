@@ -532,7 +532,7 @@ function init(appContainer, loadedState) {
 
   // Save state on leaving the page
   document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'hidden') {
+    if (!state.isLocked && document.visibilityState === 'hidden') {
       persist(true, true)
     }
   })
