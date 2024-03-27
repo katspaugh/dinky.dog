@@ -52,7 +52,10 @@ function saveToLocalStorage(state) {
   {
     const prefix = `${STATE_STORAGE_PREFIX}-${state.id}`
     const count = storage.getItem(`${prefix}-count`, true) || 0
-    const newCount = count + 1
+    let newCount = count + 1
+    if (newCount > maxSavedStates) {
+      storage.removeItem(`${prefix}-state-${newCount - maxSavedStates}`, true)
+    }
     storage.setItem(`${prefix}-state-${newCount}`, state, true)
     storage.setItem(`${prefix}-count`, newCount, true)
   }
@@ -68,19 +71,19 @@ export function loadPreviousState(stateId) {
   return storage.getItem(`${prefix}-state-${newCount}`, true)
 }
 
-async function saveToDatabase(state) {
+async function saveToDatabase(state, useBeacon) {
   const data = await compressObjectToString(state)
-  return saveData(state.id, data)
+  return saveData(state.id, data, useBeacon)
 }
 
 const debouncedDbSave = debounce(saveToDatabase, DB_DEBOUNCE_TIME)
 
 const debouncedLocalSave = debounce(saveToLocalStorage, LOCAL_DEBOUNCE_TIME)
 
-export function saveState(state, immediate = false) {
+export function saveState(state, immediate = false, useBeacon = false) {
   if (!state.id) return
-  debouncedLocalSave(state)
-  return immediate ? saveToDatabase(state) : debouncedDbSave(state)
+  immediate ? saveToLocalStorage(state) : debouncedLocalSave(state)
+  return immediate ? saveToDatabase(state, useBeacon) : debouncedDbSave(state)
 }
 
 export async function loadState() {

@@ -18,14 +18,15 @@ export function debounce(fn, delay) {
 
 export function throttle(fn, delay) {
   let last = 0
+  let rafId
   delay -= RAF_TIMEOUT
   return function(...args) {
     const now = Date.now()
     if (now - last < delay) {
       return Promise.resolve()
     }
-
     last = now
-    return requestAnimationFrame(() => fn.apply(this, args))
+    if (rafId) cancelAnimationFrame(rafId)
+    return (rafId = requestAnimationFrame(() => fn.apply(this, args)))
   }
 }

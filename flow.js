@@ -56,9 +56,17 @@ function updateEdges(id) {
   })
 }
 
-function renderNode({ id, ...nodeProps }) {
+function renderPeerIndicator(id, clientId) {
+  if (!clientId) return
+  const node = _nodes[id]
+  if (!node) return
+  node.render({ clientId })
+}
+
+function renderNode({ id, clientId, ...nodeProps }) {
   if (_nodes[id]) {
     _nodes[id].render(nodeProps)
+    renderPeerIndicator(id, clientId)
     return
   }
 
@@ -99,6 +107,7 @@ function renderNode({ id, ...nodeProps }) {
       if (_currentOutput || _currentInput) {
         onConnect()
       } else {
+        _callbacks.onUnselect()
         _callbacks.onSelect(id)
       }
     },
@@ -112,6 +121,8 @@ function renderNode({ id, ...nodeProps }) {
   if (_currentOutput || _currentInput) {
     onConnect()
   }
+
+  renderPeerIndicator(id, clientId)
 }
 
 function initGraph(width, height) {

@@ -13,14 +13,6 @@ export function EditableText({ onInput }) {
   }
 
   const component = Component({
-    style: {
-      padding: '10px',
-      overflow: 'auto',
-      maxWidth: '100%',
-      height: '100%',
-      whiteSpace: 'pre-wrap',
-    },
-
     props: {
       tabIndex: 0,
 

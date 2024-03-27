@@ -49,11 +49,17 @@ body {
   overscroll-behavior: none;
   background-color: var(--background-color);
   color: var(--text-color);
+  user-select: none;
+}
+
+body {
+  overflow: auto;
 }
 
 input,
-div[contenteditable] {
+[contenteditable] {
   outline-color: var(--hover-color);
+  user-select: text;
 }
 
 * {
@@ -81,18 +87,29 @@ input[disabled] {
   position: absolute;
   cursor: auto;
   color: var(--text-node-color);
-  border-radius: 6px;
+  border-radius: 4px;
   border: 1px solid var(--border-color);
   box-shadow: 1px 1px var(--shadow-color);
-  transition: outline 0.1s;
+  transition: box-shadow 0.1s;
 }
 
 #app:not(.locked) .node.active,
 #app:not(.locked) .node:hover {
-  box-shadow: 3px 3px 1px var(--shadow-color);
-  transform: scale(1.01);
+  box-shadow: 2px 2px var(--shadow-color);
   border-color: var(--hover-color);
+}
+
+#app:not(.locked) .node.active {
   outline: 1px solid var(--hover-color);
+}
+
+.node .editor-preview {
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  border-radius: inherit;
+  display: flex;
+  flex-direction: column;
 }
 
 .node .preview {
@@ -114,19 +131,39 @@ input[disabled] {
   max-height: 80vh;
 }
 
-.node input[type='color'],
-.node button {
-  background-color: var(--point-color);
-  border: 1px solid var(--border-color);
-  transition: 0.2s;
-}
-
 .node button {
   cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='48' viewport='0 0 100 100' style='fill:black;font-size:24px;'><text y='50%'>∿</text></svg>") 0 16, pointer;
+  padding: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 100%;
+  transform: translateY(-50%) translateX(-11px);
+  position: absolute;
+  z-index: 5;
+  top: 50%;
+  left: 0;
+  border: none;
+  background: none;
 }
 
-.node button:hover {
-  border-color: var(--border-hover-color);
+.node button:nth-of-type(2) {
+  left: 100%;
+}
+
+.node button::after {
+  content: '';
+  display: block;
+  width: 16px;
+  height: 16px;
+  margin: 2px;
+  border-radius: 100%;
+  border: 1px solid var(--border-color);
+  background-color: var(--point-color);
+  transition: background-color 0.2s;
+}
+
+.node button:hover::after {
+  border-color: var(--hover-color);
   background-color: var(--hover-color);
 }
 
@@ -135,6 +172,11 @@ input[disabled] {
   height: 100%;
   position: relative;
   z-index: 2;
+  padding: 10px;
+  overflow: auto;
+  max-width: 100%;
+  height: 100%;
+  white-space: pre-wrap;
 }
 
 ::selection {
@@ -202,11 +244,13 @@ input[disabled] {
   transition: opacity 0.2s;
 }
 
-@media (min-width: 600px) {
+@media (hover: hover) {
   .node input[type='color'] {
     width: 50px;
     height: 20px;
     padding: 0;
+    border: none;
+    border-radius: 4px;
     background-color: var(--button-color);
   }
   .node input[type='color']:hover {
@@ -229,6 +273,36 @@ input[disabled] {
 
 .locked [contenteditable] {
   pointer-events: none;
+}
+
+.node .peer {
+  position: absolute;
+  z-index: 1;
+  pointer-events: none;
+  left: -2px;
+  top: -2px;
+  right: -2px;
+  bottom: -2px;
+  border: 2px solid transparent;
+  border-radius: 4px;
+}
+
+.node .peer > div {
+  position: absolute;
+  z-index: 2;
+  font-size: 10px;
+  width: 20px;
+  height: 20px;
+  top: -23px;
+  left: -2px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 100%;
+  border: 2px solid transparent;
+  border-color: inherit;
+  background-color: #fff;
 }
 
 svg {
@@ -262,16 +336,6 @@ path:hover {
   stroke: var(--edge-color);
 }
 
-.drop {
-  height: 100vh;
-  width: 100vw;
-  overflow: auto;
-}
-
-.graph {
-  position: relative;
-}
-
 .pan {
   position: absolute;
   cursor: crosshair;
@@ -300,7 +364,7 @@ path:hover {
 }
 
 .sidebar {
-  position: absolute;
+  position: fixed;
   z-index: 10;
   left: 0;
   top: 0;
@@ -382,12 +446,25 @@ path:hover {
   opacity: 0.8;
   transition: opacity 0.1s;
   display: flex;
-  gap: 4px;
+  gap: 6px;
   pointer-events: auto;
+  cursor: default;
 }
 
 .peers:hover {
   opacity: 1;
+}
+
+.peers .peer {
+  border: 2px solid transparent;
+  border-radius: 100%;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  background-color: #fff;
 }
 
 .sidebar button {

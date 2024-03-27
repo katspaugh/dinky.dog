@@ -9,7 +9,7 @@ export async function loadData(id) {
   return json.data
 }
 
-export async function saveData(id, data) {
+async function postData(id, data) {
   const res = await fetch(API_URL, {
     method: 'POST',
     body: JSON.stringify({ id, data }),
@@ -19,4 +19,19 @@ export async function saveData(id, data) {
   }
   const json = await res.json()
   return json
+}
+
+async function sendBeacon(id, data) {
+  const res = navigator.sendBeacon(API_URL, JSON.stringify({ id, data }))
+  if (!res) {
+    throw new Error('Beacon failed')
+  }
+}
+
+export async function saveData(id, data, useBeacon = false) {
+  if (useBeacon && navigator.sendBeacon) {
+    return sendBeacon(id, data)
+  } else {
+    return postData(id, data)
+  }
 }

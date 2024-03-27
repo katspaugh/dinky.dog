@@ -53,25 +53,28 @@ export function SelectionBox({ onSelect, container }) {
     onSelect(x1, y1, x2, y2)
   }, 16)
 
-  makeDraggable(
-    component.container,
-    (dx, dy) => {
-      width += dx
-      height += dy
-      update()
-    },
-    (x, y) => {
-      startX = x
-      startY = y
-      width = 0
-      height = 0
-      rect = component.container.getBoundingClientRect()
-      box.style.display = ''
-    },
-    () => {
-      box.style.display = 'none'
-    },
-  )
+  const isTouchDevice = matchMedia('(pointer: coarse)').matches
+  if (!isTouchDevice) {
+    makeDraggable(
+      component.container,
+      (dx, dy) => {
+        width += dx
+        height += dy
+        update()
+      },
+      (x, y) => {
+        startX = x
+        startY = y
+        width = 0
+        height = 0
+        rect = component.container.getBoundingClientRect()
+        box.style.display = ''
+      },
+      () => {
+        box.style.display = 'none'
+      },
+    )
+  }
 
   return component
 }

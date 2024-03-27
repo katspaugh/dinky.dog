@@ -33,13 +33,8 @@ export function EditorPreview(editorEl) {
   return Component({
     children: [editorContainer, previewContainer],
 
-    style: {
-      width: '100%',
-      height: '100%',
-      overflow: 'auto',
-      borderRadius: 'inherit',
-      display: 'flex',
-      flexDirection: 'column',
+    props: {
+      className: 'editor-preview',
     },
 
     render: ({ value = '' }) => {

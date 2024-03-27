@@ -4,13 +4,9 @@ import { throttle } from '../utils/debounce.js'
 export function Edge({ inactive = false } = {}) {
   let lastFromEl = null
   let lastToEl = null
-  let scrollParent = null
 
   const updatePath = throttle(() => {
-    if (!scrollParent) {
-      scrollParent = component.container.closest('.drop')
-    }
-    const { scrollLeft, scrollTop } = scrollParent
+    const { scrollLeft, scrollTop } = document.body
     const fromPoint = lastFromEl.getBoundingClientRect()
     const toPoint = lastToEl.getBoundingClientRect()
     const fromX = fromPoint.left + fromPoint.width / 2 + scrollLeft

@@ -71,8 +71,8 @@ export function Graph({
   })
 
   const component = Component({
-    props: {
-      className: 'graph',
+    style: {
+      position: 'relative',
     },
 
     children: [pan],

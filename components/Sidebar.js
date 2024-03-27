@@ -2,11 +2,15 @@ import { Component, el } from '../utils/dom.js'
 import { Menu } from '../components/Menu.js'
 import { Toggle } from '../components/Toggle.js'
 import { ShareLink } from '../components/ShareLink.js'
+import { PeerIndicator } from '../components/PeerIndicator.js'
 import { makeUrl } from '../persist.js'
 import { randomId } from '../utils/random.js'
 
+const PEER_EXPIRATION = 3 * 60e3 // 3 minutes
+
 export function Sidebar({ onTitleChange, setLocked, savedFlows, onShare, onFork }) {
   const children = []
+  const peers = {}
 
   const add = (...args) => {
     const child = el(...args)
@@ -14,7 +18,7 @@ export function Sidebar({ onTitleChange, setLocked, savedFlows, onShare, onFork 
     return child
   }
 
-  const allPeers = add('div', { className: 'peers' })
+  const peersContainer = add('div', { className: 'peers' })
 
   // Divider
   add('hr')
@@ -67,9 +71,10 @@ export function Sidebar({ onTitleChange, setLocked, savedFlows, onShare, onFork 
 
   return Component({
     props: { className: 'sidebar' },
+
     children,
 
-    render: ({ title, isLocked, peer }) => {
+    render: ({ title, isLocked, peerId, peerDisconnected }) => {
       if (isLocked != null) {
         lockToggle.render({ checked: isLocked, onChange: setLocked })
         input.disabled = isLocked
@@ -79,8 +84,19 @@ export function Sidebar({ onTitleChange, setLocked, savedFlows, onShare, onFork 
         input.value = title
       }
 
-      if (peer) {
-        allPeers.appendChild(peer)
+      if (peerId) {
+        if (peerDisconnected) {
+          if (peers[peerId]) {
+            peers[peerId].destroy()
+            delete peers[peerId]
+          }
+        } else {
+          if (!peers[peerId]) {
+            peers[peerId] = PeerIndicator(PEER_EXPIRATION)
+            peersContainer.appendChild(peers[peerId].container)
+          }
+          peers[peerId].render({ clientId: peerId })
+        }
       }
     },
   })
