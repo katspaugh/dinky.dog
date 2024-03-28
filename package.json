@@ -6,6 +6,8 @@
   "scripts": {
     "build": "tsc",
     "build:dev": "tsc -w --target ESNext",
+    "server": "npx live-server",
+    "start": "npm run build:dev & npm run server",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
