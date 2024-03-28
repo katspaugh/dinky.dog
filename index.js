@@ -3,13 +3,11 @@ import { MIN_WIDTH, MIN_HEIGHT } from './components/Node.js'
 import { initFlow } from './flow.js'
 import * as Operators from './operators/index.js'
 import * as Persistance from './persist.js'
-import { debounce } from './utils/debounce.js'
-import { initDurableStream } from './services/durable-stream.js'
+import * as realtime from './realtime.js'
 import { randomId } from './utils/random.js'
 
 const WIDTH = 5000
 const HEIGHT = 5000
-const BROADCAST_DELAY = 300
 
 const _clientId = Persistance.getClientId()
 
@@ -25,9 +23,7 @@ let state = {
 let _appContainer
 let _sidebar
 let _flow
-let _streamClient
 let _lastBackground
-let _peerCount = 0
 
 function serializeState() {
   const nodes = Object.entries(state.nodes).reduce((acc, [id, node]) => {
@@ -50,14 +46,6 @@ function serializeState() {
 function persist(isImmediate = false, isUnload = false) {
   return Persistance.saveState(serializeState(), isImmediate, isUnload)
 }
-
-function broadcast(command, ...args) {
-  if (_streamClient && _peerCount > 0) {
-    _streamClient.publish({ command, args, clientId: _clientId })
-  }
-}
-
-const debouncedBroadcast = debounce(broadcast, BROADCAST_DELAY)
 
 function createNode(id, props, data, clientId) {
   const operatorType = data.operatorType || Operators.Text.name
@@ -153,13 +141,13 @@ function disconnectNodes(outputId, inputId) {
 
 function onCreateNode(id, props, data) {
   createNode(id, props, data)
-  broadcast('cmdCreateNode', id, props, data)
+  realtime.broadcast('cmdCreateNode', id, props, data)
   persist()
 }
 
 function onRemoveNode(id) {
   removeNode(id)
-  broadcast('cmdRemoveNode', id)
+  realtime.broadcast('cmdRemoveNode', id)
   persist()
 }
 
@@ -195,7 +183,7 @@ function getSelectedNodes() {
 function onTextInput(id, value) {
   const node = getUnlockedNode(id)
   if (!node) return
-  debouncedBroadcast('cmdUpdateNodeData', id, { operatorData: value })
+  realtime.debouncedBroadcast('cmdUpdateNodeData', id, { operatorData: value })
   persist()
 }
 
@@ -225,7 +213,7 @@ async function onUndo() {
   const prevState = Persistance.loadPreviousState(state.id)
 
   if (prevState) {
-    broadcast('cmdUndo', prevState)
+    realtime.broadcast('cmdUndo', prevState)
     afterUndo(prevState)
   }
 }
@@ -233,21 +221,21 @@ async function onUndo() {
 function onConnect(outputId, inputId) {
   if (state.isLocked) return
   connectNodes(outputId, inputId)
-  broadcast('cmdConnect', outputId, inputId)
+  realtime.broadcast('cmdConnect', outputId, inputId)
   persist()
 }
 
 function onDisconnect(outputId, inputId) {
   if (state.isLocked) return
   disconnectNodes(outputId, inputId)
-  broadcast('cmdDisconnect', outputId, inputId)
+  realtime.broadcast('cmdDisconnect', outputId, inputId)
   persist()
 }
 
 function onNodeUpate(id, props) {
   if (!state.nodes[id]) return
   updateNode(id, props)
-  debouncedBroadcast('cmdUpdateNode', id, state.nodes[id].props)
+  realtime.debouncedBroadcast('cmdUpdateNode', id, state.nodes[id].props)
   persist()
 }
 
@@ -279,7 +267,7 @@ function onDrag(id, dx, dy) {
 
   const updatedNodes = nodes.map(([id, node]) => [id, { x: state.nodes[id].props.x, y: state.nodes[id].props.y }])
 
-  debouncedBroadcast('cmdMoveNodes', updatedNodes)
+  realtime.debouncedBroadcast('cmdMoveNodes', updatedNodes)
   persist()
 }
 
@@ -353,7 +341,7 @@ function initSidebar() {
     onTitleChange: (title) => {
       if (state.isLocked) return
       setTitle(title)
-      debouncedBroadcast('cmdSetTitle', title)
+      realtime.debouncedBroadcast('cmdSetTitle', title)
       persist()
     },
 
@@ -362,7 +350,7 @@ function initSidebar() {
         ? undefined
         : (isLocked) => {
           setLocked(isLocked)
-          broadcast('cmdSetLocked', isLocked)
+          realtime.broadcast('cmdSetLocked', isLocked)
           persist()
         },
 
@@ -410,10 +398,6 @@ function initState(newState) {
   console.log('State', state)
 }
 
-function onPeerMessage(peerId, command) {
-  _sidebar.render({ peerId, peerDisconnected: command === 'cmdPeerDisconnect' })
-}
-
 function setLocked(isLocked) {
   state.isLocked = isLocked
   _sidebar.render({ isLocked })
@@ -435,15 +419,9 @@ function setBackground(backgroundColor) {
 }
 
 function sayHello() {
-  _peerCount++
-
   if (document.visibilityState === 'visible') {
-    broadcast('cmdHelloYourself', state.lastSequence)
+    realtime.broadcast('cmdHelloYourself', state.lastSequence)
   }
-}
-
-function disconnectPeer() {
-  _peerCount--
 }
 
 const commands = {
@@ -458,45 +436,33 @@ const commands = {
   cmdSetLocked: setLocked,
   cmdSetTitle: setTitle,
   cmdUndo: afterUndo,
-  cmdPeerDisconnect: disconnectPeer,
 }
 
-async function initStreamClient() {
-  const streamId = state.id
+function onPeerMessage(msg) {
+  const { command, args, clientId } = msg.data
 
-  try {
-    _streamClient = await initDurableStream(streamId)
-  } catch (err) {
-    console.error('Failed to init stream client', err)
-    return
+  state.lastSequence = Math.max(state.lastSequence, msg.sequence)
+
+  if (commands[command]) {
+    if (!state.isLocked || command === 'cmdSetLocked') {
+      commands[command](...args, clientId)
+    }
   }
 
-  _streamClient.subscribe(state.lastSequence, (msg, ack) => {
-    ack()
+  _sidebar.render({ peerId: clientId, peerDisconnected: command === 'cmdPeerDisconnect' })
+}
 
-    if (state.id !== streamId) return
-
-    state.lastSequence = msg.sequence
-
-    if (msg.data.clientId !== _clientId) {
-      const { command, args } = msg.data
-
-      onPeerMessage(msg.data.clientId, command)
-
-      console.log('Received msg', msg)
-      if (commands[command] && (!state.isLocked || command === 'cmdSetLocked')) {
-        commands[command](...args, msg.data.clientId)
-      }
-    }
-  })
+async function initRealtime() {
+  // Initialize the realtime connection
+  await realtime.init(_clientId, state.id, state.lastSequence, onPeerMessage)
 
   // Send an initial message to announce our presence
-  broadcast('cmdHello', state.lastSequence)
+  realtime.broadcast('cmdHello', state.lastSequence)
 
   // Send a message when the user closes the tab
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'hidden') {
-      broadcast('cmdPeerDisconnect')
+      realtime.broadcast('cmdPeerDisconnect', _clientId)
     }
   })
 }
@@ -535,7 +501,7 @@ function init(appContainer, loadedState) {
   setTitle(state.title)
   setBackground(state.backgroundColor)
 
-  initStreamClient()
+  initRealtime()
 
   // Save state on leaving the page
   document.addEventListener('visibilitychange', () => {
