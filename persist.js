@@ -5,7 +5,7 @@ import { randomEmoji, randomId } from './utils/random.js'
 import { debounce } from './utils/debounce.js'
 
 const LOCAL_DEBOUNCE_TIME = 300
-const DB_DEBOUNCE_TIME = 5e3
+const DB_DEBOUNCE_TIME = 60e3
 
 const STATE_STORAGE_PREFIX = 'state-'
 const CLIENT_ID_KEY = 'stream-clientId'
