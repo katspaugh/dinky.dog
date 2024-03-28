@@ -1,4 +1,10 @@
-export function makeDraggable(element, onDrag, onStart, onEnd, threshold = 3) {
+export function makeDraggable(
+  element: HTMLElement | SVGElement,
+  onDrag: (dx: number, dy: number, x: number, y: number) => void,
+  onStart?: (x: number, y: number) => void,
+  onEnd?: () => void,
+  threshold = 3,
+) {
   if (!element) return () => void 0
 
   let isPointerDown = false
@@ -6,14 +12,14 @@ export function makeDraggable(element, onDrag, onStart, onEnd, threshold = 3) {
   let startX = 0
   let startY = 0
 
-  const onPointerDown = (event) => {
-    if (event.button !== 0) return
-    event.stopPropagation()
+  const onPointerDown = (e) => {
+    if (e.button !== 0) return
+    e.stopPropagation()
 
     isPointerDown = true
     isDragging = false
-    startX = event.clientX
-    startY = event.clientY
+    startX = e.clientX
+    startY = e.clientY
   }
 
   const onPointerUp = (e) => {

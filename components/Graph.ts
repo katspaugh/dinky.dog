@@ -1,8 +1,8 @@
-import { Component, el } from '../utils/dom.js'
+import { Component, el, svgEl } from '../utils/dom.js'
 import { SelectionBox } from '../components/SelectionBox.js'
 
 const onDocumentFocus = (callback) => {
-  let focusTimer = null
+  let focusTimer: ReturnType<typeof setTimeout> | null = null
 
   const onFocusIn = (e) => {
     if (e.target.tabIndex != null) {
@@ -38,8 +38,10 @@ export function Graph({
   onKeyDown,
   onSelect,
 }) {
-  const svg = el('svg', { style: { width: '100%', height: '100%', viewBox: `0 0 ${width} ${height}` } })
-  const pan = el('div', { style: { width: `${width}px`, height: `${height}px` }, className: 'pan' }, [svg])
+  const svg = svgEl('svg', { style: { width: '100%', height: '100%', viewBox: `0 0 ${width} ${height}` } })
+  const pan = el('div', { style: { width: `${width}px`, height: `${height}px` }, className: 'pan' }, [
+    svg as unknown as HTMLElement,
+  ])
 
   let wasFocused = false
 

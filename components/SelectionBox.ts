@@ -6,7 +6,7 @@ export function SelectionBox({ onSelect, container }) {
   const box = el('div', {
     style: {
       position: 'absolute',
-      zIndex: 3,
+      zIndex: '3',
       backgroundColor: 'rgba(100, 0, 100, 0.1)',
       userSelect: 'none',
       borderRadius: '4px',

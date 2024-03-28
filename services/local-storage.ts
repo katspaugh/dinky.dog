@@ -1,7 +1,7 @@
 const PREFIX = 'dinky_'
 const MAX_SIZE = 100 * 1024 // 100 KB
 
-export function getItem(key, session = false) {
+export function getItem(key: string, session = false) {
   const storage = session ? sessionStorage : localStorage
   try {
     const item = storage.getItem(PREFIX + key)
@@ -12,7 +12,7 @@ export function getItem(key, session = false) {
   }
 }
 
-export function setItem(key, value, session = false) {
+export function setItem(key: string, value: unknown, session = false) {
   const json = JSON.stringify(value)
   if (json.length > MAX_SIZE) {
     throw new Error('Item too large')
@@ -21,12 +21,12 @@ export function setItem(key, value, session = false) {
   storage.setItem(PREFIX + key, json)
 }
 
-export function removeItem(key, session = false) {
+export function removeItem(key: string, session = false) {
   const storage = session ? sessionStorage : localStorage
   storage.removeItem(PREFIX + key)
 }
 
-export function getMatchingItems(keyStart, session = false) {
+export function getMatchingItems(keyStart: string, session = false) {
   const storage = session ? sessionStorage : localStorage
 
   return Object.keys(storage)

@@ -15,7 +15,7 @@ export function AudioPreview() {
   })
 
   const wavesurfer = WaveSurfer.create({
-    container: component.container,
+    container: component.container as HTMLElement,
     waveColor: '#aaf',
     progressColor: '#77f',
     mediaControls: true,

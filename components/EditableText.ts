@@ -4,7 +4,7 @@ import { sanitizeHtml } from '../utils/sanitize-html.js'
 const INITIAL_WIDTH = 160
 const INITIAL_HEIGHT = 75
 
-export function EditableText({ onInput }) {
+export function EditableText({ onInput }: { onInput?: (html: string) => void }) {
   let lastValue = ''
   let resetSize = false
 
@@ -41,8 +41,8 @@ export function EditableText({ onInput }) {
         if (lastValue && !resetSize) {
           resetSize = true
           css(component.container, {
-            minWidth: 0,
-            minHeight: 0,
+            minWidth: '0',
+            minHeight: '0',
           })
         }
       },

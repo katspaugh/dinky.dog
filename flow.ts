@@ -1,16 +1,22 @@
 import { Component } from './utils/dom.js'
 import { Graph } from './components/Graph.js'
 import { DropContainer } from './components/DropContainer.js'
-import { Node } from './components/Node.js'
+import { DinkyNode } from './components/DinkyNode.js'
 import { Edge } from './components/Edge.js'
 import { Colorwheel } from './components/Colorwheel.js'
 
-let _graph = null
-let _nodes = {}
-let _edges = []
+type EdgeItem = {
+  edge: ReturnType<typeof Edge>
+  outputId: string
+  inputId: string
+}
+
+let _graph: ReturnType<typeof Component>
+let _nodes: Record<string, ReturnType<typeof DinkyNode>> = {}
+let _edges: EdgeItem[] = []
 let _currentInput = null
 let _currentOutput = null
-let _callbacks = {}
+let _callbacks: Record<string, (...args: any[]) => void> = {}
 
 function connectNodes(outputId, inputId) {
   const edge = Edge()
@@ -76,7 +82,7 @@ function renderNode({ id, clientId, ...nodeProps }) {
     _currentInput = null
   }
 
-  const node = Node(id, {
+  const node = DinkyNode(id, {
     onInputClick: () => {
       _currentInput = id
       if (_currentOutput) {
@@ -126,12 +132,12 @@ function renderNode({ id, clientId, ...nodeProps }) {
 }
 
 function initGraph(width, height) {
-  let mouseEdge = null
+  let mouseEdge
 
   const resetMouseEdge = () => {
     if (mouseEdge) {
       mouseEdge.destroy()
-      mouseEdge = null
+      mouseEdge = undefined
     }
   }
 
@@ -166,7 +172,7 @@ function initGraph(width, height) {
         graph.render({ edge: mouseEdge.container })
       }
 
-      const start = _currentOutput ? _nodes[_currentOutput].output : _nodes[_currentInput].input
+      const start = _currentOutput ? _nodes[currentStart].output : _nodes[currentStart].input
       const end = { getBoundingClientRect: () => ({ left: x, top: y, width: 0, height: 0 }) }
 
       mouseEdge.render({ fromEl: _currentOutput ? start : end, toEl: _currentOutput ? end : start })

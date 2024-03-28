@@ -17,11 +17,11 @@ function getUrlId() {
   return url.searchParams.get('q')
 }
 
-export function makeUrl(id) {
+export function makeUrl(id: string) {
   return `${window.location.origin}/?q=${encodeURIComponent(id)}`
 }
 
-export function slugify(text) {
+export function slugify(text: string) {
   return text
     .trim()
     .toLowerCase()
@@ -29,7 +29,7 @@ export function slugify(text) {
     .replace(/[^a-z0-9-]/gi, '')
 }
 
-function saveToLocalStorage(state) {
+function saveToLocalStorage(state: { id: string; title: string; timestamp: number }) {
   // Save meta data to localStorage if it has a title
   if (state.title) {
     const key = `${STATE_STORAGE_PREFIX}${state.id}`
@@ -61,7 +61,7 @@ function saveToLocalStorage(state) {
   }
 }
 
-export function loadPreviousState(stateId) {
+export function loadPreviousState(stateId: string) {
   const prefix = `${STATE_STORAGE_PREFIX}-${stateId}`
   const count = storage.getItem(`${prefix}-count`, true)
   if (!count) return null
@@ -71,7 +71,7 @@ export function loadPreviousState(stateId) {
   return storage.getItem(`${prefix}-state-${newCount}`, true)
 }
 
-async function saveToDatabase(state, useBeacon) {
+async function saveToDatabase(state: any, useBeacon = false) {
   const data = await compressObjectToString(state)
   return saveData(state.id, data, useBeacon)
 }
@@ -80,7 +80,7 @@ const debouncedDbSave = debounce(saveToDatabase, DB_DEBOUNCE_TIME)
 
 const debouncedLocalSave = debounce(saveToLocalStorage, LOCAL_DEBOUNCE_TIME)
 
-export function saveState(state, immediate = false, useBeacon = false) {
+export function saveState(state: any, immediate = false, useBeacon = false) {
   if (!state.id) return
   immediate ? saveToLocalStorage(state) : debouncedLocalSave(state)
   return immediate ? saveToDatabase(state, useBeacon) : debouncedDbSave(state)

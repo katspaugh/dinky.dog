@@ -1,6 +1,6 @@
 const API_URL = 'https://link-preview.katspaugh.workers.dev/?q='
 
-export async function fetchPreview(url) {
+export async function fetchPreview(url: string) {
   const res = await fetch(API_URL + encodeURIComponent(url))
   if (!res.ok) {
     throw new Error(`HTTP error! status: ${res.status}`)

@@ -9,7 +9,7 @@ export function DropContainer({ fileTypes, onDrop }) {
   })
 
   makeDroppable({
-    container: component.container,
+    container: component.container as HTMLElement,
     fileTypes,
     onDrop,
   })

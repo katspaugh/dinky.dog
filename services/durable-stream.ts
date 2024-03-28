@@ -5,7 +5,7 @@ const API_URL = 'durable_stream.katspaugh.workers.dev'
 const DEV_API_URL = 'localhost:8787'
 
 // Initialize the client
-export async function initDurableStream(subject) {
+export async function initDurableStream(subject: string) {
   const { host } = location
   const isDev = host !== PROD_HOST
 

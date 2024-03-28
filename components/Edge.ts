@@ -1,11 +1,12 @@
-import { Component, el } from '../utils/dom.js'
+import { Component } from '../utils/dom.js'
 import { throttle } from '../utils/debounce.js'
 
 export function Edge({ inactive = false } = {}) {
-  let lastFromEl = null
-  let lastToEl = null
+  let lastFromEl: HTMLElement | null = null
+  let lastToEl: HTMLElement | null = null
 
   const updatePath = throttle(() => {
+    if (!lastFromEl || !lastToEl) return
     const { scrollLeft, scrollTop } = document.body
     const fromPoint = lastFromEl.getBoundingClientRect()
     const toPoint = lastToEl.getBoundingClientRect()
@@ -21,7 +22,7 @@ export function Edge({ inactive = false } = {}) {
   }, 20)
 
   const component = Component({
-    tag: 'path',
+    tag: 'path' as 'div',
 
     style: {
       pointerEvents: inactive ? 'none' : 'auto',

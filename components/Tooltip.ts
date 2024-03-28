@@ -1,13 +1,13 @@
 import { Component } from '../utils/dom.js'
 
 export function Tooltip() {
-  let expireTimer = null
-  let showTimer = null
+  let expireTimer: ReturnType<typeof setTimeout> | null = null
+  let showTimer: ReturnType<typeof setTimeout> | null = null
 
   const component = Component({
     style: {
       position: 'absolute',
-      zIndex: 1000,
+      zIndex: '1000',
       padding: '8px',
       background: '#fafafa',
       color: '#333',

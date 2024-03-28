@@ -14,7 +14,7 @@ const BG_Z_INDEX = '1'
 const DEFAULT_Z_INDEX = '2'
 const ACTIVE_Z_INDEX = '10'
 
-export function Node(id, { onClick, onInputClick, onOutputClick, onDrag, onResize, onBackgroundChange }) {
+export function DinkyNode(id: string, { onClick, onInputClick, onOutputClick, onDrag, onResize, onBackgroundChange }) {
   const input = el('button')
   const output = el('button')
 
@@ -77,10 +77,10 @@ export function Node(id, { onClick, onInputClick, onOutputClick, onDrag, onResiz
   }
 
   let _background = DEFAULT_BACKGROUND
-  let _width
-  let _height
-  let _x
-  let _y
+  let _width: number
+  let _height: number
+  let _x: number
+  let _y: number
   let _selected = false
   let _lastIsBg = false
 

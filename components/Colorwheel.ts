@@ -15,9 +15,9 @@ const PASTEL_COLORS = [
 ]
 
 // Share the same datalist for all colorwheels
-let _datalist
+let _datalist: HTMLDataListElement | null = null
 
-export function Colorwheel({ onChange, style }) {
+export function Colorwheel({ onChange, style }: { onChange: (color: string) => void; style?: CSSStyleDeclaration }) {
   if (!_datalist) {
     _datalist = el(
       'datalist',
@@ -30,8 +30,8 @@ export function Colorwheel({ onChange, style }) {
   const input = el('input', {
     type: 'color',
     tabIndex: 2,
-    oninput: (e) => {
-      onChange(e.target.value)
+    oninput: () => {
+      onChange(input.value)
     },
   })
 

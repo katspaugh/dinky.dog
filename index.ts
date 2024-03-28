@@ -1,5 +1,5 @@
 import { Sidebar } from './components/Sidebar.js'
-import { MIN_WIDTH, MIN_HEIGHT } from './components/Node.js'
+import { MIN_WIDTH, MIN_HEIGHT } from './components/DinkyNode.js'
 import { initFlow } from './flow.js'
 import * as Operators from './operators/index.js'
 import * as Persistance from './persist.js'
@@ -11,7 +11,29 @@ const HEIGHT = 5000
 
 const _clientId = Persistance.getClientId()
 
-let state = {
+type NodeProps = { x: number; y: number; width: number; height: number; background: string; selected: boolean }
+
+type NodeData = { operatorData: any; operatorType?: string }
+
+type State = {
+  id: string
+  creator: string
+  lastSequence: number
+  isLocked: boolean
+  title: string
+  nodes: Record<
+    string,
+    {
+      operator: ReturnType<(typeof Operators)[keyof typeof Operators]>
+      props: NodeProps
+      data: NodeData
+      connections: { inputId: string }[]
+    }
+  >
+  backgroundColor: string
+}
+
+let state: State = {
   id: '',
   creator: _clientId,
   lastSequence: 0,
@@ -20,10 +42,11 @@ let state = {
   nodes: {},
   backgroundColor: '',
 }
-let _appContainer
-let _sidebar
-let _flow
-let _lastBackground
+
+let _appContainer: HTMLElement
+let _sidebar: ReturnType<typeof Sidebar>
+let _flow: ReturnType<typeof initFlow>
+let _lastBackground: string
 
 function serializeState() {
   const nodes = Object.entries(state.nodes).reduce((acc, [id, node]) => {
@@ -47,7 +70,7 @@ function persist(isImmediate = false, isUnload = false) {
   return Persistance.saveState(serializeState(), isImmediate, isUnload)
 }
 
-function createNode(id, props, data, clientId) {
+function createNode(id: string, props: NodeProps, data: NodeData, clientId?: string) {
   const operatorType = data.operatorType || Operators.Text.name
   const operator = Operators[operatorType](data.operatorData)
 
@@ -79,14 +102,14 @@ function removeNode(id) {
   _flow.render({ nodeToRemove: id })
 }
 
-function updateNode(id, props, clientId) {
+function updateNode(id: string, props: Partial<NodeProps>, clientId?: string) {
   const node = state.nodes[id]
   if (!node) return
   Object.assign(node.props, props)
   _flow.render({ node: { id, ...node.props, clientId } })
 }
 
-function updateNodeData(id, data, clientId) {
+function updateNodeData(id: string, data: NodeData, clientId?: string) {
   const node = state.nodes[id]
   if (!node) return
   const operatorType = data.operatorType || node.data.operatorType || Operators.Text.name
@@ -309,7 +332,7 @@ function onSelectBox(x1, y1, x2, y2) {
   if (state.isLocked) return
 
   const matchingNodes = Object.entries(state.nodes).filter(([id, node]) => {
-    const { container } = node.operator
+    const { container } = node.operator as { container: HTMLElement }
     const { x, y, width = container.offsetWidth, height = container.offsetHeight } = node.props
     return (
       (x > x1 && y > y1 && x + width < x2 && y + height < y2) || (x + width > x1 && y + height > y1 && x < x2 && y < y2)
@@ -364,7 +387,7 @@ function initSidebar() {
   return sidebar
 }
 
-function initState(newState) {
+function initState(newState: typeof state) {
   // Update state properties
   state.id = newState.id || randomId()
   state.creator = newState.creator || _clientId
@@ -531,11 +554,20 @@ Persistance.loadState()
   })
 
 /* Console API */
+declare global {
+  interface Window {
+    dinky: {
+      createCard: typeof onCreateNode
+      removeCard: typeof onRemoveNode
+      updateNode: (id: string, props: Partial<NodeProps>, data?: NodeData) => void
+    }
+  }
+}
 window.dinky = {
   createCard: onCreateNode,
   removeCard: onRemoveNode,
   updateNode(id, props, data) {
-    onNodeUpate(props.id, props)
+    onNodeUpate(id, props)
     if (data) {
       updateNodeData(id, data)
     }
