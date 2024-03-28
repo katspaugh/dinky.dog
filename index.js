@@ -27,6 +27,7 @@ let _sidebar
 let _flow
 let _streamClient
 let _lastBackground
+let _peerCount = 0
 
 function serializeState() {
   const nodes = Object.entries(state.nodes).reduce((acc, [id, node]) => {
@@ -51,7 +52,7 @@ function persist(isImmediate = false, isUnload = false) {
 }
 
 function broadcast(command, ...args) {
-  if (_streamClient) {
+  if (_streamClient && _peerCount > 0) {
     _streamClient.publish({ command, args, clientId: _clientId })
   }
 }
@@ -434,9 +435,15 @@ function setBackground(backgroundColor) {
 }
 
 function sayHello() {
+  _peerCount++
+
   if (document.visibilityState === 'visible') {
     broadcast('cmdHelloYourself', state.lastSequence)
   }
+}
+
+function disconnectPeer() {
+  _peerCount--
 }
 
 const commands = {
@@ -451,6 +458,7 @@ const commands = {
   cmdSetLocked: setLocked,
   cmdSetTitle: setTitle,
   cmdUndo: afterUndo,
+  cmdPeerDisconnect: disconnectPeer,
 }
 
 async function initStreamClient() {
