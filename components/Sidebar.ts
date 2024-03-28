@@ -12,7 +12,7 @@ export function Sidebar({ onTitleChange, setLocked, savedFlows, onShare, onFork 
   const children = []
   const peers = {}
 
-  const add = (...args) => {
+  const add: typeof el = (...args) => {
     const child = el(...args)
     children.push(child)
     return child
@@ -27,7 +27,7 @@ export function Sidebar({ onTitleChange, setLocked, savedFlows, onShare, onFork 
   const input = add('input', {
     type: 'text',
     placeholder: 'Untitled',
-    oninput: (e) => onTitleChange(e.target.value),
+    oninput: () => onTitleChange(input.value),
   })
 
   // Flows menu

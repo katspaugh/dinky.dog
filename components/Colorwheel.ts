@@ -17,7 +17,13 @@ const PASTEL_COLORS = [
 // Share the same datalist for all colorwheels
 let _datalist: HTMLDataListElement | null = null
 
-export function Colorwheel({ onChange, style }: { onChange: (color: string) => void; style?: CSSStyleDeclaration }) {
+export function Colorwheel({
+  onChange,
+  style,
+}: {
+  onChange: (color: string) => void
+  style?: Partial<CSSStyleDeclaration>
+}) {
   if (!_datalist) {
     _datalist = el(
       'datalist',

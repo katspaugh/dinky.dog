@@ -38,7 +38,9 @@ export function Graph({
   onKeyDown,
   onSelect,
 }) {
-  const svg = svgEl('svg', { style: { width: '100%', height: '100%', viewBox: `0 0 ${width} ${height}` } })
+  const svg = svgEl('svg')
+  svg.setAttribute('viewBox', `0 0 ${width} ${height}`)
+
   const pan = el('div', { style: { width: `${width}px`, height: `${height}px` }, className: 'pan' }, [
     svg as unknown as HTMLElement,
   ])

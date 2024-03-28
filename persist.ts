@@ -4,6 +4,12 @@ import { compressObjectToString, decompressStringToObject } from './utils/compre
 import { randomEmoji, randomId } from './utils/random.js'
 import { debounce } from './utils/debounce.js'
 
+type StateMetaData = {
+  id: string
+  title: string
+  timestamp: number
+}
+
 const LOCAL_DEBOUNCE_TIME = 300
 const DB_DEBOUNCE_TIME = 60e3
 
@@ -29,7 +35,7 @@ export function slugify(text: string) {
     .replace(/[^a-z0-9-]/gi, '')
 }
 
-function saveToLocalStorage(state: { id: string; title: string; timestamp: number }) {
+function saveToLocalStorage(state: StateMetaData) {
   // Save meta data to localStorage if it has a title
   if (state.title) {
     const key = `${STATE_STORAGE_PREFIX}${state.id}`
@@ -51,7 +57,7 @@ function saveToLocalStorage(state: { id: string; title: string; timestamp: numbe
   // Save entire state to sessionStorage
   {
     const prefix = `${STATE_STORAGE_PREFIX}-${state.id}`
-    const count = storage.getItem(`${prefix}-count`, true) || 0
+    const count = storage.getItem<number>(`${prefix}-count`, true) || 0
     let newCount = count + 1
     if (newCount > maxSavedStates) {
       storage.removeItem(`${prefix}-state-${newCount - maxSavedStates}`, true)
@@ -63,7 +69,7 @@ function saveToLocalStorage(state: { id: string; title: string; timestamp: numbe
 
 export function loadPreviousState(stateId: string) {
   const prefix = `${STATE_STORAGE_PREFIX}-${stateId}`
-  const count = storage.getItem(`${prefix}-count`, true)
+  const count = storage.getItem<number>(`${prefix}-count`, true)
   if (!count) return null
   const newCount = count - 1
   storage.removeItem(`${prefix}-state-${count}`, true)
@@ -134,8 +140,8 @@ export async function loadState() {
   return { id }
 }
 
-export function getSavedStates() {
-  const states = storage.getMatchingItems(`${STATE_STORAGE_PREFIX}`)
+export function getSavedStates(): StateMetaData[] {
+  const states = storage.getMatchingItems<StateMetaData>(`${STATE_STORAGE_PREFIX}`)
   return Object.values(states).sort((a, b) => b.timestamp - a.timestamp)
 }
 
@@ -147,8 +153,8 @@ function getBrowserName() {
   return `${browser}/${os}`
 }
 
-export function getClientId() {
-  const clientId = storage.getItem(CLIENT_ID_KEY) || [getBrowserName(), randomEmoji(), randomId()].join('-')
+export function getClientId(): string {
+  const clientId = storage.getItem<string>(CLIENT_ID_KEY) || [getBrowserName(), randomEmoji(), randomId()].join('-')
   storage.setItem(CLIENT_ID_KEY, clientId)
   return clientId
 }

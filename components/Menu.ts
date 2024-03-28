@@ -1,33 +1,30 @@
 import { Component, el } from '../utils/dom.js'
 
 export function Menu(title = '', className = '') {
+  const details = el('details', { tabIndex: -1, className })
   const summary = el('summary', { tabIndex: 0 }, title)
   const ul = el('ul')
 
-  const component = Component({
-    tag: 'details',
+  return Component({
+    container: details,
+
+    children: [summary, ul],
 
     props: {
-      tabIndex: -1,
-
-      className,
-
       onclick: (e) => {
         if (e.target === summary) {
-          component.container.focus()
+          details.focus()
         }
       },
 
       onblur: () => {
-        if (component.container.open) {
+        if (details.open) {
           setTimeout(() => {
-            component.container.open = false
+            details.open = false
           }, 300)
         }
       },
     },
-
-    children: [summary, ul],
 
     render: ({ items = [] }) => {
       items.forEach(({ content, href = '', onClick, separator = false }) => {
@@ -56,6 +53,4 @@ export function Menu(title = '', className = '') {
       })
     },
   })
-
-  return component
 }

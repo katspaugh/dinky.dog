@@ -10,23 +10,23 @@ export function ImagePreview() {
       pointerEvents: 'none',
     },
 
-    props: {
-      sandbox: '',
-    },
-
     render: ({ src = '' }) => {
       if (!src) return
 
+      const { container } = component
       component.container.style.display = 'block'
+      container.setAttribute('sandbox', '')
 
-      component.container.src =
+      container.setAttribute(
+        'src',
         'data:text/html,' +
         encodeURIComponent(
           `
            <style>* { margin: 0; padding: 0; }</style>
            <img src="${src}" style="display: block; width: 100%; height: auto;">
           `,
-        )
+        ),
+      )
     },
   })
 

@@ -108,13 +108,8 @@ input[disabled] {
   transition: box-shadow 0.1s, transform 0.2s;
 }
 
-#app:not(.locked) .card.active,
 #app:not(.locked) .card:hover {
-  box-shadow: 2px 2px var(--shadow-color);
-}
-
-#app:not(.locked) .card:hover {
-  transform: scale(1.005);
+  border-color: var(--hover-color);
 }
 
 #app:not(.locked) .card.active {
@@ -205,7 +200,7 @@ input[disabled] {
   height: 100%;
   position: relative;
   z-index: 2;
-  padding: 10px;
+  padding: 10px 14px;
   overflow: auto;
   max-width: 100%;
   height: 100%;
@@ -435,6 +430,8 @@ path:hover {
   position: fixed;
   z-index: 10;
   width: 200px;
+  max-height: 80vh;
+  overflow-y: auto;
   margin: 0;
   padding: 0;
   border: 1px solid var(--menu-border-color);

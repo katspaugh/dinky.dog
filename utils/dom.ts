@@ -9,7 +9,7 @@ export function el<T extends keyof HTMLElementTagNameMap>(
   props?: Omit<Partial<HTMLElementTagNameMap[T]>, 'style'> & { style?: Partial<CSSStyleDeclaration> },
   children?: HTMLElement | string | Array<HTMLElement | string>,
 ): HTMLElementTagNameMap[T] {
-  const htmlEl = element instanceof HTMLElement ? element : document.createElement(element)
+  const htmlEl = typeof element === 'string' ? document.createElement(element) : element
 
   if (props) {
     for (let key in props) {
@@ -42,12 +42,8 @@ export function el<T extends keyof HTMLElementTagNameMap>(
   return htmlEl
 }
 
-export function svgEl(tagName: string, props: Record<string, any>) {
-  const el = document.createElementNS('http://www.w3.org/2000/svg', tagName)
-  for (let key in props) {
-    el[key] = props[key]
-  }
-  return el
+export function svgEl(tagName: string) {
+  return document.createElementNS('http://www.w3.org/2000/svg', tagName)
 }
 
 export function Component<T extends keyof HTMLElementTagNameMap>({

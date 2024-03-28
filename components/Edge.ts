@@ -1,9 +1,11 @@
-import { Component } from '../utils/dom.js'
+import { Component, svgEl } from '../utils/dom.js'
 import { throttle } from '../utils/debounce.js'
 
 export function Edge({ inactive = false } = {}) {
   let lastFromEl: HTMLElement | null = null
   let lastToEl: HTMLElement | null = null
+
+  const path = svgEl('path')
 
   const updatePath = throttle(() => {
     if (!lastFromEl || !lastToEl) return
@@ -15,14 +17,11 @@ export function Edge({ inactive = false } = {}) {
     const toX = toPoint.left + toPoint.width / 2 + scrollLeft
     const toY = toPoint.top + toPoint.height / 2 + scrollTop
 
-    component.container.setAttribute(
-      'd',
-      `M ${fromX} ${fromY} C ${fromX + 100} ${fromY} ${toX - 100} ${toY} ${toX} ${toY}`,
-    )
+    path.setAttribute('d', `M ${fromX} ${fromY} C ${fromX + 100} ${fromY} ${toX - 100} ${toY} ${toX} ${toY}`)
   }, 20)
 
-  const component = Component({
-    tag: 'path' as 'div',
+  return Component({
+    container: path as unknown as HTMLElement,
 
     style: {
       pointerEvents: inactive ? 'none' : 'auto',
@@ -37,10 +36,8 @@ export function Edge({ inactive = false } = {}) {
       }
 
       if (onClick) {
-        component.container.onclick = onClick
+        path.onclick = onClick
       }
     },
   })
-
-  return component
 }

@@ -230,7 +230,7 @@ export function initFlow({ width, height, ...callbacks }) {
     onChange: callbacks.onMainBackgroundChange,
     style: {
       position: 'fixed',
-      zIndex: 100,
+      zIndex: '100',
       right: '10px',
       bottom: '10px',
     },
