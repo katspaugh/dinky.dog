@@ -83,6 +83,15 @@ input[disabled] {
   width: 100vw;
 }
 
+#app:not(.locked) .dragover {
+  transition: filter 0.2s;
+  filter: brightness(1.1);
+}
+
+#app:not(.locked) .dragover * {
+  filter: none;
+}
+
 .node {
   position: absolute;
 }
@@ -329,6 +338,10 @@ input[disabled] {
   background-color: #fff;
 }
 
+.locked .node .peer {
+  display: none;
+}
+
 svg {
   position: absolute;
   z-index: 2;
@@ -361,11 +374,8 @@ path:hover {
 }
 
 .pan {
-  position: absolute;
   cursor: crosshair;
-  left: 0;
-  top: 0;
-  z-index: 1;
+  position: relative;
 }
 
 .locked .pan {

@@ -1,6 +1,10 @@
+const DRAGOVER_CLASS = 'dragover'
+
 export function makeDroppable({ container, fileTypes, onDrop }) {
   container.addEventListener('drop', (e) => {
     e.preventDefault()
+
+    container.classList.remove(DRAGOVER_CLASS)
 
     const file = e.dataTransfer.files[0]
     if (fileTypes.test(file.type)) {
@@ -15,5 +19,12 @@ export function makeDroppable({ container, fileTypes, onDrop }) {
     }
   })
 
-  container.addEventListener('dragover', (e) => e.preventDefault())
+  container.addEventListener('dragover', (e) => {
+    e.preventDefault()
+    container.classList.add(DRAGOVER_CLASS)
+  })
+
+  container.addEventListener('dragleave', () => {
+    container.classList.remove(DRAGOVER_CLASS)
+  })
 }

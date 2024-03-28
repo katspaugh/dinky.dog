@@ -518,7 +518,6 @@ function init(appContainer, loadedState) {
 
   appContainer.appendChild(sidebar.container)
   appContainer.appendChild(flow.container)
-  document.body.appendChild(appContainer)
 
   _sidebar = sidebar
   _flow = flow

@@ -4,8 +4,7 @@ import { makeDroppable } from '../utils/droppable.js'
 export function DropContainer({ fileTypes, onDrop }) {
   const component = Component({
     style: {
-      width: '100%',
-      height: '100%',
+      width: 'max-content',
     },
   })
 
