@@ -221,6 +221,10 @@ input[disabled] {
   margin-top: 0;
 }
 
+.node [contenteditable] *:last-of-type {
+  margin-bottom: 0;
+}
+
 .locked .resize-handle {
   display: none;
 }

@@ -47,6 +47,7 @@ let _appContainer: HTMLElement
 let _sidebar: ReturnType<typeof Sidebar>
 let _flow: ReturnType<typeof initFlow>
 let _lastBackground: string
+let _changes = 0
 
 function serializeState() {
   const nodes = Object.entries(state.nodes).reduce((acc, [id, node]) => {
@@ -67,6 +68,11 @@ function serializeState() {
 }
 
 function persist(isImmediate = false, isUnload = false) {
+  if (isImmediate) {
+    _changes = 0
+  } else {
+    _changes++
+  }
   return Persistance.saveState(serializeState(), isImmediate, isUnload)
 }
 
@@ -529,7 +535,9 @@ function init(appContainer, loadedState) {
   // Save state on leaving the page
   document.addEventListener('visibilitychange', () => {
     if (!state.isLocked && document.visibilityState === 'hidden') {
-      persist(true, true)
+      if (_changes > 0) {
+        persist(true, true)
+      }
     }
   })
 }
@@ -537,7 +545,7 @@ function init(appContainer, loadedState) {
 const DEMO = {
   nodes: {
     hello: {
-      props: { x: window.innerWidth / 3, y: 40 },
+      props: { x: window.innerWidth / 3, y: 40, width: 260, height: 115 },
       data: {
         operatorData:
           'Hello, dinky! 🐾 \n\n - Double-click to create cards\n - Press Escape to remove\n - Paste URLs to preview',

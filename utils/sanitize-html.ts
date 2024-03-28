@@ -1,7 +1,12 @@
 import purify from 'https://unpkg.com/dompurify/dist/purify.es.mjs'
 
 export function sanitizeHtml(html = '') {
-  return purify.sanitize(String(html), {
+  html = String(html).replace(/(#+)\s?(.+?)(?=\n|$)/gm, (_, hashes, text) => {
+    const level = Math.min(4, hashes.length)
+    return `<h${level}>${text}</h${level}>`
+  })
+
+  return purify.sanitize(html, {
     ALLOWED_TAGS: [
       'a',
       'b',

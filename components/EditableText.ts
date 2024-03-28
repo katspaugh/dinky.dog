@@ -1,7 +1,7 @@
 import { Component, css } from '../utils/dom.js'
 import { sanitizeHtml } from '../utils/sanitize-html.js'
 
-export const INITIAL_WIDTH = 160
+const INITIAL_WIDTH = 160
 const INITIAL_HEIGHT = 75
 
 export function EditableText({ onInput }: { onInput?: (html: string) => void }) {

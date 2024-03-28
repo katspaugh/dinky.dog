@@ -4,11 +4,10 @@ import { ResizeHandle } from './ResizeHandle.js'
 import { Colorwheel } from './Colorwheel.js'
 import { PeerIndicator } from './PeerIndicator.js'
 import { throttle } from '../utils/debounce.js'
-import { INITIAL_WIDTH } from './EditableText.js'
 
 export const MIN_WIDTH = 100
 export const MIN_HEIGHT = 42
-const MAX_WIDTH = INITIAL_WIDTH
+const MAX_WIDTH = 200
 const DEFAULT_BACKGROUND = '#f9f9f9'
 const BG_THRESHOLD = 100e3
 const BG_Z_INDEX = '1'
