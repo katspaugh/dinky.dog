@@ -1,6 +1,5 @@
-// Detect if the string is a URL
 export function parseUrl(text = '') {
-  const match = text.match(/\b(https?:\/\/[a-z0-9-_.]+\.\S{2,}(\/.+)?)\b/i)
+  const match = text.match(/(https?:\/\/[-a-z0-9._]+?\.[a-z]{2,}(\/[-a-z0-9._?=&%]+)*)(?=\s|<|$)/i)
   return match ? match[1] || '' : ''
 }
 

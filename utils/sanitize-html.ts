@@ -1,12 +1,17 @@
 import purify from 'https://unpkg.com/dompurify/dist/purify.es.mjs'
+import snarkdown from 'https://cdn.jsdelivr.net/npm/snarkdown/dist/snarkdown.es.js'
+
+const URLS_REGEXP = /([^>"]|^)(https?:\/\/[a-z0-9-_.]+\.\S{2,}(\/.+)?)(?=[^<"]|$)\b/gi
+
+function markdown(html = '') {
+  html = html.replace(URLS_REGEXP, (_, before, url) => {
+    return `${before}<a href="${url}" target="_blank">${url}</a>`
+  })
+  return snarkdown(html)
+}
 
 export function sanitizeHtml(html = '') {
-  html = String(html).replace(/(#+)\s?(.+?)(?=\n|$)/gm, (_, hashes, text) => {
-    const level = Math.min(4, hashes.length)
-    return `<h${level}>${text}</h${level}>`
-  })
-
-  return purify.sanitize(html, {
+  return purify.sanitize(markdown(html), {
     ALLOWED_TAGS: [
       'a',
       'b',

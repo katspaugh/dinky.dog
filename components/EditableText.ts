@@ -46,6 +46,14 @@ export function EditableText({ onInput }: { onInput?: (html: string) => void }) 
           })
         }
       },
+
+      onclick: (e) => {
+        const link = (e.target as HTMLElement).closest('a')
+        if (link) {
+          e.preventDefault()
+          window.open(link.href, '_blank')
+        }
+      },
     },
 
     render: ({ text = '' }) => {

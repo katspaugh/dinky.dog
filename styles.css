@@ -217,12 +217,17 @@ input[disabled] {
   outline: none;
 }
 
-.node [contenteditable] *:first-of-type {
+.node [contenteditable] *:first-child {
   margin-top: 0;
 }
 
-.node [contenteditable] *:last-of-type {
+.node [contenteditable] *:last-child {
   margin-bottom: 0;
+}
+
+.node [contenteditable] ol,
+.node [contenteditable] ul {
+  padding-left: 1.2em;
 }
 
 .locked .resize-handle {
