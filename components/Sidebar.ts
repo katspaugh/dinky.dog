@@ -69,7 +69,7 @@ export function Sidebar({ onTitleChange, setLocked, savedFlows, onShare, onFork 
     }),
   )
 
-  return Component({
+  const component = Component({
     props: { className: 'sidebar' },
 
     children,
@@ -100,4 +100,6 @@ export function Sidebar({ onTitleChange, setLocked, savedFlows, onShare, onFork 
       }
     },
   })
+
+  return component
 }

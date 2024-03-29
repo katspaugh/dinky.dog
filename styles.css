@@ -53,7 +53,6 @@ body {
 }
 
 body {
-  overflow: auto;
 }
 
 input,
@@ -396,6 +395,12 @@ path:hover {
   stroke: var(--edge-color);
 }
 
+.graph {
+  width: 100vw;
+  height: 100vh;
+  overflow: auto;
+}
+
 .pan {
   cursor: crosshair;
   position: relative;
@@ -421,18 +426,17 @@ path:hover {
 }
 
 .sidebar {
-  position: fixed;
+  position: absolute;
   z-index: 10;
-  left: 0;
-  top: 0;
   width: 100vw;
+  top: 0;
+  left: 0;
   padding: 4px 6px;
   display: flex;
   gap: 4px;
   align-items: center;
-  flex-wrap: nowrap;
-  overflow-y: visible;
-  overflow-x: auto;
+  justify-content: flex-end;
+  flex-wrap: wrap;
   color: var(--menu-text-color);
   pointer-events: none;
   user-select: none;
@@ -482,6 +486,7 @@ path:hover {
   font-size: 0.9em;
   line-height: 1.3;
   height: 31px;
+  white-space: nowrap;
 }
 
 .sidebar label:hover,
@@ -509,6 +514,7 @@ path:hover {
   gap: 6px;
   pointer-events: auto;
   cursor: default;
+  justify-self: flex-start;
 }
 
 .peers:hover {
