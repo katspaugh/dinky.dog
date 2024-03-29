@@ -18,6 +18,11 @@ let _currentInput = null
 let _currentOutput = null
 let _callbacks: Record<string, (...args: any[]) => void> = {}
 
+function resetCurrentConnections() {
+  _currentInput = null
+  _currentOutput = null
+}
+
 function connectNodes(outputId, inputId) {
   const edge = Edge()
 
@@ -78,8 +83,7 @@ function renderNode({ id, clientId, ...nodeProps }) {
 
   const onConnect = () => {
     _callbacks.onConnect(_currentOutput || id, _currentInput || id)
-    _currentOutput = null
-    _currentInput = null
+    resetCurrentConnections()
   }
 
   const node = DinkyNode(id, {
@@ -157,6 +161,7 @@ function initGraph(width, height) {
 
     onDblClick: (x, y) => {
       _callbacks.onEmptyClick(x, y)
+      resetCurrentConnections()
     },
 
     onPointerMove: (x, y) => {
@@ -185,8 +190,7 @@ function initGraph(width, height) {
     onKeyDown: (e, isFocused) => {
       if (e.key === 'Escape') {
         resetMouseEdge()
-        _currentOutput = null
-        _currentInput = null
+        resetCurrentConnections()
 
         _callbacks.onDelete(isFocused)
       } else if (e.key === 'Delete' || e.key === 'Backspace') {
