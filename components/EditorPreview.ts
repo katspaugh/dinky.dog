@@ -26,9 +26,8 @@ function getPreviewContent(value) {
 
 export function EditorPreview(editorEl) {
   let lastPreview
-  const editorContainer = el('div', {}, editorEl)
-  const previewContainer = el('div')
-  previewContainer.className = 'preview'
+  const editorContainer = el('div', { className: 'editor' }, editorEl)
+  const previewContainer = el('div', { className: 'preview' })
 
   return Component({
     children: [editorContainer, previewContainer],

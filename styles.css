@@ -130,7 +130,7 @@ input[disabled] {
   animation: jiggle 0.2s 0.1s alternate infinite;
 }
 
-.node .editor-preview {
+.editor-preview {
   width: 100%;
   height: 100%;
   overflow: auto;
@@ -139,13 +139,17 @@ input[disabled] {
   flex-direction: column;
 }
 
-.node .preview {
+.editor {
+  padding: 10px 14px;
+}
+
+.preview {
   border-top: 1px dashed var(--border-color);
   flex: 1;
   border-radius: 0 0 4px 4px;
 }
 
-.node .preview:empty {
+.preview:empty {
   display: none;
 }
 
@@ -195,16 +199,28 @@ input[disabled] {
   background-color: var(--hover-color);
 }
 
-.node [contenteditable] {
+[contenteditable] {
   width: 100%;
   height: 100%;
   position: relative;
   z-index: 2;
-  padding: 10px 14px;
   overflow: auto;
-  max-width: 100%;
-  height: 100%;
   white-space: pre-wrap;
+  overflow-wrap: break-word;
+}
+
+.link-overlay {
+  position: absolute;
+  z-index: 2;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.link-overlay a {
+  pointer-events: auto;
+  visibility: visible;
 }
 
 ::selection {
@@ -212,21 +228,21 @@ input[disabled] {
   color: var(--menu-hover-text-color);
 }
 
-.node [contenteditable]:focus {
+[contenteditable]:focus {
   border-radius: 4px;
   outline: none;
 }
 
-.node [contenteditable] *:first-child {
+[contenteditable] *:first-child {
   margin-top: 0;
 }
 
-.node [contenteditable] *:last-child {
+[contenteditable] *:last-child {
   margin-bottom: 0;
 }
 
-.node [contenteditable] ol,
-.node [contenteditable] ul {
+[contenteditable] ol,
+[contenteditable] ul {
   padding-left: 1.2em;
 }
 

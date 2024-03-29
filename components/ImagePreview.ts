@@ -23,7 +23,7 @@ export function ImagePreview() {
         encodeURIComponent(
           `
            <style>* { margin: 0; padding: 0; }</style>
-           <img src="${src}" style="display: block; width: 100%; height: auto;">
+           <img src="${src}" style="display: block; width: 100%; height: auto;" />
           `,
         ),
       )

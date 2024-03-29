@@ -37,13 +37,7 @@ export function Text(initialValue) {
     serialize: () => outputStream.get(),
 
     render: ({ focus = false } = {}) => {
-      editor.render({ text: outputStream.get() })
-
-      // Focus the input if requested
-      if (focus) {
-        requestAnimationFrame(() => editor.container.focus())
-      }
-
+      editor.render({ text: outputStream.get(), focus })
       return preview.container
     },
 

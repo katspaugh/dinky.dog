@@ -1,76 +1,90 @@
-import { Component, css } from '../utils/dom.js'
+import { Component, el, css } from '../utils/dom.js'
 import { sanitizeHtml } from '../utils/sanitize-html.js'
+import { LinkOverlay } from './LinkOverlay.js'
 
-const INITIAL_WIDTH = 160
-const INITIAL_HEIGHT = 75
+const INITIAL_WIDTH = 130
+const INITIAL_HEIGHT = 55
 
 export function EditableText({ onInput }: { onInput?: (html: string) => void }) {
   let lastValue = ''
   let resetSize = false
 
-  const update = (html) => {
-    component.container.innerHTML = html
-  }
+  const linkOverlay = LinkOverlay()
 
-  const component = Component({
-    props: {
-      tabIndex: 0,
+  const editor = el('div', {
+    tabIndex: 0,
 
-      contentEditable: onInput ? 'true' : 'false',
+    contentEditable: onInput ? 'true' : 'false',
 
-      oninput: () => {
-        const html = sanitizeHtml(component.container.innerHTML)
-        lastValue = html
-        onInput && onInput(html)
-      },
-
-      onkeydown: (e) => {
-        const { container } = component
-        if (e.key === 'Escape') {
-          container.blur()
-        } else if (e.key === 'Enter' && !e.shiftKey) {
-          e.preventDefault()
-          container.blur()
-        }
-      },
-
-      onblur: () => {
-        update(lastValue)
-        component.container.scrollLeft = 0
-
-        if (lastValue && !resetSize) {
-          resetSize = true
-          css(component.container, {
-            minWidth: '0',
-            minHeight: '0',
-          })
-        }
-      },
-
-      onclick: (e) => {
-        const link = (e.target as HTMLElement).closest('a')
-        if (link) {
-          e.preventDefault()
-          window.open(link.href, '_blank')
-        }
-      },
+    oninput: () => {
+      const html = sanitizeHtml(editor.innerHTML)
+      lastValue = html
+      onInput && onInput(html)
     },
 
-    render: ({ text = '' }) => {
-      const { container } = component
+    onkeydown: (e) => {
+      if (e.key === 'Escape') {
+        editor.blur()
+      } else if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault()
+        editor.blur()
+      }
+    },
+
+    onfocus: () => {
+      linkOverlay.render({})
+    },
+
+    onblur: () => {
+      update(lastValue)
+      editor.scrollLeft = 0
+
+      if (lastValue && !resetSize) {
+        resetSize = true
+        css(editor, {
+          minWidth: '0',
+          minHeight: '0',
+        })
+      }
+    },
+
+    onclick: (e) => {
+      const link = (e.target as HTMLElement).closest('a')
+      if (link) {
+        e.preventDefault()
+        window.open(link.href, '_blank')
+      }
+    },
+  })
+
+  const update = (html: string) => {
+    editor.innerHTML = html
+    linkOverlay.render({ html: lastValue })
+  }
+
+  return Component({
+    children: [editor, linkOverlay.container],
+
+    style: {
+      position: 'relative',
+    },
+
+    render: ({ text = '', focus = false }) => {
       if (text !== lastValue) {
         lastValue = text
         update(lastValue)
       }
 
       if (!resetSize && !text) {
-        css(container, {
+        css(editor, {
           minWidth: `${INITIAL_WIDTH}px`,
           minHeight: `${INITIAL_HEIGHT}px`,
         })
       }
+
+      if (focus) {
+        requestAnimationFrame(() => editor.focus())
+      }
     },
   })
-
-  return component
 }
