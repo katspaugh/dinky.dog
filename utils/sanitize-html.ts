@@ -7,7 +7,8 @@ function markdown(html: string) {
       return `<h${level}>${text}</h${level}>`
     })
     .replace(/\*\*(.*)\*\*/g, '<b>$1</b>')
-    .replace(/_(.*)_/g, '<i>$1</i>')
+    .replace(/~(.*)~/g, '<s>$1</s>')
+    .replace(/\b_(.*)_\b/g, '<i>$1</i>')
     .replace(/```(.+?)?\n?(.+?)\n?```/g, '<pre><code title="$1">$2</code></pre>')
     .replace(/`(.*)`/g, '<code>$1</code>')
     .replace(/^- (.*)(\n|$)/gm, '<li>$1</li>')
@@ -19,6 +20,7 @@ export function sanitizeHtml(html = '') {
       'a',
       'b',
       'i',
+      's',
       'em',
       'strong',
       'p',

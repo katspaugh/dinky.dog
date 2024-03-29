@@ -1,9 +1,11 @@
+import { throttle } from '../utils/debounce.js'
 import { Component, el, css } from '../utils/dom.js'
 import { sanitizeHtml } from '../utils/sanitize-html.js'
 import { LinkOverlay } from './LinkOverlay.js'
 
 const INITIAL_WIDTH = 130
 const INITIAL_HEIGHT = 55
+const INPUT_THROTTLE = 300
 
 export function EditableText({ onInput }: { onInput?: (html: string) => void }) {
   let lastValue = ''
@@ -11,16 +13,18 @@ export function EditableText({ onInput }: { onInput?: (html: string) => void }) 
 
   const linkOverlay = LinkOverlay()
 
+  const onEdit = () => {
+    const html = sanitizeHtml(editor.innerHTML)
+    lastValue = html
+    onInput && onInput(html)
+  }
+
   const editor = el('div', {
     tabIndex: 0,
 
     contentEditable: onInput ? 'true' : 'false',
 
-    oninput: () => {
-      const html = sanitizeHtml(editor.innerHTML)
-      lastValue = html
-      onInput && onInput(html)
-    },
+    oninput: throttle(onEdit, INPUT_THROTTLE),
 
     onkeydown: (e) => {
       if (e.key === 'Escape') {
@@ -36,6 +40,7 @@ export function EditableText({ onInput }: { onInput?: (html: string) => void }) 
     },
 
     onblur: () => {
+      onEdit()
       update(lastValue)
       editor.scrollLeft = 0
 
@@ -58,8 +63,10 @@ export function EditableText({ onInput }: { onInput?: (html: string) => void }) 
   })
 
   const update = (html: string) => {
-    editor.innerHTML = html
-    linkOverlay.render({ html: lastValue })
+    if (editor.innerHTML !== html) {
+      editor.innerHTML = html
+    }
+    linkOverlay.render({ html })
   }
 
   return Component({
