@@ -4,6 +4,7 @@ export function makeDraggable(
   onStart?: (x: number, y: number) => void,
   onEnd?: () => void,
   threshold = 3,
+  touchDelay = 100,
 ) {
   if (!element) return () => void 0
 
@@ -11,6 +12,8 @@ export function makeDraggable(
   let isDragging = false
   let startX = 0
   let startY = 0
+  let touchStart = 0
+  const isTouchDevice = matchMedia('(pointer: coarse)').matches
 
   const onPointerDown = (e) => {
     if (e.button !== 0) return
@@ -18,12 +21,14 @@ export function makeDraggable(
 
     isPointerDown = true
     isDragging = false
+    touchStart = Date.now()
     startX = e.clientX
     startY = e.clientY
   }
 
   const onPointerUp = (e) => {
     isPointerDown = false
+    touchStart = 0
 
     if (isDragging) {
       e.preventDefault()
@@ -39,6 +44,7 @@ export function makeDraggable(
 
   const onPointerMove = (e) => {
     if (!isPointerDown) return
+    if (isTouchDevice && Date.now() - touchStart < touchDelay) return
 
     e.preventDefault()
     e.stopPropagation()
