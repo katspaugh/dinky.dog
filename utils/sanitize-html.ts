@@ -1,6 +1,6 @@
 import purify from 'https://unpkg.com/dompurify/dist/purify.es.mjs'
 
-function markdown(html) {
+function markdown(html: string) {
   return html
     .replace(/(#+)\s*(.*)(\n|$)/g, (_, hashes, text) => {
       const level = Math.min(5, hashes.length)
@@ -8,6 +8,8 @@ function markdown(html) {
     })
     .replace(/\*\*(.*)\*\*/g, '<b>$1</b>')
     .replace(/_(.*)_/g, '<i>$1</i>')
+    .replace(/```(.+?)?\n?(.+?)\n?```/g, '<pre><code title="$1">$2</code></pre>')
+    .replace(/`(.*)`/g, '<code>$1</code>')
     .replace(/^- (.*)(\n|$)/gm, '<li>$1</li>')
 }
 
