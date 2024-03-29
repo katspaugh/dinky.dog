@@ -8,7 +8,7 @@ export function MetaPreview() {
     target: '_blank',
     style: {
       display: 'block',
-      margin: '10px',
+      margin: '10px 14px',
       whiteSpace: 'nowrap',
       overflow: 'hidden',
       textOverflow: 'ellipsis',

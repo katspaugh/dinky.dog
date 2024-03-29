@@ -1,5 +1,15 @@
 import purify from 'https://unpkg.com/dompurify/dist/purify.es.mjs'
-import markdown from 'https://cdn.jsdelivr.net/npm/snarkdown/dist/snarkdown.es.js'
+
+function markdown(html) {
+  return html
+    .replace(/(#+)\s*(.*)(\n|$)/g, (_, hashes, text) => {
+      const level = Math.min(5, hashes.length)
+      return `<h${level}>${text}</h${level}>`
+    })
+    .replace(/\*\*(.*)\*\*/g, '<b>$1</b>')
+    .replace(/_(.*)_/g, '<i>$1</i>')
+    .replace(/^- (.*)(\n|$)/gm, '<li>$1</li>')
+}
 
 export function sanitizeHtml(html = '') {
   return purify.sanitize(markdown(html), {

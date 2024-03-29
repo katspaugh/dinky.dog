@@ -139,7 +139,6 @@ input[disabled] {
 }
 
 .editor {
-  padding: 10px 14px;
 }
 
 .preview {
@@ -206,6 +205,7 @@ input[disabled] {
   overflow: auto;
   white-space: pre-wrap;
   overflow-wrap: break-word;
+  padding: 10px 14px;
 }
 
 .link-overlay {
@@ -230,6 +230,14 @@ input[disabled] {
 [contenteditable]:focus {
   border-radius: 4px;
   outline: none;
+}
+
+[contenteditable] h1,
+[contenteditable] h2,
+[contenteditable] h3,
+[contenteditable] h4,
+[contenteditable] h5 {
+  margin: 0;
 }
 
 [contenteditable] *:first-child {
