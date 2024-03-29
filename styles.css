@@ -80,6 +80,7 @@ input[disabled] {
 #app {
   height: 100vh;
   width: 100vw;
+  overflow: auto;
 }
 
 #app:not(.locked) .dragover {
@@ -401,12 +402,6 @@ path:hover {
 
 .locked path:hover {
   stroke: var(--edge-color);
-}
-
-.graph {
-  width: 100vw;
-  height: 100vh;
-  overflow: auto;
 }
 
 .pan {

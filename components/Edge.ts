@@ -4,15 +4,12 @@ import { throttle } from '../utils/debounce.js'
 export function Edge({ inactive = false } = {}) {
   let lastFromEl: HTMLElement | null = null
   let lastToEl: HTMLElement | null = null
-  let scrollElement: HTMLElement | null = null
+  const scrollElement = document.querySelector('#app') as HTMLElement
 
   const path = svgEl('path')
 
   const updatePath = throttle(() => {
     if (!lastFromEl || !lastToEl) return
-    if (!scrollElement) {
-      scrollElement = lastFromEl.closest('.graph')
-    }
     const { scrollLeft, scrollTop } = scrollElement
     const fromPoint = lastFromEl.getBoundingClientRect()
     const toPoint = lastToEl.getBoundingClientRect()

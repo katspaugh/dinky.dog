@@ -75,10 +75,6 @@ export function Graph({
   })
 
   const component = Component({
-    props: {
-      className: 'graph',
-    },
-
     children: [pan],
 
     render: ({ node = null, edge = null }) => {

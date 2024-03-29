@@ -5,6 +5,7 @@ export function DropContainer({ fileTypes, onDrop }) {
   const component = Component({
     style: {
       width: 'max-content',
+      height: 'max-content',
     },
   })
 
