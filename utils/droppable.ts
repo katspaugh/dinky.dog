@@ -1,3 +1,5 @@
+import { getScrollOffset } from './scroll-offset.js'
+
 const DRAGOVER_CLASS = 'dragover'
 
 export function makeDroppable({
@@ -9,8 +11,6 @@ export function makeDroppable({
   fileTypes: RegExp
   onDrop: (data: { x: number; y: number; type: string; data: string }) => void
 }) {
-  const scrollElement = document.querySelector('#app') as HTMLElement
-
   container.addEventListener('drop', (e) => {
     e.preventDefault()
 
@@ -18,8 +18,9 @@ export function makeDroppable({
 
     const file = e.dataTransfer?.files[0]
     if (file && fileTypes.test(file.type)) {
-      const x = e.clientX + scrollElement.scrollLeft
-      const y = e.clientY + scrollElement.scrollTop
+      const { offsetX, offsetY } = getScrollOffset()
+      const x = e.clientX + offsetX
+      const y = e.clientY + offsetY
 
       const reader = new FileReader()
       reader.onload = (e) => {

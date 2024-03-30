@@ -542,25 +542,6 @@ function init(appContainer, loadedState) {
   })
 }
 
-const DEMO = {
-  nodes: {
-    hello: {
-      props: { x: window.innerWidth / 3, y: 40, width: 260, height: 115 },
-      data: {
-        operatorData:
-          'Hello, dinky! 🐾 \n\n - Double-click to create cards\n - Press Escape to remove\n - Paste URLs to preview',
-      },
-    },
-  },
-}
-
-Persistance.loadState()
-  .catch(() => DEMO)
-  .then((newState) => {
-    newState = newState || DEMO
-    init(document.querySelector('#app'), Object.keys(newState).length === 1 ? { ...DEMO, ...newState } : newState)
-  })
-
 /* Console API */
 declare global {
   interface Window {
@@ -581,3 +562,24 @@ window.dinky = {
     }
   },
 }
+
+/* Init */
+
+const DEMO = {
+  nodes: {
+    hello: {
+      props: { x: window.innerWidth / 3, y: window.innerHeight / 10 },
+      data: {
+        operatorData:
+          'Hello, dinky! 🐾 \n\n- Double-click to create cards\n- Press Escape to remove\n- Paste URLs to preview',
+      },
+    },
+  },
+}
+
+Persistance.loadState()
+  .catch(() => DEMO)
+  .then((newState) => {
+    newState = newState || DEMO
+    init(document.querySelector('#app'), Object.keys(newState).length === 1 ? { ...DEMO, ...newState } : newState)
+  })

@@ -50,9 +50,15 @@ body {
   background-color: var(--background-color);
   color: var(--text-color);
   user-select: none;
+  width: 100vw;
+  height: 100vh;
 }
 
-body {
+#app {
+  width: 100vw;
+  height: 100vh;
+  overflow: auto;
+  position: relative;
 }
 
 input,
@@ -75,12 +81,6 @@ a:hover {
 
 input[disabled] {
   cursor: not-allowed;
-}
-
-#app {
-  height: 100vh;
-  width: 100vw;
-  overflow: auto;
 }
 
 #app:not(.locked) .dragover {
@@ -373,12 +373,14 @@ input[disabled] {
   display: none;
 }
 
-svg {
+.pan svg {
   position: absolute;
   z-index: 2;
   pointer-events: none;
   top: 0;
   left: 0;
+  width: 100%;
+  height: 100%;
 }
 
 path {
@@ -429,7 +431,7 @@ path:hover {
 }
 
 .sidebar {
-  position: absolute;
+  position: fixed;
   z-index: 10;
   width: 100vw;
   top: 0;
@@ -514,10 +516,12 @@ path:hover {
   opacity: 0.8;
   transition: opacity 0.1s;
   display: flex;
+  flex-wrap: wrap;
   gap: 6px;
   pointer-events: auto;
   cursor: default;
   justify-self: flex-start;
+  min-width: 30px;
 }
 
 .peers:hover {

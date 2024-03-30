@@ -1,22 +1,24 @@
 import { Component, svgEl } from '../utils/dom.js'
 import { throttle } from '../utils/debounce.js'
+import { getScrollOffset } from '../utils/scroll-offset.js'
 
 export function Edge({ inactive = false } = {}) {
   let lastFromEl: HTMLElement | null = null
   let lastToEl: HTMLElement | null = null
-  const scrollElement = document.querySelector('#app') as HTMLElement
-
   const path = svgEl('path')
 
   const updatePath = throttle(() => {
     if (!lastFromEl || !lastToEl) return
-    const { scrollLeft, scrollTop } = scrollElement
+
+    // Account for page scroll and zoom
+    const { offsetX, offsetY } = getScrollOffset()
+
     const fromPoint = lastFromEl.getBoundingClientRect()
     const toPoint = lastToEl.getBoundingClientRect()
-    const fromX = fromPoint.left + fromPoint.width / 2 + scrollLeft
-    const fromY = fromPoint.top + fromPoint.height / 2 + scrollTop
-    const toX = toPoint.left + toPoint.width / 2 + scrollLeft
-    const toY = toPoint.top + toPoint.height / 2 + scrollTop
+    const fromX = fromPoint.left + fromPoint.width / 2 + offsetX
+    const fromY = fromPoint.top + fromPoint.height / 2 + offsetY
+    const toX = toPoint.left + toPoint.width / 2 + offsetX
+    const toY = toPoint.top + toPoint.height / 2 + offsetY
 
     path.setAttribute('d', `M ${fromX} ${fromY} C ${fromX + 100} ${fromY} ${toX - 100} ${toY} ${toX} ${toY}`)
   }, 20)
