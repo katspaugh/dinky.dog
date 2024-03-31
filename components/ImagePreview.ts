@@ -6,7 +6,6 @@ export function ImagePreview() {
 
     style: {
       display: 'none',
-      width: '100%',
       pointerEvents: 'none',
     },
 
