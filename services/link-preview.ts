@@ -1,7 +1,7 @@
-const API_URL = 'https://link-preview.katspaugh.workers.dev/?q='
+const API_URL = 'https://preview.dinky.dog'
 
 export async function fetchPreview(url: string) {
-  const res = await fetch(API_URL + encodeURIComponent(url))
+  const res = await fetch(API_URL + '?q=' + encodeURIComponent(url))
   if (!res.ok) {
     throw new Error(`HTTP error! status: ${res.status}`)
   }

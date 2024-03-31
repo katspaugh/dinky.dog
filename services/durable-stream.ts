@@ -1,7 +1,7 @@
 import DurableStreamClient from 'https://esm.sh/durable-stream-client'
 
 const PROD_HOST = 'dinky.dog'
-const API_URL = 'durable_stream.katspaugh.workers.dev'
+const API_URL = 'stream.dinky.dog'
 const DEV_API_URL = 'localhost:8787'
 
 // Initialize the client

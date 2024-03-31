@@ -195,13 +195,14 @@ input[disabled] {
   margin: 2px;
   border-radius: 100%;
   border: 1px solid var(--border-color);
-  background-color: var(--point-color);
-  transition: background-color 0.2s;
+  background: var(--point-color);
+  transition: 0.2s;
 }
 
 .node button:hover::after {
-  border-color: var(--hover-color);
   background-color: var(--hover-color);
+  box-shadow: 1px 1px var(--shadow-color);
+  transform: scale(1.05);
 }
 
 [contenteditable] {

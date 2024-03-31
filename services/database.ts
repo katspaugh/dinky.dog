@@ -1,4 +1,4 @@
-const API_URL = 'https://dinky-state.katspaugh.workers.dev/'
+const API_URL = 'https://state.dinky.dog'
 
 export async function loadData(id: string) {
   const res = await fetch(API_URL + `?id=${encodeURIComponent(id)}`)

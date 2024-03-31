@@ -137,7 +137,10 @@ export function DinkyNode(id: string, { onClick, onInputClick, onOutputClick, on
       const isBg = isBackground()
       if (isBg !== _lastIsBg) {
         _lastIsBg = isBg
-        component.container.style.zIndex = isBg ? BG_Z_INDEX : DEFAULT_Z_INDEX
+        css(component.container, {
+          zIndex: isBg ? BG_Z_INDEX : DEFAULT_Z_INDEX,
+          opacity: isBg ? '0.6' : '1',
+        })
         content.style.boxShadow = isBg ? 'none' : ''
       }
 
