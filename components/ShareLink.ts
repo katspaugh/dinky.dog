@@ -6,6 +6,9 @@ export function ShareLink(label = '', onShare) {
 
   const component = Component({
     tag: 'label',
+    props: {
+      className: 'share-link',
+    },
     children: [button],
   })
 

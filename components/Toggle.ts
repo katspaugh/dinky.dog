@@ -1,7 +1,7 @@
 import { Component, el } from '../utils/dom.js'
 
 export function Toggle(label = '') {
-  const checkbox = el('input', { type: 'checkbox' })
+  const checkbox = el('input', { type: 'checkbox', style: { margin: '0' } })
 
   return Component({
     tag: 'label',
@@ -9,6 +9,7 @@ export function Toggle(label = '') {
     style: {
       display: 'flex',
       alignItems: 'center',
+      justifyContent: 'center',
       gap: '5px',
       userSelect: 'none',
     },

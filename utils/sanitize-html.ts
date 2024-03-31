@@ -12,6 +12,8 @@ function markdown(html: string) {
     .replace(/```(.+?)?\n?(.+?)\n?```/g, '<pre><code title="$1">$2</code></pre>')
     .replace(/`(.*)`/g, '<code>$1</code>')
     .replace(/^- (.*)(\n|$)/gm, '<li>$1</li>')
+    .replace(/ -- /g, ' — ')
+    .replace(/\n/g, '<br>')
 }
 
 export function sanitizeHtml(html = '') {

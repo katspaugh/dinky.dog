@@ -43,7 +43,7 @@ export function Sidebar({ onTitleChange, setLocked, savedFlows, onShare, onFork 
   children.push(lockToggle.render({ checked: false, onChange: setLocked }))
 
   // Share link
-  children.push(ShareLink('🔗 Share link', onShare).render())
+  children.push(ShareLink('Share link', onShare).render())
 
   const onForkClick = async () => {
     let id
