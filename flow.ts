@@ -265,7 +265,7 @@ export function initFlow({ width, height, ...callbacks }) {
 
       if (backgroundColor) {
         colorwheel.render({ color: backgroundColor })
-        document.body.style.backgroundColor = backgroundColor
+        document.documentElement.style.backgroundColor = backgroundColor
       }
     },
   })

@@ -1,5 +1,5 @@
 :root {
-  --background-color: #fffffa;
+  --background-color: #fffffa80;
   --text-color: #333;
   --secondary-text-color: #555;
   --link-color: #a52a2a;
@@ -25,7 +25,7 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background-color: #999;
+    --background-color: #99999980;
     --text-color: #fff;
     --secondary-text-color: #999;
     --edge-color: #444;
@@ -47,11 +47,18 @@ body {
   font-family: sans-serif;
   overflow: hidden;
   overscroll-behavior: none;
-  background-color: var(--background-color);
   color: var(--text-color);
   user-select: none;
   width: 100vw;
   height: 100vh;
+}
+
+html {
+  background-color: transparent;
+}
+
+body {
+  background-color: var(--background-color);
 }
 
 #app {
@@ -408,25 +415,12 @@ path:hover {
 .pan {
   cursor: crosshair;
   position: relative;
+  background-image: radial-gradient(circle, var(--grid-color) 1px, transparent 1px);
+  background-size: 30px 30px;
 }
 
 .locked .pan {
   cursor: default;
-}
-
-.pan:after {
-  content: '';
-  z-index: 1;
-  position: absolute;
-  left: 0;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  pointer-events: none;
-  background-color: var(--background-color);
-  background-image: radial-gradient(circle, var(--grid-color) 1px, transparent 1px);
-  background-size: 30px 30px;
-  opacity: 0.5;
 }
 
 .sidebar {
