@@ -1,11 +1,16 @@
 import { throttle } from '../utils/debounce.js'
 import { Component, el, css } from '../utils/dom.js'
+import { replaceEmoji } from '../utils/emoji-parse.js'
 import { sanitizeHtml } from '../utils/sanitize-html.js'
 import { LinkOverlay } from './LinkOverlay.js'
+import { EmojiMenu } from './EmojiMenu.js'
 
 const INITIAL_WIDTH = 130
 const INITIAL_HEIGHT = 55
-const INPUT_THROTTLE = 300
+const INPUT_THROTTLE = 100
+
+const emojiMenu = EmojiMenu()
+document.body.append(emojiMenu.container)
 
 export function EditableText({ onInput }: { onInput?: (html: string) => void }) {
   let lastValue = ''
@@ -13,10 +18,27 @@ export function EditableText({ onInput }: { onInput?: (html: string) => void }) 
 
   const linkOverlay = LinkOverlay()
 
+  const onEmojiSelect = (shortCode: string, emoji: string) => {
+    editor.innerHTML = replaceEmoji(editor.innerHTML, shortCode, emoji)
+    onEdit()
+
+    // Put the caret at the end of the editor
+    const range = document.createRange()
+    range.selectNodeContents(editor)
+    range.collapse(false)
+    const selection = window.getSelection()
+    selection.removeAllRanges()
+    selection.addRange(range)
+  }
+
   const onEdit = () => {
     const html = sanitizeHtml(editor.innerHTML)
     lastValue = html
     onInput && onInput(html)
+
+    // Text before the caret
+    const text = editor.textContent.slice(0, window.getSelection().focusOffset)
+    emojiMenu.render({ text, onSelect: onEmojiSelect })
   }
 
   const editor = el('div', {

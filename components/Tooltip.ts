@@ -5,18 +5,11 @@ export function Tooltip() {
   let showTimer: ReturnType<typeof setTimeout> | null = null
 
   const component = Component({
-    style: {
-      position: 'absolute',
-      zIndex: '1000',
-      padding: '8px',
-      background: '#fafafa',
-      color: '#333',
-      border: '1px solid #ccc',
-      boxShadow: '2px 2px 4px rgba(0,0,0,0.2)',
-      pointerEvents: 'none',
+    props: {
+      className: 'tooltip',
     },
 
-    render: ({ x, y, content = '', delay = 0, expire = 0 }) => {
+    render: ({ x, y, content, delay = 0, expire = 0 }) => {
       const { container } = component
 
       expireTimer && clearTimeout(expireTimer)
@@ -36,7 +29,8 @@ export function Tooltip() {
           })
         }
 
-        container.innerHTML = content
+        container.innerHTML = ''
+        container.append(content)
         container.style.display = ''
 
         if (expire) {
