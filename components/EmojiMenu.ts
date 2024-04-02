@@ -36,16 +36,15 @@ export function EmojiMenu() {
     if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
       e.preventDefault()
       const selected = menu.querySelector('li:focus')
-      const next = e.key === 'ArrowDown' ? selected?.nextElementSibling : selected?.previousElementSibling
+      const next = ((e.key === 'ArrowDown' ? selected?.nextElementSibling : selected?.previousElementSibling) ||
+        menu.firstElementChild) as HTMLElement
       if (next) {
         next.focus()
-      } else {
-        menu.children[0].focus()
       }
     } else if (e.key === 'Enter') {
       const selected = menu.querySelector('li:focus')
       if (selected) {
-        selected.click()
+        ; (selected as HTMLElement).click()
         e.preventDefault()
         e.stopPropagation()
       }
@@ -71,7 +70,8 @@ export function EmojiMenu() {
       }
 
       if (isCompleteEmoji(text, matchingEmoji[0][0])) {
-        onSelect(...matchingEmoji)
+        const [shortCode, emoji] = matchingEmoji[0]
+        onSelect(shortCode, emoji)
         tooltip.render({})
         return
       }

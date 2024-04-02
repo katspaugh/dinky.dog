@@ -34,6 +34,10 @@ export function Menu(title = '', className = '') {
           if (a.href === location.href) {
             a.classList.add('active')
           }
+          if (a.host !== location.host) {
+            a.target = '_blank'
+            a.rel = 'noopener'
+          }
           content = a
         }
 
