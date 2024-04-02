@@ -101,6 +101,7 @@ input[disabled] {
 
 .node {
   position: absolute;
+  z-index: 2;
 }
 
 .card {

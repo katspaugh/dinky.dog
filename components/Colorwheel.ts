@@ -41,7 +41,7 @@ export function Colorwheel({
     },
   })
 
-  input.setAttribute('list', 'colors')
+  input.setAttribute('list', _datalist.id)
 
   return Component({
     style,

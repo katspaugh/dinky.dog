@@ -11,7 +11,7 @@ const MAX_WIDTH = 200
 const DEFAULT_BACKGROUND = '#f9f9f9'
 const BG_THRESHOLD = 100e3
 const BG_Z_INDEX = '1'
-const DEFAULT_Z_INDEX = '2'
+const BG_OPACITY = '0.6'
 const ACTIVE_Z_INDEX = '10'
 
 export function DinkyNode(id: string, { onClick, onInputClick, onOutputClick, onDrag, onResize, onBackgroundChange }) {
@@ -96,13 +96,18 @@ export function DinkyNode(id: string, { onClick, onInputClick, onOutputClick, on
       className: 'node',
     },
 
-    style: {
-      zIndex: DEFAULT_Z_INDEX,
-    },
-
     children: [content],
 
-    render: ({ x, y, width, height, background, children = null, selected = false, clientId = null }) => {
+    render: ({
+      x,
+      y,
+      width,
+      height,
+      background = DEFAULT_BACKGROUND,
+      children = null,
+      selected = false,
+      clientId = null,
+    }) => {
       // Position
       if (x != null && y != null && (x !== _x || y !== _y)) {
         _x = x
@@ -138,8 +143,8 @@ export function DinkyNode(id: string, { onClick, onInputClick, onOutputClick, on
       if (isBg !== _lastIsBg) {
         _lastIsBg = isBg
         css(component.container, {
-          zIndex: isBg ? BG_Z_INDEX : DEFAULT_Z_INDEX,
-          opacity: isBg ? '0.6' : '1',
+          zIndex: isBg ? BG_Z_INDEX : '',
+          opacity: isBg ? BG_OPACITY : '',
         })
         content.style.boxShadow = isBg ? 'none' : ''
       }
@@ -148,7 +153,7 @@ export function DinkyNode(id: string, { onClick, onInputClick, onOutputClick, on
       if (selected != null && selected !== _selected) {
         _selected = selected
         content.classList.toggle('active', selected)
-        component.container.style.zIndex = isBg ? BG_Z_INDEX : selected ? ACTIVE_Z_INDEX : DEFAULT_Z_INDEX
+        component.container.style.zIndex = isBg ? BG_Z_INDEX : selected ? ACTIVE_Z_INDEX : ''
       }
 
       // Peer indicator
