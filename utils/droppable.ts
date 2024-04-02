@@ -9,7 +9,7 @@ export function makeDroppable({
 }: {
   container: HTMLElement
   fileTypes: RegExp
-  onDrop: (data: { x: number; y: number; type: string; data: string }) => void
+  onDrop: ({ x, y, file }: { x: number; y: number; file: File }) => void
 }) {
   container.addEventListener('drop', (e) => {
     e.preventDefault()
@@ -21,12 +21,7 @@ export function makeDroppable({
       const { offsetX, offsetY } = getScrollOffset()
       const x = e.clientX + offsetX
       const y = e.clientY + offsetY
-
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        onDrop({ x, y, type: file.type, data: String(e.target?.result) })
-      }
-      reader.readAsDataURL(file)
+      onDrop({ x, y, file })
     }
   })
 

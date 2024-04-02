@@ -5,6 +5,7 @@ import * as Operators from './operators/index.js'
 import * as Persistance from './persist.js'
 import * as realtime from './realtime.js'
 import { randomId } from './utils/random.js'
+import { uploadImage } from './services/images.js'
 
 const WIDTH = 5000
 const HEIGHT = 5000
@@ -116,13 +117,17 @@ function updateNode(id: string, props: Partial<NodeProps>, clientId?: string) {
 }
 
 function updateNodeData(id: string, data: NodeData, clientId?: string) {
-  const node = state.nodes[id]
+  const node = getUnlockedNode(id)
   if (!node) return
   const operatorType = data.operatorType || node.data.operatorType || Operators.Text.name
-  const operator = Operators[operatorType](data.operatorData)
-  node.operator.destroy()
-  node.operator = operator
-  _flow.render({ node: { ...node.props, id, children: node.operator.render(), clientId } })
+  if (operatorType !== node.data.operatorType) {
+    const operator = Operators[operatorType](data.operatorData)
+    node.operator.destroy()
+    node.operator = operator
+    _flow.render({ node: { ...node.props, id, children: node.operator.render(), clientId } })
+  } else {
+    node.operator.output.next(data.operatorData)
+  }
 }
 
 function connectNodes(outputId, inputId, attempt = 0) {
@@ -192,11 +197,31 @@ function onEmptyClick(x, y) {
   }
 }
 
-function onDrop({ x, y, fileType, data }) {
+async function onDrop({ x, y, file }) {
   if (state.isLocked) return
 
-  const id = randomId() + fileType
-  onCreateNode(id, { x, y, background: _lastBackground }, { operatorType: Operators.Image.name, operatorData: data })
+  const id = randomId() + file.type
+  onCreateNode(id, { x, y, background: _lastBackground }, { operatorType: Operators.Image.name })
+
+  let fileUrl = ''
+  let error: Error | null = null
+  try {
+    fileUrl = await uploadImage(file)
+  } catch (e) {
+    console.error('Failed to upload the image', e)
+    error = e
+  }
+
+  updateNodeData(id, {
+    operatorType: error ? Operators.Text.name : Operators.Image.name,
+    operatorData: error ? error.message : fileUrl,
+  })
+
+  if (error) {
+    setTimeout(() => onRemoveNode(id), 1000)
+  } else {
+    persist()
+  }
 }
 
 function getUnlockedNode(id) {

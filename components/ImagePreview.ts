@@ -1,31 +1,35 @@
-import { Component } from '../utils/dom.js'
+import { Component, el } from '../utils/dom.js'
+import { API_URL as IMAGE_API_URL } from '../services/images.js'
 
-export function ImagePreview() {
+export function ImagePreview({ className = '' } = {}) {
   const component = Component({
-    tag: 'iframe',
+    props: {
+      className: 'image-preview' + (className ? ' ' + className : ''),
+    },
 
     style: {
       display: 'none',
-      pointerEvents: 'none',
     },
 
     render: ({ src = '' }) => {
-      if (!src) return
-
       const { container } = component
-      component.container.style.display = 'block'
-      container.setAttribute('sandbox', '')
 
-      container.setAttribute(
-        'src',
-        'data:text/html,' +
-        encodeURIComponent(
-          `
-           <style>* { margin: 0; padding: 0; }</style>
-           <img src="${src}" style="display: block; width: 100%; height: auto;" />
-          `,
-        ),
-      )
+      if (!src) {
+        container.innerHTML = ''
+        container.style.display = 'none'
+        return
+      }
+
+      if (src.startsWith(IMAGE_API_URL)) {
+        container.innerHTML = `<img src="${src}" />`
+      } else {
+        const iframeContent = encodeURIComponent(
+          `<style>* { margin: 0; padding: 0; }</style><img src="${src}" style="display: block; width: 100%; height: auto;" />`,
+        )
+        container.innerHTML = `<iframe sandbox="" src="data:text/html,${iframeContent}" />`
+      }
+
+      container.style.display = 'block'
     },
   })
 
