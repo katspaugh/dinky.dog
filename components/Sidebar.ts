@@ -46,7 +46,7 @@ export function Sidebar({ onTitleChange, setLocked, savedFlows, onShare, onFork 
   children.push(ShareLink('Share link', onShare).render())
 
   const onForkClick = async () => {
-    let id
+    let id = ''
     try {
       id = await onFork()
     } catch (e) {

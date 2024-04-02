@@ -118,11 +118,12 @@ input[disabled] {
 
 #app:not(.locked) .card:hover {
   border-color: var(--hover-color);
+  outline: 1px solid var(--hover-color);
 }
 
 #app:not(.locked) .card.active {
   border-color: var(--hover-color);
-  outline: 1px solid var(--hover-color);
+  outline: 2px solid var(--hover-color);
 }
 
 @keyframes jiggle {
