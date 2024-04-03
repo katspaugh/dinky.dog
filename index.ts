@@ -590,21 +590,43 @@ window.dinky = {
 
 /* Init */
 
-const DEMO = {
-  nodes: {
-    hello: {
-      props: { x: window.innerWidth / 3, y: window.innerHeight / 10 },
+const appEl = document.querySelector('#app') as HTMLElement
+const data = appEl.innerHTML
+if (data) {
+  const newState = {
+    isLocked: true,
+    title: data.match(/<h1>(.+)<\/h1>/)?.[1] || '',
+    nodes: {
       data: {
-        operatorData:
-          'Hello, dinky! 🐾 \n\n- Double-click to create cards\n- Press Escape to remove\n- Paste URLs to preview',
+        props: {
+          x: 40,
+          y: 40,
+          width: Math.min(window.innerWidth - 80, 800),
+          height: Math.max(window.innerHeight - 80, 600),
+        },
+        data: { operatorData: data },
       },
     },
-  },
-}
+  }
+  appEl.innerHTML = ''
+  init(appEl, newState)
+} else {
+  const DEMO = {
+    nodes: {
+      hello: {
+        props: { x: window.innerWidth / 3, y: window.innerHeight / 10 },
+        data: {
+          operatorData:
+            'Hello, dinky! 🐾 \n\n- Double-click to create cards\n- Press Escape to remove\n- Paste URLs to preview',
+        },
+      },
+    },
+  }
 
-Persistance.loadState()
-  .catch(() => DEMO)
-  .then((newState) => {
-    newState = newState || DEMO
-    init(document.querySelector('#app'), Object.keys(newState).length === 1 ? { ...DEMO, ...newState } : newState)
-  })
+  Persistance.loadState()
+    .catch(() => DEMO)
+    .then((newState) => {
+      newState = newState || DEMO
+      init(appEl, Object.keys(newState).length === 1 ? { ...DEMO, ...newState } : newState)
+    })
+}

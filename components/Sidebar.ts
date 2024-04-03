@@ -64,6 +64,8 @@ export function Sidebar({ onTitleChange, setLocked, savedFlows, onShare, onFork 
       items: [
         { content: '⑂ Fork flow', separator: true, onClick: onForkClick },
         { content: 'About', href: makeUrl('about-9315ba924c9d16e632145116d69ae72a') },
+        { content: 'Terms of service', href: '/terms.html' },
+        { content: 'Privacy policy', href: '/privacy.html' },
         { content: 'GitHub', href: 'https://github.com/katspaugh/dinky.dog' },
       ],
     }),
