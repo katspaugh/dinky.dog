@@ -4,7 +4,7 @@ import { ImagePreview } from '../components/ImagePreview.js'
 export function Image(src = '') {
   const inputStream = new Stream()
   const outputStream = new Stream()
-  const component = ImagePreview({ className: 'image-card' })
+  const component = ImagePreview()
 
   outputStream.subscribe((src) => {
     component.render({ src })

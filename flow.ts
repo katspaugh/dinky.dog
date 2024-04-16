@@ -109,6 +109,10 @@ function renderNode({ id, clientId, ...nodeProps }) {
       _callbacks.onResize(id, dx, dy, width, height)
     },
 
+    onResizeReset: () => {
+      _callbacks.onResizeReset(id)
+    },
+
     onBackgroundChange: (background) => {
       _callbacks.onBackgroundChange(id, background)
     },

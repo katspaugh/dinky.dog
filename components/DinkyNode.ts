@@ -14,7 +14,10 @@ const BG_Z_INDEX = '1'
 const BG_OPACITY = '0.6'
 const ACTIVE_Z_INDEX = '10'
 
-export function DinkyNode(id: string, { onClick, onInputClick, onOutputClick, onDrag, onResize, onBackgroundChange }) {
+export function DinkyNode(
+  id: string,
+  { onClick, onInputClick, onOutputClick, onDrag, onResize, onResizeReset, onBackgroundChange },
+) {
   const input = el('button')
   const output = el('button')
 
@@ -32,6 +35,7 @@ export function DinkyNode(id: string, { onClick, onInputClick, onOutputClick, on
       _width = component.container.offsetWidth
       _height = component.container.offsetHeight
     },
+    onResizeReset,
   })
 
   // Peer indicator
@@ -123,6 +127,16 @@ export function DinkyNode(id: string, { onClick, onInputClick, onOutputClick, on
           maxWidth: '',
           width: `${width}px`,
           height: `${height}px`,
+        })
+      } else if (width == null && width !== _width && height == null && height !== _height) {
+        // Reset size
+        _width = width
+        _height = height
+
+        css(content, {
+          maxWidth: `${MAX_WIDTH}px`,
+          width: '',
+          height: '',
         })
       }
 

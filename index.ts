@@ -201,27 +201,27 @@ async function onDrop({ x, y, file }) {
   if (state.isLocked) return
 
   const id = randomId() + file.type
-  onCreateNode(id, { x, y, background: _lastBackground }, { operatorType: Operators.Image.name })
 
-  let fileUrl = ''
-  let error: Error | null = null
+  // Preview the image from local data
+  const reader = new FileReader()
+  reader.onload = (e) => {
+    onCreateNode(
+      id,
+      { x, y, background: _lastBackground },
+      { operatorType: Operators.Image.name, operatorData: String(e.target?.result) },
+    )
+  }
+  reader.readAsDataURL(file)
+
+  // Upload the image to the server
   try {
-    fileUrl = await uploadImage(file)
+    const fileUrl = await uploadImage(file)
+    updateNodeData(id, { operatorData: fileUrl })
   } catch (e) {
     console.error('Failed to upload the image', e)
-    error = e
   }
 
-  updateNodeData(id, {
-    operatorType: error ? Operators.Text.name : Operators.Image.name,
-    operatorData: error ? error.message : fileUrl,
-  })
-
-  if (error) {
-    setTimeout(() => onRemoveNode(id), 1000)
-  } else {
-    persist()
-  }
+  persist()
 }
 
 function getUnlockedNode(id) {
@@ -331,6 +331,15 @@ function onResize(id, dx, dy, width, height) {
   onNodeUpate(id, {
     width: Math.max(MIN_WIDTH, Math.round(width + dx)),
     height: Math.max(MIN_HEIGHT, Math.round(height + dy)),
+  })
+}
+
+function onResizeReset(id, dx, dy, width, height) {
+  if (state.isLocked) return
+  const { props } = state.nodes[id]
+  onNodeUpate(id, {
+    width: undefined,
+    height: undefined,
   })
 }
 
@@ -538,6 +547,7 @@ function init(appContainer, loadedState) {
     onDisconnect,
     onDrag,
     onResize,
+    onResizeReset,
     onBackgroundChange,
     onDelete,
     onMainBackgroundChange,
