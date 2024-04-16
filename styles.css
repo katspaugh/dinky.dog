@@ -191,13 +191,9 @@ input[disabled] {
   position: absolute;
   z-index: 5;
   top: 50%;
-  left: 0;
+  left: 100%;
   border: none;
   background: none;
-}
-
-.node button:nth-of-type(2) {
-  left: 100%;
 }
 
 .node button::after {
@@ -226,7 +222,8 @@ input[disabled] {
   overflow: auto;
   white-space: pre-wrap;
   overflow-wrap: break-word;
-  padding: 10px 14px;
+  padding: 8px;
+  padding-right: 20px;
 }
 
 .link-overlay {

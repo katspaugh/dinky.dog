@@ -14,12 +14,10 @@ type EdgeItem = {
 let _graph: ReturnType<typeof Component>
 let _nodes: Record<string, ReturnType<typeof DinkyNode>> = {}
 let _edges: EdgeItem[] = []
-let _currentInput = null
 let _currentOutput = null
 let _callbacks: Record<string, (...args: any[]) => void> = {}
 
 function resetCurrentConnections() {
-  _currentInput = null
   _currentOutput = null
 }
 
@@ -82,23 +80,14 @@ function renderNode({ id, clientId, ...nodeProps }) {
   }
 
   const onConnect = () => {
-    _callbacks.onConnect(_currentOutput || id, _currentInput || id)
+    _callbacks.onConnect(_currentOutput || id)
     resetCurrentConnections()
   }
 
   const node = DinkyNode(id, {
-    onInputClick: () => {
-      _currentInput = id
-      if (_currentOutput) {
-        onConnect()
-      }
-    },
-
     onOutputClick: () => {
       _currentOutput = id
-      if (_currentInput) {
-        onConnect()
-      }
+      onConnect()
     },
 
     onDrag: (dx, dy) => {
@@ -118,7 +107,7 @@ function renderNode({ id, clientId, ...nodeProps }) {
     },
 
     onClick: () => {
-      if (_currentOutput || _currentInput) {
+      if (_currentOutput) {
         onConnect()
       } else {
         _callbacks.onUnselect()
@@ -132,7 +121,7 @@ function renderNode({ id, clientId, ...nodeProps }) {
   _graph.render({ node: container })
 
   // Immediately connect to the current input/output
-  if (_currentOutput || _currentInput) {
+  if (_currentOutput) {
     onConnect()
   }
 
@@ -169,9 +158,7 @@ function initGraph(width, height) {
     },
 
     onPointerMove: (x, y) => {
-      const currentStart = _currentInput || _currentOutput
-
-      if (!currentStart) {
+      if (!_currentOutput) {
         resetMouseEdge()
         return
       }
@@ -181,7 +168,7 @@ function initGraph(width, height) {
         graph.render({ edge: mouseEdge.container })
       }
 
-      const start = _currentOutput ? _nodes[currentStart].output : _nodes[currentStart].input
+      const start = _nodes[_currentOutput].output
       const end = { getBoundingClientRect: () => ({ left: x, top: y, width: 0, height: 0 }) }
 
       mouseEdge.render({ fromEl: _currentOutput ? start : end, toEl: _currentOutput ? end : start })

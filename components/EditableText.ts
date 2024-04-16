@@ -15,7 +15,6 @@ document.body.append(emojiMenu.container)
 export function EditableText({ onInput }: { onInput?: (html: string) => void }) {
   let lastValue = ''
   let resetSize = false
-  let isClicked = false
 
   const linkOverlay = LinkOverlay()
 
@@ -63,8 +62,6 @@ export function EditableText({ onInput }: { onInput?: (html: string) => void }) 
     },
 
     onblur: () => {
-      isClicked = false
-
       onEdit()
       update(lastValue)
       editor.scrollLeft = 0
@@ -79,18 +76,10 @@ export function EditableText({ onInput }: { onInput?: (html: string) => void }) 
     },
 
     onclick: (e) => {
-      isClicked = true
-
       const link = (e.target as HTMLElement).closest('a')
       if (link) {
         e.preventDefault()
         window.open(link.href, '_blank')
-      }
-    },
-
-    onpointermove: (e) => {
-      if (isClicked) {
-        e.stopPropagation()
       }
     },
   })

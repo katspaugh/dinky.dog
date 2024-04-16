@@ -14,11 +14,7 @@ const BG_Z_INDEX = '1'
 const BG_OPACITY = '0.6'
 const ACTIVE_Z_INDEX = '10'
 
-export function DinkyNode(
-  id: string,
-  { onClick, onInputClick, onOutputClick, onDrag, onResize, onResizeReset, onBackgroundChange },
-) {
-  const input = el('button')
+export function DinkyNode(id: string, { onClick, onOutputClick, onDrag, onResize, onResizeReset, onBackgroundChange }) {
   const output = el('button')
 
   // Color wheel
@@ -57,15 +53,12 @@ export function DinkyNode(
       onclick: (e) => {
         if (e.target === output) {
           onOutputClick()
-        } else if (e.target === input) {
-          onInputClick()
         } else {
           onClick()
         }
       },
     },
     [
-      input,
       output,
       resizeHandle.container,
       colorwheel.render({
@@ -178,7 +171,7 @@ export function DinkyNode(
   return {
     ...component,
 
-    input,
+    input: content,
 
     output,
   }
