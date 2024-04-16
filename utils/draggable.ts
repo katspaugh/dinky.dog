@@ -44,7 +44,10 @@ export function makeDraggable(
 
   const onPointerMove = (e) => {
     if (!isPointerDown) return
-    if (isTouchDevice && Date.now() - touchStart < touchDelay) return
+    if (isTouchDevice && Date.now() - touchStart < touchDelay) {
+      touchStart = Date.now()
+      return
+    }
 
     e.preventDefault()
     e.stopPropagation()
