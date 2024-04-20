@@ -79,15 +79,14 @@ function renderNode({ id, clientId, ...nodeProps }) {
     return
   }
 
-  const onConnect = () => {
-    _callbacks.onConnect(_currentOutput || id)
+  const onConnect = (connectedId) => {
+    _callbacks.onConnect(connectedId, id)
     resetCurrentConnections()
   }
 
   const node = DinkyNode(id, {
     onOutputClick: () => {
       _currentOutput = id
-      onConnect()
     },
 
     onDrag: (dx, dy) => {
@@ -108,7 +107,7 @@ function renderNode({ id, clientId, ...nodeProps }) {
 
     onClick: () => {
       if (_currentOutput) {
-        onConnect()
+        onConnect(_currentOutput)
       } else {
         _callbacks.onUnselect()
         _callbacks.onSelect(id)
@@ -122,7 +121,7 @@ function renderNode({ id, clientId, ...nodeProps }) {
 
   // Immediately connect to the current input/output
   if (_currentOutput) {
-    onConnect()
+    onConnect(_currentOutput)
   }
 
   renderPeerIndicator(id, clientId)
@@ -147,7 +146,7 @@ function initGraph(width, height) {
     },
 
     onClick: (x, y) => {
-      if (_currentOutput || _currentOutput) {
+      if (_currentOutput) {
         _callbacks.onEmptyClick(x, y)
       }
     },
@@ -168,10 +167,10 @@ function initGraph(width, height) {
         graph.render({ edge: mouseEdge.container })
       }
 
-      const start = _nodes[_currentOutput].output
-      const end = { getBoundingClientRect: () => ({ left: x, top: y, width: 0, height: 0 }) }
+      const fromEl = _nodes[_currentOutput].output
+      const toEl = { getBoundingClientRect: () => ({ left: x, top: y, width: 0, height: 0 }) }
 
-      mouseEdge.render({ fromEl: _currentOutput ? start : end, toEl: _currentOutput ? end : start })
+      mouseEdge.render({ fromEl, toEl })
     },
 
     onPointerUp: () => {

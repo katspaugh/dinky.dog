@@ -600,8 +600,7 @@ path:hover {
   height: 23px;
   padding: 4px;
   background: url('/images/dinky-small.png') center no-repeat;
-  background-size: 80%;
-  transform: rotateY(180deg);
+  background-size: 70%;
   pointer-events: none;
 }
 
