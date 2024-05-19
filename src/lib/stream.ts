@@ -11,20 +11,29 @@ export class Stream {
 
   connect(stream: Stream) {
     this._listeners.push(stream)
-
-    Promise.resolve().then(() => {
-      stream.next(this._lastValue, this._id)
-    })
   }
 
   disconnect(stream: Stream) {
     this._listeners = this._listeners.filter((s) => s !== stream)
-
-    Promise.resolve().then(() => {
-      stream.next(undefined, this._id)
-    })
   }
 
+  filter(fn: (value: any) => boolean): Stream {
+    const stream = new Stream()
+    this.subscribe((value, from) => {
+      if (fn(value)) {
+        stream.next(value, from)
+      }
+    })
+    return stream
+  }
+
+  map(fn: (value: any) => any): Stream {
+    const stream = new Stream()
+    this.subscribe((value, from) => {
+      stream.next(fn(value), from)
+    })
+    return stream
+  }
   next(value: any, from = this._id) {
     this._lastValue = value
     this._listeners.forEach((s) => s.next(value, from))

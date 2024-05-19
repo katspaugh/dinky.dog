@@ -1,8 +1,8 @@
-export function makeDraggable(
+export function draggable(
   element: HTMLElement | SVGElement,
   onDrag: (dx: number, dy: number, x: number, y: number) => void,
   onStart?: (x: number, y: number) => void,
-  onEnd?: () => void,
+  onEnd?: (x: number, y: number) => void,
   threshold = 3,
   touchDelay = 100,
 ) {
@@ -12,6 +12,8 @@ export function makeDraggable(
   let isDragging = false
   let startX = 0
   let startY = 0
+  let lastX = 0
+  let lastY = 0
   let touchStart = 0
   const isTouchDevice = matchMedia('(pointer: coarse)').matches
 
@@ -38,7 +40,10 @@ export function makeDraggable(
         isDragging = false
       }, 300)
 
-      onEnd?.()
+      const rect = element.getBoundingClientRect()
+      const x = lastX - rect.left
+      const y = lastY - rect.top
+      onEnd?.(x, y)
     }
   }
 
@@ -57,9 +62,13 @@ export function makeDraggable(
     const dx = x - startX
     const dy = y - startY
 
+    lastX = x
+    lastY = y
+
     if (isDragging || Math.abs(dx) > threshold || Math.abs(dy) > threshold) {
       if (!isDragging) {
-        onStart?.(startX, startY)
+        const rect = element.getBoundingClientRect()
+        onStart?.(startX - rect.left, startY - rect.top)
         isDragging = true
       }
 
