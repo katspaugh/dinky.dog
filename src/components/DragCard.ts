@@ -1,12 +1,17 @@
 import { Component } from '../lib/component.js'
 import { Card } from './Card.js'
-import { Connector } from './Connector.js'
-import { Draggable } from './Draggable.js'
+import { Connector, type ConnectorEvents } from './Connector.js'
+import { Draggable, type DraggableEvents } from './Draggable.js'
 
-export class DragCard extends Component {
+type DragCardEvents = {
+  click: {}
+} & DraggableEvents &
+  ConnectorEvents
+
+export class DragCard extends Component<DragCardEvents> {
   private connector: Connector
 
-  constructor() {
+  constructor({ x, y }: { x: number; y: number }) {
     const draggable = new Draggable()
     const card = new Card()
     const connector = new Connector()
@@ -14,7 +19,11 @@ export class DragCard extends Component {
     super(draggable.container, {
       onclick: (e: MouseEvent) => {
         e.preventDefault()
-        this.output.next({ event: 'click' })
+        this.emit('click', {})
+      },
+
+      ondblclick: (e: MouseEvent) => {
+        e.stopPropagation()
       },
     })
 
@@ -29,6 +38,8 @@ export class DragCard extends Component {
 
     draggable.container.appendChild(card.container)
     card.container.appendChild(connector.container)
+
+    this.input.next({ x, y })
   }
 
   getConnectionPoint() {

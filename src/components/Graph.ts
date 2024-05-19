@@ -1,11 +1,11 @@
 import { Component } from '../lib/component.js'
 import { Svg } from './Svg.js'
-import { Pan } from './Pan.js'
+import { Pan, type PanEvents } from './Pan.js'
 
 const WIDTH = 5000
 const HEIGHT = 5000
 
-export class Graph extends Component {
+export class Graph extends Component<PanEvents> {
   private svg: Svg
   private pan: Pan
 

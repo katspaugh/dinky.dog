@@ -1,7 +1,14 @@
 import { Component } from '../lib/component.js'
 import { getRelativeCoords } from '../lib/dom.js'
 
-export class Pan extends Component {
+export type PanEvents = {
+  click: { x: number; y: number }
+  dblclick: { x: number; y: number }
+  pointermove: { x: number; y: number }
+  escape: {}
+}
+
+export class Pan extends Component<PanEvents> {
   constructor({ width, height }: { width: number; height: number }) {
     super('div', {
       style: {
@@ -11,24 +18,21 @@ export class Pan extends Component {
       },
 
       onclick: (e: MouseEvent) => {
-        this.output.next({
-          event: 'click',
-          ...getRelativeCoords(e),
-        })
+        this.emit('click', getRelativeCoords(e))
       },
 
       ondblclick: (e: MouseEvent) => {
-        this.output.next({
-          event: 'dblclick',
-          ...getRelativeCoords(e),
-        })
+        this.emit('dblclick', getRelativeCoords(e))
       },
 
       onpointermove: (e: PointerEvent) => {
-        this.output.next({
-          event: 'pointermove',
-          ...getRelativeCoords(e),
-        })
+        this.emit('pointermove', getRelativeCoords(e))
+      },
+
+      onkeydown: (e: KeyboardEvent) => {
+        if (e.key === 'Escape') {
+          this.emit('escape', {})
+        }
       },
     })
   }

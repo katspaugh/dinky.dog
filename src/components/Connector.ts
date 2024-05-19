@@ -1,6 +1,10 @@
 import { Component } from '../lib/component.js'
 
-export class Connector extends Component {
+export type ConnectorEvents = {
+  connector: {}
+}
+
+export class Connector extends Component<ConnectorEvents> {
   constructor() {
     super('button', {
       style: {
@@ -21,8 +25,7 @@ export class Connector extends Component {
       onclick: (e) => {
         e.stopPropagation()
         e.preventDefault()
-        const rect = this.container.getBoundingClientRect()
-        this.output.next({ event: 'connector', x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 })
+        this.emit('connector', {})
       },
     })
   }

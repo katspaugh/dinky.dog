@@ -1,7 +1,12 @@
 import { Component } from '../lib/component.js'
 import { draggable } from '../lib/draggable.js'
 
-export class Draggable extends Component {
+export type DraggableEvents = {
+  drag: { dx: number; dy: number }
+  dragstart: { x: number; y: number }
+}
+
+export class Draggable extends Component<DraggableEvents> {
   constructor() {
     super('div', {
       style: {
@@ -21,10 +26,16 @@ export class Draggable extends Component {
       }
     })
 
-    draggable(this.container, (dx, dy) => {
-      this.input.next({ x: x + dx, y: y + dy })
-      this.output.next({ event: 'drag', dx, dy })
-    })
+    draggable(
+      this.container,
+      (dx, dy) => {
+        this.input.next({ x: x + dx, y: y + dy })
+        this.emit('drag', { dx, dy })
+      },
+      (x, y) => {
+        this.emit('dragstart', { x, y })
+      },
+    )
   }
 
   render(props: { x: number; y: number }) {

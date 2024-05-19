@@ -13,7 +13,7 @@ input.output.subscribe((props) => {
 
 flow.input.next({
   cards: [
-    { id: '1', x: 100, y: 100, connections: [] },
+    { id: '1', x: 100, y: 100, connections: [], content: 'Hello world' },
     { id: '2', x: 500, y: 150, connections: ['1'] },
   ],
 })
