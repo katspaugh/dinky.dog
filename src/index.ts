@@ -1,6 +1,8 @@
 import { Component } from './lib/component.js'
 import { Flow } from './components/Flow.js'
-//import { initDurableStream } from './lib/durable-stream.js'
+import { initDurableStream } from './lib/durable-stream.js'
+
+const clientId = navigator.userAgent
 
 async function init() {
   const appContainer = new Component('div')
@@ -18,28 +20,26 @@ async function init() {
   document.body.append(appContainer.container)
 
   // Durable stream
-  // const durableClient = await initDurableStream({
-  //   subject: 'test2',
-  //   clientId: navigator.userAgent,
-  //   lastSequence: 0,
-  //   onMessage: (msg) => {
-  //     console.log('Received message', msg)
+  const durableClient = await initDurableStream({
+    subject: 'test2',
+    clientId: navigator.userAgent,
+    lastSequence: 0,
+    onMessage: (msg) => {
+      console.log('Received message', msg)
 
-  //     if (msg.data.command && msg.data.command in flow) {
-  //       flow[msg.data.command](msg.data.params)
-  //     }
-  //   },
-  // })
+      if (msg.data.command && msg.data.command in flow) {
+        flow[msg.data.command](msg.data.params)
+      }
+    },
+  })
 
-  // flow.output.subscribe((props) => {
-  //   if (props.command) {
-  //     durableClient.publish({
-  //       clientId: navigator.userAgent,
-  //       command: props.command,
-  //       params: props.params,
-  //     })
-  //   }
-  // })
+  flow.on('command', ({ command, params }) => {
+    durableClient.publish({
+      clientId,
+      command,
+      params,
+    })
+  })
 }
 
 init()

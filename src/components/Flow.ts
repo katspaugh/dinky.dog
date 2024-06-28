@@ -30,12 +30,10 @@ type FlowProps = {
 }
 
 type FlowEvents = {
-  createNode: NodeProps
-  moveNode: { id: string; dx: number; dy: number }
-  removeNode: { id: string }
-  editNode: { id: string; content: string }
-  connectNodes: { from: string; to: string }
-  disconnectNodes: { from: string; to: string }
+  command: {
+    command: keyof Flow
+    params: unknown
+  }
 }
 
 export class Flow extends Component<{}, FlowEvents> {
@@ -52,7 +50,7 @@ export class Flow extends Component<{}, FlowEvents> {
     this.subscribeUiEvents()
   }
 
-  setProps(props: FlowProps) {
+  render(props: FlowProps) {
     props.cards.forEach((item) => {
       this.createNode(item)
 
@@ -127,25 +125,6 @@ export class Flow extends Component<{}, FlowEvents> {
     edge.setProps({ x2: x - rect.left, y2: y - rect.top })
   }
 
-  private connectNodes(fromNode: GraphNode, toNode: GraphNode) {
-    const edge = this.createEdge(fromNode)
-    this.connectEdge(toNode, edge)
-
-    fromNode.connections.push({
-      node: toNode,
-      edge,
-    })
-  }
-
-  private disconnectNodes(fromNode: GraphNode, toNode: GraphNode) {
-    fromNode.connections
-      .filter((item) => item.node === toNode)
-      .forEach((item) => {
-        item.edge.destroy()
-      })
-    fromNode.connections = fromNode.connections.filter((item) => item.node !== toNode)
-  }
-
   private adjustEdges(node: GraphNode) {
     const rect = this.graph.getOffset()
     const fromPoint = node.card.getOutPoint()
@@ -180,39 +159,41 @@ export class Flow extends Component<{}, FlowEvents> {
   private onDrag(node: GraphNode, dx: number, dy: number) {
     const params = { id: node.id, dx, dy }
     this.moveNode(params)
-    this.emit('moveNode', params)
+    this.emit('command', { command: 'moveNode', params })
   }
 
   private onCreateNode({ x, y }: { x: number; y: number }) {
     const id = Math.random().toString(32).slice(2)
     const params = { x, y, id }
     const node = this.createNode(params)
-    this.emit('createNode', params)
+    this.emit('command', { command: 'createNode', params })
     return node
   }
 
   private onRemoveNode(node: GraphNode) {
     const params = { id: node.id }
     this.removeNode(params)
-    this.emit('removeNode', params)
+    this.emit('command', { command: 'removeNode', params })
   }
 
   private onConnectNodes(fromNode: GraphNode, toNode: GraphNode) {
     this.connectNodes(fromNode, toNode)
-    this.emit('connectNodes', { from: fromNode.id, to: toNode.id })
+    this.emit('command', { command: 'connectNodes', params: { from: fromNode.id, to: toNode.id } })
   }
 
   private onDisconnectEdge(fromNode: GraphNode, edge: Edge) {
     const toNode = fromNode.connections.find((item) => item.edge === edge)?.node
     if (!toNode) return
     this.disconnectNodes(fromNode, toNode)
-    this.emit('disconnectNodes', { from: fromNode.id, to: toNode.id })
+    this.emit('command', { command: 'disconnectNodes', params: { from: fromNode.id, to: toNode.id } })
   }
 
   private onEditNode(node: GraphNode, content: string) {
-    node.content = content
-    this.emit('editNode', { id: node.id, content })
+    this.editNode(node, content)
+    this.emit('command', { command: 'editNode', params: { id: node.id, content } })
   }
+
+  /* Public methods */
 
   public createNode({ x, y, id, content = '' }: NodeProps) {
     const card = new DragCard()
@@ -289,5 +270,28 @@ export class Flow extends Component<{}, FlowEvents> {
 
     node.card.destroy()
     this.nodes = this.nodes.filter((item) => item !== node)
+  }
+
+  public connectNodes(fromNode: GraphNode, toNode: GraphNode) {
+    const edge = this.createEdge(fromNode)
+    this.connectEdge(toNode, edge)
+
+    fromNode.connections.push({
+      node: toNode,
+      edge,
+    })
+  }
+
+  public disconnectNodes(fromNode: GraphNode, toNode: GraphNode) {
+    fromNode.connections
+      .filter((item) => item.node === toNode)
+      .forEach((item) => {
+        item.edge.destroy()
+      })
+    fromNode.connections = fromNode.connections.filter((item) => item.node !== toNode)
+  }
+
+  public editNode(node: GraphNode, content: string) {
+    node.content = content
   }
 }
