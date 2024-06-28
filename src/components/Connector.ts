@@ -1,10 +1,10 @@
 import { Component } from '../lib/component.js'
 
 export type ConnectorEvents = {
-  connector: {}
+  click: {}
 }
 
-export class Connector extends Component<ConnectorEvents> {
+export class Connector extends Component<{}, ConnectorEvents> {
   constructor() {
     super('button', {
       style: {
@@ -25,7 +25,7 @@ export class Connector extends Component<ConnectorEvents> {
       onclick: (e) => {
         e.stopPropagation()
         e.preventDefault()
-        this.emit('connector', {})
+        this.emit('click', {})
       },
     })
   }

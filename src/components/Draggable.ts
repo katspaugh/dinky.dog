@@ -6,7 +6,12 @@ export type DraggableEvents = {
   dragstart: { x: number; y: number }
 }
 
-export class Draggable extends Component<DraggableEvents> {
+type DraggableProps = {
+  x: number
+  y: number
+}
+
+export class Draggable extends Component<DraggableProps, DraggableEvents> {
   constructor() {
     super('div', {
       style: {
@@ -16,20 +21,9 @@ export class Draggable extends Component<DraggableEvents> {
       },
     })
 
-    let x = 0
-    let y = 0
-
-    this.input.subscribe((props) => {
-      if (props.x !== undefined && props.y !== undefined) {
-        x = props.x
-        y = props.y
-      }
-    })
-
     draggable(
       this.container,
       (dx, dy) => {
-        this.input.next({ x: x + dx, y: y + dy })
         this.emit('drag', { dx, dy })
       },
       (x, y) => {
@@ -38,9 +32,7 @@ export class Draggable extends Component<DraggableEvents> {
     )
   }
 
-  render(props: { x: number; y: number }) {
-    if (props.x !== undefined && props.y !== undefined) {
-      this.container.style.transform = `translate(${props.x}px, ${props.y}px)`
-    }
+  render(props: DraggableProps) {
+    this.container.style.transform = `translate(${props.x}px, ${props.y}px)`
   }
 }

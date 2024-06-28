@@ -1,23 +1,45 @@
 import { Component } from './lib/component.js'
 import { Flow } from './components/Flow.js'
-import { Input } from './components/Input.js'
+//import { initDurableStream } from './lib/durable-stream.js'
 
-const appContainer = new Component('div')
+async function init() {
+  const appContainer = new Component('div')
 
-const flow = new Flow()
+  const flow = new Flow()
 
-const input = new Input()
-input.output.subscribe((props) => {
-  console.log('Input value:', props.value)
-})
+  flow.setProps({
+    cards: [
+      { id: '1', x: 100, y: 100, connections: [], content: 'Hello world' },
+      { id: '2', x: 500, y: 150, connections: ['1'] },
+    ],
+  })
 
-flow.input.next({
-  cards: [
-    { id: '1', x: 100, y: 100, connections: [], content: 'Hello world' },
-    { id: '2', x: 500, y: 150, connections: ['1'] },
-  ],
-})
+  appContainer.container.append(flow.container)
+  document.body.append(appContainer.container)
 
-appContainer.container.append(input.container)
-appContainer.container.append(flow.container)
-document.body.append(appContainer.container)
+  // Durable stream
+  // const durableClient = await initDurableStream({
+  //   subject: 'test2',
+  //   clientId: navigator.userAgent,
+  //   lastSequence: 0,
+  //   onMessage: (msg) => {
+  //     console.log('Received message', msg)
+
+  //     if (msg.data.command && msg.data.command in flow) {
+  //       flow[msg.data.command](msg.data.params)
+  //     }
+  //   },
+  // })
+
+  // flow.output.subscribe((props) => {
+  //   if (props.command) {
+  //     durableClient.publish({
+  //       clientId: navigator.userAgent,
+  //       command: props.command,
+  //       params: props.params,
+  //     })
+  //   }
+  // })
+}
+
+init()

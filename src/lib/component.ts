@@ -1,27 +1,32 @@
 import { el } from './dom.js'
-import { Stream } from './stream.js'
+import EventEmitter, { type GeneralEventTypes } from './event-emitter.js'
 
-type GeneralEventTypes = {
-  [EventName: string]: unknown
+type GeneralPropTypes = {
+  [PropName: string]: unknown
 }
 
-export class Component<EventTypes extends GeneralEventTypes = GeneralEventTypes> {
-  public input: Stream
-  public output: Stream
+export class Component<
+  PropTypes extends GeneralPropTypes,
+  EventTypes extends GeneralEventTypes,
+> extends EventEmitter<EventTypes> {
   public container: HTMLElement
+  private props: PropTypes = {} as PropTypes
 
   constructor(...args: Parameters<typeof el>) {
-    this.input = new Stream()
-    this.output = new Stream()
-
+    super()
     this.container = el(args[0] ?? 'div', args[1], args[2])
-
-    this.input.subscribe((props) => {
-      this.render(props)
-    })
   }
 
-  public render(_props: any) {
+  public getProps(): PropTypes {
+    return this.props
+  }
+
+  public setProps(props: Partial<PropTypes>) {
+    this.props = { ...this.props, ...props }
+    this.render(this.props)
+  }
+
+  protected render(_props: PropTypes) {
     // render the component
   }
 
@@ -33,20 +38,7 @@ export class Component<EventTypes extends GeneralEventTypes = GeneralEventTypes>
     if (!this.container) return
     this.container.remove()
     delete this.container
-    this.input.destroy()
-    this.output.destroy()
+    this.unAll()
     this.onDestroy()
-  }
-
-  public on<T extends keyof EventTypes>(event: T, listener: (eventData: EventTypes[T]) => void) {
-    return this.output.subscribe((props) => {
-      if (event in props) {
-        listener(props[event])
-      }
-    })
-  }
-
-  protected emit<T extends keyof EventTypes>(event: T, eventData: EventTypes[T]) {
-    this.output.next({ [event]: eventData })
   }
 }

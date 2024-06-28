@@ -8,13 +8,16 @@ export type PanEvents = {
   escape: {}
 }
 
-export class Pan extends Component<PanEvents> {
-  constructor({ width, height }: { width: number; height: number }) {
+type PanProps = {
+  width: number
+  height: number
+}
+
+export class Pan extends Component<PanProps, PanEvents> {
+  constructor() {
     super('div', {
       style: {
         position: 'absolute',
-        width: `${width}px`,
-        height: `${height}px`,
       },
 
       onclick: (e: MouseEvent) => {
@@ -35,5 +38,10 @@ export class Pan extends Component<PanEvents> {
         }
       },
     })
+  }
+
+  render(props: PanProps) {
+    this.container.style.width = `${props.width}px`
+    this.container.style.height = `${props.height}px`
   }
 }

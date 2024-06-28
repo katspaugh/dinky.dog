@@ -4,7 +4,11 @@ type InputEvents = {
   input: { value: string }
 }
 
-export class Input extends Component<InputEvents> {
+type InputProps = {
+  value?: string
+}
+
+export class Input extends Component<InputProps, InputEvents> {
   constructor() {
     super('input', {
       oninput: (e: Event) => {
@@ -13,7 +17,7 @@ export class Input extends Component<InputEvents> {
     })
   }
 
-  render(props: { value?: string }) {
+  render(props: InputProps) {
     if (props.value !== undefined) {
       ; (this.container as HTMLInputElement).value = props.value
     }

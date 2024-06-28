@@ -5,13 +5,20 @@ export type EdgeEvents = {
   position: { x1: number; y1: number; x2: number; y2: number }
 }
 
-export class Edge extends Component<EdgeEvents> {
+type EdgeProps = {
+  x1: number
+  y1: number
+  x2: number
+  y2: number
+}
+
+export class Edge extends Component<EdgeProps, EdgeEvents> {
   private x1: number | undefined
   private y1: number | undefined
   private x2: number | undefined
   private y2: number | undefined
 
-  constructor({ x1, y1, x2, y2 }: { x1: number; y1: number; x2: number; y2: number }) {
+  constructor() {
     const path = svgEl('path')
 
     super(path as unknown as HTMLElement, {
@@ -21,11 +28,9 @@ export class Edge extends Component<EdgeEvents> {
         fill: 'none',
       },
     })
-
-    this.input.next({ x1, y1, x2, y2 })
   }
 
-  render(props: { x1: number; y1: number; x2: number; y2: number }) {
+  render(props: EdgeProps) {
     this.x1 = props.x1 ?? this.x1
     this.y1 = props.y1 ?? this.y1
     this.x2 = props.x2 ?? this.x2

@@ -5,7 +5,7 @@ import { Pan, type PanEvents } from './Pan.js'
 const WIDTH = 5000
 const HEIGHT = 5000
 
-export class Graph extends Component<PanEvents> {
+export class Graph extends Component<{}, PanEvents> {
   private svg: Svg
   private pan: Pan
 
@@ -24,23 +24,23 @@ export class Graph extends Component<PanEvents> {
       },
     })
 
-    this.svg = new Svg({ width: WIDTH, height: HEIGHT })
-    this.pan = new Pan({ width: WIDTH, height: HEIGHT })
+    this.svg = new Svg()
+    this.svg.setProps({ width: WIDTH, height: HEIGHT })
+    this.pan = new Pan()
+    this.pan.setProps({ width: WIDTH, height: HEIGHT })
 
     this.container.append(this.svg.container)
     this.container.append(this.pan.container)
 
-    this.pan.output.connect(this.output)
+    this.on = this.pan.on.bind(this.pan)
   }
 
-  render(props: { card: HTMLElement; edge: HTMLElement }) {
-    if (props.card !== undefined) {
-      this.pan.container.append(props.card)
-    }
+  renderCard(card: HTMLElement) {
+    this.pan.container.append(card)
+  }
 
-    if (props.edge !== undefined) {
-      this.svg.container.append(props.edge)
-    }
+  renderEdge(edge: HTMLElement) {
+    this.svg.container.append(edge)
   }
 
   public getOffset() {

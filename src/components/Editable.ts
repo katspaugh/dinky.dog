@@ -1,9 +1,15 @@
 import { Component } from '../lib/component.js'
 
-type EditableEvents = { input: { content: string } }
+type EditableEvents = {
+  input: { content: string }
+}
 
-export class Editable extends Component<EditableEvents> {
-  constructor({ content }: { content: string }) {
+type EditableProps = {
+  content: string
+}
+
+export class Editable extends Component<EditableProps, EditableEvents> {
+  constructor() {
     super('div', {
       contentEditable: 'true',
 
@@ -26,17 +32,15 @@ export class Editable extends Component<EditableEvents> {
       },
 
       onkeydown: (e: KeyboardEvent) => {
-        if (e.key === 'Enter') {
+        if (e.key === 'Enter' && !e.shiftKey) {
           e.preventDefault()
           this.container.blur()
         }
       },
     })
-
-    this.input.next({ content })
   }
 
-  render(props: { content: string }) {
+  render(props: EditableProps) {
     if (props.content !== undefined) {
       this.container.innerHTML = props.content
     }

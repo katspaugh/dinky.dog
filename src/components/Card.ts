@@ -1,6 +1,10 @@
 import { Component } from '../lib/component.js'
 
-export class Card extends Component {
+type CardProps = {
+  content: HTMLElement
+}
+
+export class Card extends Component<CardProps, {}> {
   constructor() {
     super('div', {
       style: {
@@ -13,7 +17,7 @@ export class Card extends Component {
     })
   }
 
-  render(props: { content: HTMLElement }) {
+  render(props: CardProps) {
     if (props.content !== undefined) {
       this.container.append(props.content)
     }
