@@ -2,8 +2,34 @@ import { Component } from './lib/component.js'
 import { Flow } from './components/Flow.js'
 import { initDurableStream } from './lib/durable-stream.js'
 
-const clientId = navigator.userAgent
-const lastSequence = Number(localStorage.getItem('lastSequence')) || 0
+async function initRealtimeSync(flow: Flow) {
+  const clientId = navigator.userAgent
+  const lastSequence = Number(localStorage.getItem('lastSequence')) || 0
+
+  const durableClient = await initDurableStream({
+    subject: 'test5',
+    lastSequence,
+    onMessage: (msg) => {
+      if (msg.data.clientId !== clientId) {
+        console.log('Received message', msg)
+
+        if (msg.data.command && msg.data.command in flow) {
+          flow[msg.data.command](msg.data.params)
+        }
+      }
+
+      localStorage.setItem('lastSequence', msg.sequence)
+    },
+  })
+
+  flow.on('command', ({ command, params }) => {
+    durableClient.publish({
+      clientId,
+      command,
+      params,
+    })
+  })
+}
 
 async function init() {
   const appContainer = new Component('div')
@@ -20,31 +46,7 @@ async function init() {
   appContainer.container.append(flow.container)
   document.body.append(appContainer.container)
 
-  // Durable stream
-  const durableClient = await initDurableStream({
-    subject: 'test2',
-    clientId: navigator.userAgent,
-    lastSequence,
-    onMessage: (msg) => {
-      if (msg.data.clientId !== clientId) {
-        console.log('Received message', msg)
-
-        if (msg.data.command && msg.data.command in flow) {
-          flow[msg.data.command](msg.data.params)
-        }
-
-        localStorage.setItem('lastSequence', msg.sequence)
-      }
-    },
-  })
-
-  flow.on('command', ({ command, params }) => {
-    durableClient.publish({
-      clientId,
-      command,
-      params,
-    })
-  })
+  initRealtimeSync(flow)
 }
 
 init()

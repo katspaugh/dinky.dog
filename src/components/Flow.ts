@@ -12,6 +12,7 @@ type GraphNode = {
     edge: Edge
   }>
   card: DragCard
+  editor: Editable
 }
 
 type NodeProps = {
@@ -56,11 +57,8 @@ export class Flow extends Component<{}, FlowEvents> {
 
       Promise.resolve().then(() => {
         if (item.connections) {
-          const node = this.nodes.find((node) => node.id === item.id)
-
           item.connections.forEach((id) => {
-            const target = this.nodes.find((node) => node.id === id)
-            this.connectNodes(node, target)
+            this.connectNodes({ from: item.id, to: id })
           })
         }
       })
@@ -157,7 +155,12 @@ export class Flow extends Component<{}, FlowEvents> {
   }
 
   private onDrag(node: GraphNode, dx: number, dy: number) {
-    const params = { id: node.id, dx, dy }
+    const props = node.card.getProps()
+    const params = {
+      id: node.id,
+      x: props.x + dx,
+      y: props.y + dy,
+    }
     this.repositionNode(params)
     this.emit('command', { command: 'repositionNode', params })
   }
@@ -165,7 +168,8 @@ export class Flow extends Component<{}, FlowEvents> {
   private onCreateNode({ x, y }: { x: number; y: number }) {
     const id = Math.random().toString(32).slice(2)
     const params = { x, y, id }
-    const node = this.createNode(params, true)
+    const node = this.createNode(params)
+    node.editor.focus()
     this.emit('command', { command: 'createNode', params })
     return node
   }
@@ -177,28 +181,34 @@ export class Flow extends Component<{}, FlowEvents> {
   }
 
   private onConnectNodes(fromNode: GraphNode, toNode: GraphNode) {
-    this.connectNodes(fromNode, toNode)
+    this.connectNodes({ from: fromNode.id, to: toNode.id })
     this.emit('command', { command: 'connectNodes', params: { from: fromNode.id, to: toNode.id } })
   }
 
   private onDisconnectEdge(fromNode: GraphNode, edge: Edge) {
     const toNode = fromNode.connections.find((item) => item.edge === edge)?.node
     if (!toNode) return
-    this.disconnectNodes(fromNode, toNode)
+    this.disconnectNodes({ from: fromNode.id, to: toNode.id })
     this.emit('command', { command: 'disconnectNodes', params: { from: fromNode.id, to: toNode.id } })
   }
 
   private onEditNode(node: GraphNode, content: string) {
-    this.editNode(node, content)
+    this.editNode({ id: node.id, content })
     this.emit('command', { command: 'editNode', params: { id: node.id, content } })
   }
 
   /* Public methods */
 
-  public createNode({ x, y, id, content = '' }: NodeProps, focus = false) {
+  public createNode({ x, y, id, content = '' }: NodeProps) {
     const card = new DragCard()
     card.setProps({ x, y })
-    const node = { id, content, connections: [], card }
+
+    // Text editor
+    const editor = new Editable()
+    editor.setProps({ content })
+    editor.on('input', ({ content }) => this.onEditNode(node, content))
+
+    const node = { id, content, connections: [], card, editor }
 
     card.on('connectorClick', () => this.onConnectorClick(node))
 
@@ -206,36 +216,25 @@ export class Flow extends Component<{}, FlowEvents> {
 
     card.on('drag', (props) => this.onDrag(node, props.dx, props.dy))
 
-    card.on('click', () => {
-      this.onNodeClick(node)
-      editable.focus()
-    })
+    card.on('click', () => this.onNodeClick(node))
 
-    // Text editor
-    const editable = new Editable()
-    editable.setProps({ content })
-    node.card.setProps({ content: editable.container })
-    editable.on('input', ({ content }) => this.onEditNode(node, content))
-
+    node.card.setProps({ content: editor.container })
     this.graph.renderCard(card.container)
+
     this.nodes.push(node)
     this.lastNode = node
-
-    if (focus) {
-      setTimeout(() => {
-        editable.focus()
-      }, 100)
-    }
 
     return node
   }
 
-  public repositionNode({ id, dx, dy }: { id: string; dx: number; dy: number }) {
+  public repositionNode({ id, x, y }: { id: string; x: number; y: number }) {
     const node = this.nodes.find((node) => node.id === id)
     if (!node) return
 
-    const cardProps = node.card.getProps()
-    node.card.setProps({ x: cardProps.x + dx, y: cardProps.y + dy })
+    const oldProps = node.card.getProps()
+    const dx = x - oldProps.x
+    const dy = y - oldProps.y
+    node.card.setProps({ x, y })
 
     // Adjust outgoing connections
     node.connections.forEach(({ edge }) => {
@@ -261,7 +260,7 @@ export class Flow extends Component<{}, FlowEvents> {
 
     // Disconnect outgoing connections
     node.connections.forEach((item) => {
-      this.disconnectNodes(node, item.node)
+      this.disconnectNodes({ from: node.id, to: item.node.id })
     })
 
     // Disconnect incoming connections
@@ -270,7 +269,7 @@ export class Flow extends Component<{}, FlowEvents> {
       if (newConnections !== otherNode.connections) {
         otherNode.connections.forEach((item) => {
           if (item.node === node) {
-            this.disconnectNodes(otherNode, node)
+            this.disconnectNodes({ from: otherNode.id, to: node.id })
           }
         })
         otherNode.connections = newConnections
@@ -281,7 +280,11 @@ export class Flow extends Component<{}, FlowEvents> {
     this.nodes = this.nodes.filter((item) => item !== node)
   }
 
-  public connectNodes(fromNode: GraphNode, toNode: GraphNode) {
+  public connectNodes({ from, to }: { from: string; to: string }) {
+    const fromNode = this.nodes.find((node) => node.id === from)
+    const toNode = this.nodes.find((node) => node.id === to)
+    if (!fromNode || !toNode) return
+
     const edge = this.createEdge(fromNode)
     this.connectEdge(toNode, edge)
 
@@ -291,7 +294,11 @@ export class Flow extends Component<{}, FlowEvents> {
     })
   }
 
-  public disconnectNodes(fromNode: GraphNode, toNode: GraphNode) {
+  public disconnectNodes({ from, to }: { from: string; to: string }) {
+    const fromNode = this.nodes.find((node) => node.id === from)
+    const toNode = this.nodes.find((node) => node.id === to)
+    if (!fromNode || !toNode) return
+
     fromNode.connections
       .filter((item) => item.node === toNode)
       .forEach((item) => {
@@ -300,7 +307,10 @@ export class Flow extends Component<{}, FlowEvents> {
     fromNode.connections = fromNode.connections.filter((item) => item.node !== toNode)
   }
 
-  public editNode(node: GraphNode, content: string) {
+  public editNode({ id, content }: { id: string; content: string }) {
+    const node = this.nodes.find((node) => node.id === id)
+    if (!node) return
     node.content = content
+    node.editor.setProps({ content })
   }
 }

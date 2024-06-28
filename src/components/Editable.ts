@@ -9,6 +9,8 @@ type EditableProps = {
 }
 
 export class Editable extends Component<EditableProps, EditableEvents> {
+  private lastContent: string
+
   constructor() {
     super('div', {
       contentEditable: 'true',
@@ -28,7 +30,9 @@ export class Editable extends Component<EditableProps, EditableEvents> {
       },
 
       oninput: () => {
-        this.emit('input', { content: this.container.innerHTML })
+        const content = this.container.innerHTML
+        this.lastContent = content
+        this.emit('input', { content })
       },
 
       onkeydown: (e: KeyboardEvent) => {
@@ -38,10 +42,13 @@ export class Editable extends Component<EditableProps, EditableEvents> {
         }
       },
     })
+
+    this.lastContent = ''
   }
 
   render(props: EditableProps) {
-    if (props.content !== undefined) {
+    if (props.content !== this.lastContent) {
+      this.lastContent = props.content
       this.container.innerHTML = props.content
     }
   }

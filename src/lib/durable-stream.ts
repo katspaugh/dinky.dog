@@ -7,12 +7,10 @@ const DEV_API_URL = 'localhost:8787'
 
 export async function initDurableStream({
   subject,
-  clientId,
   lastSequence,
   onMessage,
 }: {
   subject: string
-  clientId: string
   lastSequence: number
   onMessage: (msg: any) => void
 }) {
@@ -30,11 +28,8 @@ export async function initDurableStream({
 
   client.subscribe(lastSequence, (msg, ack) => {
     ack()
-
-    if (msg.data.clientId !== clientId) {
-      console.log('Received message', msg)
-      onMessage(msg)
-    }
+    console.log('Received message', msg)
+    onMessage(msg)
   })
 
   console.log('Durable Stream initialized', client)
