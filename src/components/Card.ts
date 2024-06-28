@@ -9,10 +9,9 @@ export class Card extends Component<CardProps, {}> {
     super('div', {
       style: {
         borderRadius: '4px',
-        backgroundColor: '#f5f5f5',
-        opacity: '0.9',
         width: 'fit-content',
         boxSizing: 'border-box',
+        boxShadow: '1px 1px #000',
       },
     })
   }

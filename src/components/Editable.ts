@@ -6,6 +6,8 @@ type EditableEvents = {
 
 type EditableProps = {
   content: string
+  width?: number
+  height?: number
 }
 
 export class Editable extends Component<EditableProps, EditableEvents> {
@@ -17,7 +19,7 @@ export class Editable extends Component<EditableProps, EditableEvents> {
 
       style: {
         borderRadius: '4px',
-        border: '1px solid red',
+        border: '1px solid #333',
         boxSizing: 'border-box',
         padding: '8px',
         paddingRight: '20px',
@@ -50,6 +52,12 @@ export class Editable extends Component<EditableProps, EditableEvents> {
     if (props.content !== this.lastContent) {
       this.lastContent = props.content
       this.container.innerHTML = props.content
+    }
+    if (props.width != null) {
+      this.container.style.width = `${props.width}px`
+    }
+    if (props.height != null) {
+      this.container.style.height = `${props.height}px`
     }
   }
 

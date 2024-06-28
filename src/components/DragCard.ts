@@ -13,6 +13,9 @@ type DragCardEvents = {
 type DragCardProps = {
   x: number
   y: number
+  width?: number
+  height?: number
+  background?: string
   content?: HTMLElement
 }
 
@@ -27,9 +30,14 @@ export class DragCard extends Component<DragCardProps, DragCardEvents> {
     const connector = new Connector()
 
     super(draggable.container, {
+      style: {
+        backgroundColor: '#f5f5f5',
+        opacity: '0.9',
+      },
+
       onclick: (e: MouseEvent) => {
         e.preventDefault()
-        this.emit('click')
+        this.emit('click', {})
       },
 
       ondblclick: (e: MouseEvent) => {
@@ -76,5 +84,9 @@ export class DragCard extends Component<DragCardProps, DragCardEvents> {
   render(props: DragCardProps) {
     this.card.render({ content: props.content })
     this.draggable.render({ x: props.x, y: props.y })
+
+    if (props.background) {
+      this.container.style.backgroundColor = props.background
+    }
   }
 }

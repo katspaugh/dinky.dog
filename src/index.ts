@@ -1,10 +1,11 @@
 import { Component } from './lib/component.js'
 import { Flow } from './components/Flow.js'
 import { initDurableStream } from './lib/durable-stream.js'
+import { loadData, saveData } from './lib/database.js'
+import { compressObjectToString, decompressStringToObject } from './lib/compress.js'
 
-async function initRealtimeSync(flow: Flow) {
+async function initRealtimeSync(flow: Flow, lastSequence = 0) {
   const clientId = navigator.userAgent
-  const lastSequence = Number(localStorage.getItem('lastSequence')) || 0
 
   const durableClient = await initDurableStream({
     subject: 'test5',
@@ -17,8 +18,6 @@ async function initRealtimeSync(flow: Flow) {
           flow[msg.data.command](msg.data.params)
         }
       }
-
-      localStorage.setItem('lastSequence', msg.sequence)
     },
   })
 
@@ -31,22 +30,78 @@ async function initRealtimeSync(flow: Flow) {
   })
 }
 
+async function loadFromDatabase() {
+  const encData = await loadData(window.location.search.slice(3))
+  const data = await decompressStringToObject(encData)
+
+  console.log('Loaded data', data)
+
+  // @ts-ignore
+  const nodes = Object.entries(data.nodes).reduce((acc, [key, value]: any) => {
+    acc[key] = {
+      id: key,
+      content: value.data.operatorData,
+      x: value.props.x,
+      y: value.props.y,
+      width: value.props.width,
+      height: value.props.height,
+      background: value.props.background,
+      connections: value.connections?.map((item) => item.inputId) || [],
+    }
+    return acc
+  }, {})
+
+  return { ...data, nodes }
+}
+
+async function saveToDatabase(flowNodes, oldData) {
+  const nodes = Object.entries(flowNodes).reduce((acc, [key, value]: any) => {
+    acc[key] = {
+      data: {
+        operatorData: value.content,
+      },
+      props: {
+        x: value.x,
+        y: value.y,
+        width: value.width,
+        height: value.height,
+        background: value.background,
+      },
+      connections: value.connections.map((inputId) => ({ inputId })),
+    }
+    return acc
+  }, {})
+
+  const data = {
+    ...oldData,
+    nodes,
+  }
+
+  const encData = await compressObjectToString(data)
+  await saveData(data.id, encData)
+}
+
 async function init() {
   const appContainer = new Component('div')
 
   const flow = new Flow()
 
-  flow.setProps({
-    cards: [
-      { id: '1', x: 100, y: 100, connections: ['2'], content: 'Hello world' },
-      { id: '2', x: 500, y: 150, connections: [] },
-    ],
-  })
-
   appContainer.container.append(flow.container)
   document.body.append(appContainer.container)
 
-  initRealtimeSync(flow)
+  const data = await loadFromDatabase()
+
+  if (data) {
+    flow.setProps({ nodes: data.nodes, backgroundColor: data.backgroundColor })
+
+    if (data.title) {
+      document.title = `Dinky Dog —— ${data.title}`
+    }
+  }
+
+  flow.on('command', () => saveToDatabase(flow.getProps(), data))
+
+  //initRealtimeSync(flow, data?.lastSequence)
 }
 
 init()

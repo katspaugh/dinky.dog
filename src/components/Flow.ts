@@ -3,10 +3,10 @@ import { Graph } from './Graph.js'
 import { Edge } from './Edge.js'
 import { DragCard } from './DragCard.js'
 import { Editable } from './Editable.js'
+import { debounce } from '../lib/utils.js'
 
 type GraphNode = {
   id: string
-  content: string
   connections: Array<{
     node: GraphNode
     edge: Edge
@@ -19,15 +19,19 @@ type NodeProps = {
   id: string
   x: number
   y: number
+  width?: number
+  height?: number
   content?: string
 }
 
 type FlowProps = {
-  cards: Array<
+  nodes: Record<
+    string,
     NodeProps & {
       connections: string[]
     }
   >
+  backgroundColor?: string
 }
 
 type FlowEvents = {
@@ -38,13 +42,17 @@ type FlowEvents = {
 }
 
 export class Flow extends Component<{}, FlowEvents> {
-  private nodes: GraphNode[] = []
+  private nodes: Record<string, GraphNode> = {}
   private graph: Graph
   private lastEdge: Edge | null = null
   private lastNode: GraphNode | null = null
 
   constructor() {
-    super('div')
+    super('div', {
+      style: {
+        height: '100vh',
+      },
+    })
 
     this.graph = new Graph()
     this.container.append(this.graph.container)
@@ -52,7 +60,7 @@ export class Flow extends Component<{}, FlowEvents> {
   }
 
   render(props: FlowProps) {
-    props.cards.forEach((item) => {
+    Object.values(props.nodes).forEach((item) => {
       this.createNode(item)
 
       Promise.resolve().then(() => {
@@ -63,7 +71,34 @@ export class Flow extends Component<{}, FlowEvents> {
         }
       })
     })
+
+    if (props.backgroundColor) {
+      this.container.style.backgroundColor = props.backgroundColor
+    }
   }
+
+  getProps() {
+    return Object.values(this.nodes).reduce((acc, node) => {
+      const { id } = node
+      const { x, y, background } = node.card.getProps()
+      const { content, width, height } = node.editor.getProps()
+      acc[id] = {
+        id,
+        x,
+        y,
+        width,
+        height,
+        background,
+        content,
+        connections: node.connections.map((item) => item.node.id),
+      }
+      return acc
+    }, {})
+  }
+
+  private emitDebounced = debounce((event, params) => {
+    this.emit(event, params)
+  }, 100)
 
   private subscribeUiEvents() {
     // Double click
@@ -162,7 +197,7 @@ export class Flow extends Component<{}, FlowEvents> {
       y: props.y + dy,
     }
     this.repositionNode(params)
-    this.emit('command', { command: 'repositionNode', params })
+    this.emitDebounced('command', { command: 'repositionNode', params })
   }
 
   private onCreateNode({ x, y }: { x: number; y: number }) {
@@ -194,21 +229,21 @@ export class Flow extends Component<{}, FlowEvents> {
 
   private onEditNode(node: GraphNode, content: string) {
     this.editNode({ id: node.id, content })
-    this.emit('command', { command: 'editNode', params: { id: node.id, content } })
+    this.emitDebounced('command', { command: 'editNode', params: { id: node.id, content } })
   }
 
   /* Public methods */
 
-  public createNode({ x, y, id, content = '' }: NodeProps) {
+  public createNode({ id, width, height, content = '', ...cardProps }: NodeProps) {
     const card = new DragCard()
-    card.setProps({ x, y })
+    card.setProps(cardProps)
 
     // Text editor
     const editor = new Editable()
-    editor.setProps({ content })
+    editor.setProps({ content, width, height })
     editor.on('input', ({ content }) => this.onEditNode(node, content))
 
-    const node = { id, content, connections: [], card, editor }
+    const node = { id, connections: [], card, editor }
 
     card.on('connectorClick', () => this.onConnectorClick(node))
 
@@ -221,14 +256,14 @@ export class Flow extends Component<{}, FlowEvents> {
     node.card.setProps({ content: editor.container })
     this.graph.renderCard(card.container)
 
-    this.nodes.push(node)
+    this.nodes[id] = node
     this.lastNode = node
 
     return node
   }
 
   public repositionNode({ id, x, y }: { id: string; x: number; y: number }) {
-    const node = this.nodes.find((node) => node.id === id)
+    const node = this.nodes[id]
     if (!node) return
 
     const oldProps = node.card.getProps()
@@ -243,7 +278,7 @@ export class Flow extends Component<{}, FlowEvents> {
     })
 
     // Adjust incoming connections
-    this.nodes.forEach((otherNode) => {
+    Object.values(this.nodes).forEach((otherNode) => {
       otherNode.connections.forEach((item) => {
         if (item.node === node) {
           const { edge } = item
@@ -255,7 +290,7 @@ export class Flow extends Component<{}, FlowEvents> {
   }
 
   public removeNode({ id }: { id: string }) {
-    const node = this.nodes.find((node) => node.id === id)
+    const node = this.nodes[id]
     if (!node) return
 
     // Disconnect outgoing connections
@@ -264,7 +299,7 @@ export class Flow extends Component<{}, FlowEvents> {
     })
 
     // Disconnect incoming connections
-    this.nodes.forEach((otherNode) => {
+    Object.values(this.nodes).forEach((otherNode) => {
       const newConnections = otherNode.connections.filter((item) => item.node !== node)
       if (newConnections !== otherNode.connections) {
         otherNode.connections.forEach((item) => {
@@ -277,12 +312,12 @@ export class Flow extends Component<{}, FlowEvents> {
     })
 
     node.card.destroy()
-    this.nodes = this.nodes.filter((item) => item !== node)
+    delete this.nodes[id]
   }
 
   public connectNodes({ from, to }: { from: string; to: string }) {
-    const fromNode = this.nodes.find((node) => node.id === from)
-    const toNode = this.nodes.find((node) => node.id === to)
+    const fromNode = this.nodes[from]
+    const toNode = this.nodes[to]
     if (!fromNode || !toNode) return
 
     const edge = this.createEdge(fromNode)
@@ -295,8 +330,8 @@ export class Flow extends Component<{}, FlowEvents> {
   }
 
   public disconnectNodes({ from, to }: { from: string; to: string }) {
-    const fromNode = this.nodes.find((node) => node.id === from)
-    const toNode = this.nodes.find((node) => node.id === to)
+    const fromNode = this.nodes[from]
+    const toNode = this.nodes[to]
     if (!fromNode || !toNode) return
 
     fromNode.connections
@@ -308,9 +343,8 @@ export class Flow extends Component<{}, FlowEvents> {
   }
 
   public editNode({ id, content }: { id: string; content: string }) {
-    const node = this.nodes.find((node) => node.id === id)
+    const node = this.nodes[id]
     if (!node) return
-    node.content = content
     node.editor.setProps({ content })
   }
 }
