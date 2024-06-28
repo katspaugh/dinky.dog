@@ -83,16 +83,31 @@ async function saveToDatabase(flowNodes, restData) {
   await saveData(data.id, encData)
 }
 
-async function init() {
-  const appContainer = new Component('div')
+function initSpecialPages(flow) {
+  const isSpecial = location.pathname.startsWith('/privacy') || location.pathname.startsWith('/terms')
 
-  const flow = new Flow()
-  const sidebar = new Sidebar()
+  if (isSpecial) {
+    const textEl = document.getElementById('text')
+    textEl.style.display = 'none'
+    flow.setProps({
+      nodes: {
+        '1': {
+          id: '1',
+          content: textEl.innerHTML,
+          x: 20,
+          y: 20,
+          width: window.innerWidth > 1000 ? window.innerWidth * 0.7 : window.innerWidth - 40,
+          height: window.innerHeight - 40,
+          connections: [],
+        },
+      },
+    })
+  }
 
-  appContainer.container.append(flow.container)
-  appContainer.container.append(sidebar.container)
-  document.body.append(appContainer.container)
+  return isSpecial
+}
 
+async function initPersistence(flow, sidebar) {
   const data = await loadFromDatabase()
 
   if (data) {
@@ -115,6 +130,25 @@ async function init() {
   sidebar.on('titleChange', ({ title }) => {
     save({ ...data, title })
   })
+
+  return data
+}
+
+async function init() {
+  const appContainer = new Component('div')
+
+  const flow = new Flow()
+  const sidebar = new Sidebar()
+
+  appContainer.container.append(flow.container)
+  appContainer.container.append(sidebar.container)
+  document.body.append(appContainer.container)
+
+  if (initSpecialPages(flow)) {
+    return
+  }
+
+  const data = await initPersistence(flow, sidebar)
 
   //initRealtimeSync(flow, data?.lastSequence)
 }

@@ -19,6 +19,8 @@ export class Editable extends Component<EditableProps, EditableEvents> {
       contentEditable: 'true',
 
       style: {
+        whiteSpace: 'pre-wrap',
+        overflowWrap: 'break-word',
         borderRadius: '4px',
         border: '1px solid #333',
         padding: '8px',
@@ -60,9 +62,11 @@ export class Editable extends Component<EditableProps, EditableEvents> {
     }
     if (props.width != null) {
       this.container.style.width = `${props.width}px`
+      this.container.style.maxWidth = ''
     }
     if (props.height != null) {
       this.container.style.height = `${props.height}px`
+      this.container.style.maxHeight = ''
     }
   }
 

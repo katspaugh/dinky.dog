@@ -25,7 +25,7 @@ export class Menu extends Component<MenuProps, {}> {
     props.items.forEach((item) => {
       const a = el('a', {
         href: item.href,
-        target: item.href.startsWith(window.location.origin) ? '' : '_blank',
+        target: item.href.startsWith('http') && !item.href.startsWith(window.location.origin) ? '_blank' : '',
         textContent: item.text,
         style: {
           display: 'block',
