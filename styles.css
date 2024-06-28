@@ -24,18 +24,6 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background-color: #99999980;
-    --text-color: #fff;
-    --secondary-text-color: #999;
-    --edge-color: #444;
-    --border-color: #555;
-    --grid-color: #000;
-    --border-hover-color: #333;
-    --textarea-color: #777;
-    --text-dim-color: #aaa;
-    --text-node-color: #000;
-    --menu-color: #dfdfdf;
-    --menu-text-color: #000;
   }
 }
 
@@ -67,4 +55,8 @@ li {
 li:hover {
   background-color: var(--menu-hover-color);
   color: var(--menu-hover-text-color);
+}
+
+input:focus::placeholder {
+  color: transparent;
 }

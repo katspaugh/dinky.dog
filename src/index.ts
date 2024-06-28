@@ -56,7 +56,7 @@ async function loadFromDatabase() {
   return { ...data, nodes }
 }
 
-async function saveToDatabase(flowNodes, oldData) {
+async function saveToDatabase(flowNodes, restData) {
   const nodes = Object.entries(flowNodes).reduce((acc, [key, value]: any) => {
     acc[key] = {
       data: {
@@ -75,7 +75,7 @@ async function saveToDatabase(flowNodes, oldData) {
   }, {})
 
   const data = {
-    ...oldData,
+    ...restData,
     nodes,
   }
 
@@ -99,13 +99,21 @@ async function init() {
     flow.setProps({ nodes: data.nodes, backgroundColor: data.backgroundColor })
 
     if (data.title) {
-      document.title = `Dinky Dog —— ${data.title}`
+      sidebar.setProps({ title: data.title })
     }
   }
 
+  const save = (restData) => {
+    saveToDatabase(flow.getProps(), restData)
+    saveToLocalStorage(restData)
+  }
+
   flow.on('command', () => {
-    saveToDatabase(flow.getProps(), data)
-    saveToLocalStorage(data)
+    save(data)
+  })
+
+  sidebar.on('titleChange', ({ title }) => {
+    save({ ...data, title })
   })
 
   //initRealtimeSync(flow, data?.lastSequence)

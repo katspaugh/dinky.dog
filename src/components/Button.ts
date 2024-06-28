@@ -18,9 +18,9 @@ export class Button extends Component<ButtonProps, ButtonEvents> {
         borderRadius: '4px',
         padding: '0.5em 0.7em',
         fontSize: '16px',
-        pointerEvents: 'all',
         cursor: 'pointer',
         transition: 'box-shadow 0.2s',
+        pointerEvents: 'all',
       },
       onclick: () => {
         this.emit('click', {})
