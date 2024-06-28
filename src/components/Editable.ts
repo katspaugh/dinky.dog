@@ -1,4 +1,5 @@
 import { Component } from '../lib/component.js'
+import { sanitizeHtml } from '../lib/sanitize-html.js'
 
 type EditableEvents = {
   input: { content: string }
@@ -11,7 +12,7 @@ type EditableProps = {
 }
 
 export class Editable extends Component<EditableProps, EditableEvents> {
-  private lastContent: string
+  private lastContent = ''
 
   constructor() {
     super('div', {
@@ -20,7 +21,6 @@ export class Editable extends Component<EditableProps, EditableEvents> {
       style: {
         borderRadius: '4px',
         border: '1px solid #333',
-        boxSizing: 'border-box',
         padding: '8px',
         paddingRight: '20px',
         minWidth: '160px',
@@ -32,9 +32,11 @@ export class Editable extends Component<EditableProps, EditableEvents> {
       },
 
       oninput: () => {
-        const content = this.container.innerHTML
-        this.lastContent = content
-        this.emit('input', { content })
+        this.updateContent(this.container.innerHTML)
+      },
+
+      onblur: () => {
+        this.updateContent(sanitizeHtml(this.container.innerHTML))
       },
 
       onkeydown: (e: KeyboardEvent) => {
@@ -44,14 +46,17 @@ export class Editable extends Component<EditableProps, EditableEvents> {
         }
       },
     })
+  }
 
-    this.lastContent = ''
+  private updateContent(content: string) {
+    this.lastContent = content
+    this.emit('input', { content })
   }
 
   render(props: EditableProps) {
     if (props.content !== this.lastContent) {
       this.lastContent = props.content
-      this.container.innerHTML = props.content
+      this.container.innerHTML = sanitizeHtml(props.content)
     }
     if (props.width != null) {
       this.container.style.width = `${props.width}px`

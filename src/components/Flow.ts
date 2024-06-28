@@ -3,7 +3,7 @@ import { Graph } from './Graph.js'
 import { Edge } from './Edge.js'
 import { DragCard } from './DragCard.js'
 import { Editable } from './Editable.js'
-import { debounce } from '../lib/utils.js'
+import { debounce, randomId } from '../lib/utils.js'
 
 type GraphNode = {
   id: string
@@ -201,7 +201,7 @@ export class Flow extends Component<{}, FlowEvents> {
   }
 
   private onCreateNode({ x, y }: { x: number; y: number }) {
-    const id = Math.random().toString(32).slice(2)
+    const id = randomId()
     const params = { x, y, id }
     const node = this.createNode(params)
     node.editor.focus()

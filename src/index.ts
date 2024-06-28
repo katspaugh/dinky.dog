@@ -3,9 +3,11 @@ import { Flow } from './components/Flow.js'
 import { initDurableStream } from './lib/durable-stream.js'
 import { loadData, saveData } from './lib/database.js'
 import { compressObjectToString, decompressStringToObject } from './lib/compress.js'
+import { Sidebar } from './components/Sidebar.js'
+import { getClientId, getUrlId, saveToLocalStorage } from './lib/persist.js'
 
 async function initRealtimeSync(flow: Flow, lastSequence = 0) {
-  const clientId = navigator.userAgent
+  const clientId = getClientId()
 
   const durableClient = await initDurableStream({
     subject: 'test5',
@@ -31,7 +33,7 @@ async function initRealtimeSync(flow: Flow, lastSequence = 0) {
 }
 
 async function loadFromDatabase() {
-  const encData = await loadData(window.location.search.slice(3))
+  const encData = await loadData(getUrlId())
   const data = await decompressStringToObject(encData)
 
   console.log('Loaded data', data)
@@ -85,8 +87,10 @@ async function init() {
   const appContainer = new Component('div')
 
   const flow = new Flow()
+  const sidebar = new Sidebar()
 
   appContainer.container.append(flow.container)
+  appContainer.container.append(sidebar.container)
   document.body.append(appContainer.container)
 
   const data = await loadFromDatabase()
@@ -99,7 +103,10 @@ async function init() {
     }
   }
 
-  flow.on('command', () => saveToDatabase(flow.getProps(), data))
+  flow.on('command', () => {
+    saveToDatabase(flow.getProps(), data)
+    saveToLocalStorage(data)
+  })
 
   //initRealtimeSync(flow, data?.lastSequence)
 }

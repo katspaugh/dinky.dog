@@ -10,7 +10,6 @@ export class Connector extends Component<{}, ConnectorEvents> {
       style: {
         borderRadius: '100%',
         backgroundColor: 'red',
-        boxSizing: 'border-box',
         width: '20px',
         height: '20px',
         cursor: 'pointer',

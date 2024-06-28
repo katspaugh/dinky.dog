@@ -10,7 +10,6 @@ export class Card extends Component<CardProps, {}> {
       style: {
         borderRadius: '4px',
         width: 'fit-content',
-        boxSizing: 'border-box',
         boxShadow: '1px 1px #000',
       },
     })
