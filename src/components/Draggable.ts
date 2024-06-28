@@ -1,4 +1,5 @@
 import { Component } from '../lib/component.js'
+import { css } from '../lib/dom.js'
 import { draggable } from '../lib/draggable.js'
 
 export type DraggableEvents = {
@@ -19,6 +20,20 @@ export class Draggable extends Component<DraggableProps, DraggableEvents> {
         cursor: 'grab',
         userSelect: 'none',
       },
+
+      onpointerdown: (e: PointerEvent) => {
+        css(this.container, {
+          zIndex: '2',
+          cursor: 'grabbing',
+        })
+      },
+
+      onpointerup: (e: PointerEvent) => {
+        css(this.container, {
+          zIndex: '',
+          cursor: 'grab',
+        })
+      },
     })
 
     draggable(
@@ -28,6 +43,12 @@ export class Draggable extends Component<DraggableProps, DraggableEvents> {
       },
       (x, y) => {
         this.emit('dragstart', { x, y })
+      },
+      () => {
+        css(this.container, {
+          zIndex: '',
+          cursor: 'grab',
+        })
       },
     )
   }

@@ -158,14 +158,14 @@ export class Flow extends Component<{}, FlowEvents> {
 
   private onDrag(node: GraphNode, dx: number, dy: number) {
     const params = { id: node.id, dx, dy }
-    this.moveNode(params)
-    this.emit('command', { command: 'moveNode', params })
+    this.repositionNode(params)
+    this.emit('command', { command: 'repositionNode', params })
   }
 
   private onCreateNode({ x, y }: { x: number; y: number }) {
     const id = Math.random().toString(32).slice(2)
     const params = { x, y, id }
-    const node = this.createNode(params)
+    const node = this.createNode(params, true)
     this.emit('command', { command: 'createNode', params })
     return node
   }
@@ -195,7 +195,7 @@ export class Flow extends Component<{}, FlowEvents> {
 
   /* Public methods */
 
-  public createNode({ x, y, id, content = '' }: NodeProps) {
+  public createNode({ x, y, id, content = '' }: NodeProps, focus = false) {
     const card = new DragCard()
     card.setProps({ x, y })
     const node = { id, content, connections: [], card }
@@ -206,7 +206,10 @@ export class Flow extends Component<{}, FlowEvents> {
 
     card.on('drag', (props) => this.onDrag(node, props.dx, props.dy))
 
-    card.on('click', () => this.onNodeClick(node))
+    card.on('click', () => {
+      this.onNodeClick(node)
+      editable.focus()
+    })
 
     // Text editor
     const editable = new Editable()
@@ -218,10 +221,16 @@ export class Flow extends Component<{}, FlowEvents> {
     this.nodes.push(node)
     this.lastNode = node
 
+    if (focus) {
+      setTimeout(() => {
+        editable.focus()
+      }, 100)
+    }
+
     return node
   }
 
-  public moveNode({ id, dx, dy }: { id: string; dx: number; dy: number }) {
+  public repositionNode({ id, dx, dy }: { id: string; dx: number; dy: number }) {
     const node = this.nodes.find((node) => node.id === id)
     if (!node) return
 

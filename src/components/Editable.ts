@@ -45,4 +45,8 @@ export class Editable extends Component<EditableProps, EditableEvents> {
       this.container.innerHTML = props.content
     }
   }
+
+  focus() {
+    this.container.focus()
+  }
 }
