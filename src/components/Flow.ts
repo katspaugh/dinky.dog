@@ -6,10 +6,12 @@ import { Editable } from './Editable.js'
 
 type GraphNode = {
   id: string
-  card: DragCard
-  outEdges: Edge[]
-  inEdges: Edge[]
   content: string
+  connections: Array<{
+    node: GraphNode
+    edge: Edge
+  }>
+  card: DragCard
 }
 
 type NodeProps = {
@@ -107,7 +109,7 @@ export class Flow extends Component<{}, FlowEvents> {
 
   private createEdge(node: GraphNode) {
     const rect = this.graph.getOffset()
-    const { x, y } = node.card.getConnectionPoint()
+    const { x, y } = node.card.getOutPoint()
     const x1 = x - rect.left
     const y1 = y - rect.top
     const edge = new Edge()
@@ -121,7 +123,7 @@ export class Flow extends Component<{}, FlowEvents> {
 
   private connectEdge(node: GraphNode, edge: Edge) {
     const rect = this.graph.getOffset()
-    const { x, y } = node.card.getConnectionPoint()
+    const { x, y } = node.card.getInPoint()
     edge.setProps({ x2: x - rect.left, y2: y - rect.top })
   }
 
@@ -129,24 +131,34 @@ export class Flow extends Component<{}, FlowEvents> {
     const edge = this.createEdge(fromNode)
     this.connectEdge(toNode, edge)
 
-    fromNode.outEdges.push(edge)
-    toNode.inEdges.push(edge)
+    fromNode.connections.push({
+      node: toNode,
+      edge,
+    })
   }
 
-  private disconnectNodes(fromNode: GraphNode, toNode: GraphNode, edge: Edge) {
-    edge.destroy()
-    fromNode.outEdges = fromNode.outEdges.filter((item) => item !== edge)
-    toNode.inEdges = toNode.inEdges.filter((item) => item !== edge)
+  private disconnectNodes(fromNode: GraphNode, toNode: GraphNode) {
+    fromNode.connections
+      .filter((item) => item.node === toNode)
+      .forEach((item) => {
+        item.edge.destroy()
+      })
+    fromNode.connections = fromNode.connections.filter((item) => item.node !== toNode)
   }
 
   private adjustEdges(node: GraphNode) {
     const rect = this.graph.getOffset()
-    const { x, y } = node.card.getConnectionPoint()
-    node.inEdges.forEach((edge) => {
-      edge.setProps({ x2: x - rect.left, y2: y - rect.top })
-    })
-    node.outEdges.forEach((edge) => {
-      edge.setProps({ x1: x - rect.left, y1: y - rect.top })
+    const fromPoint = node.card.getOutPoint()
+
+    node.connections.forEach((item) => {
+      const toPoint = item.node.card.getInPoint()
+
+      item.edge.setProps({
+        x1: fromPoint.x - rect.left,
+        y1: fromPoint.y - rect.top,
+        x2: toPoint.x - rect.left,
+        y2: toPoint.y - rect.top,
+      })
     })
   }
 
@@ -191,8 +203,9 @@ export class Flow extends Component<{}, FlowEvents> {
   }
 
   private onDisconnectEdge(fromNode: GraphNode, edge: Edge) {
-    const toNode = this.nodes.find((node) => node.inEdges.includes(edge))
-    this.disconnectNodes(fromNode, toNode, edge)
+    const toNode = fromNode.connections.find((item) => item.edge === edge)?.node
+    if (!toNode) return
+    this.disconnectNodes(fromNode, toNode)
     this.emit('disconnectNodes', { from: fromNode.id, to: toNode.id })
   }
 
@@ -204,7 +217,7 @@ export class Flow extends Component<{}, FlowEvents> {
   public createNode({ x, y, id, content = '' }: NodeProps) {
     const card = new DragCard()
     card.setProps({ x, y })
-    const node = { id, card, outEdges: [], inEdges: [], content }
+    const node = { id, content, connections: [], card }
 
     card.on('connectorClick', () => this.onConnectorClick(node))
 
@@ -234,13 +247,21 @@ export class Flow extends Component<{}, FlowEvents> {
     const cardProps = node.card.getProps()
     node.card.setProps({ x: cardProps.x + dx, y: cardProps.y + dy })
 
-    node.outEdges.forEach((edge) => {
+    // Adjust outgoing connections
+    node.connections.forEach(({ edge }) => {
       const { x1, y1 } = edge.getProps()
       edge.setProps({ x1: x1 + dx, y1: y1 + dy })
     })
-    node.inEdges.forEach((edge) => {
-      const { x2, y2 } = edge.getProps()
-      edge.setProps({ x2: x2 + dx, y2: y2 + dy })
+
+    // Adjust incoming connections
+    this.nodes.forEach((otherNode) => {
+      otherNode.connections.forEach((item) => {
+        if (item.node === node) {
+          const { edge } = item
+          const { x2, y2 } = edge.getProps()
+          edge.setProps({ x2: x2 + dx, y2: y2 + dy })
+        }
+      })
     })
   }
 
@@ -248,9 +269,25 @@ export class Flow extends Component<{}, FlowEvents> {
     const node = this.nodes.find((node) => node.id === id)
     if (!node) return
 
+    // Disconnect outgoing connections
+    node.connections.forEach((item) => {
+      this.disconnectNodes(node, item.node)
+    })
+
+    // Disconnect incoming connections
+    this.nodes.forEach((otherNode) => {
+      const newConnections = otherNode.connections.filter((item) => item.node !== node)
+      if (newConnections !== otherNode.connections) {
+        otherNode.connections.forEach((item) => {
+          if (item.node === node) {
+            this.disconnectNodes(otherNode, node)
+          }
+        })
+        otherNode.connections = newConnections
+      }
+    })
+
     node.card.destroy()
-    node.outEdges.forEach((edge) => edge.destroy())
-    node.inEdges.forEach((edge) => edge.destroy())
     this.nodes = this.nodes.filter((item) => item !== node)
   }
 }

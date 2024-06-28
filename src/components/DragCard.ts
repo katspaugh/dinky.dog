@@ -57,7 +57,15 @@ export class DragCard extends Component<DragCardProps, DragCardEvents> {
     })
   }
 
-  getConnectionPoint() {
+  getInPoint() {
+    const rect = this.container.getBoundingClientRect()
+    return {
+      x: rect.left + rect.width / 2,
+      y: rect.top + rect.height / 2,
+    }
+  }
+
+  getOutPoint() {
     const rect = this.connector.container.getBoundingClientRect()
     return {
       x: rect.left + rect.width / 2,
