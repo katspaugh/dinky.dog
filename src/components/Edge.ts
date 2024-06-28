@@ -3,6 +3,7 @@ import { svgEl } from '../lib/dom.js'
 
 export type EdgeEvents = {
   position: { x1: number; y1: number; x2: number; y2: number }
+  click: {}
 }
 
 type EdgeProps = {
@@ -26,6 +27,21 @@ export class Edge extends Component<EdgeProps, EdgeEvents> {
         stroke: 'blue',
         strokeWidth: '4px',
         fill: 'none',
+        transition: 'stroke-width 0.2s',
+        pointerEvents: 'all',
+        cursor: 'pointer',
+      },
+
+      onclick: () => {
+        this.emit('click', {})
+      },
+
+      onmouseenter: () => {
+        path.style.strokeWidth = '6px'
+      },
+
+      onmouseleave: () => {
+        path.style.strokeWidth = '4px'
       },
     })
   }

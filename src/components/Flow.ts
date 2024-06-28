@@ -32,6 +32,8 @@ type FlowEvents = {
   moveNode: { id: string; dx: number; dy: number }
   removeNode: { id: string }
   editNode: { id: string; content: string }
+  connectNodes: { from: string; to: string }
+  disconnectNodes: { from: string; to: string }
 }
 
 export class Flow extends Component<{}, FlowEvents> {
@@ -58,8 +60,7 @@ export class Flow extends Component<{}, FlowEvents> {
 
           item.connections.forEach((id) => {
             const target = this.nodes.find((node) => node.id === id)
-            const edge = this.createEdge(node)
-            this.connectEdge(target, edge)
+            this.connectNodes(node, target)
           })
         }
       })
@@ -82,9 +83,12 @@ export class Flow extends Component<{}, FlowEvents> {
     // Click
     this.graph.on('click', (props) => {
       if (this.lastEdge) {
-        const node = this.onCreateNode({ x: props.x, y: props.y })
-        this.connectEdge(node, this.lastEdge)
+        this.lastEdge.destroy()
         this.lastEdge = null
+
+        const fromNode = this.lastNode
+        const node = this.onCreateNode({ x: props.x, y: props.y })
+        this.onConnectNodes(fromNode, node)
       }
     })
 
@@ -108,10 +112,10 @@ export class Flow extends Component<{}, FlowEvents> {
     const y1 = y - rect.top
     const edge = new Edge()
     edge.setProps({ x1, y1, x2: x1, y2: y1 })
-
     this.graph.renderEdge(edge.container)
 
-    node.outEdges.push(edge)
+    edge.on('click', () => this.onDisconnectEdge(node, edge))
+
     return edge
   }
 
@@ -119,7 +123,20 @@ export class Flow extends Component<{}, FlowEvents> {
     const rect = this.graph.getOffset()
     const { x, y } = node.card.getConnectionPoint()
     edge.setProps({ x2: x - rect.left, y2: y - rect.top })
-    node.inEdges.push(edge)
+  }
+
+  private connectNodes(fromNode: GraphNode, toNode: GraphNode) {
+    const edge = this.createEdge(fromNode)
+    this.connectEdge(toNode, edge)
+
+    fromNode.outEdges.push(edge)
+    toNode.inEdges.push(edge)
+  }
+
+  private disconnectNodes(fromNode: GraphNode, toNode: GraphNode, edge: Edge) {
+    edge.destroy()
+    fromNode.outEdges = fromNode.outEdges.filter((item) => item !== edge)
+    toNode.inEdges = toNode.inEdges.filter((item) => item !== edge)
   }
 
   private adjustEdges(node: GraphNode) {
@@ -135,12 +152,14 @@ export class Flow extends Component<{}, FlowEvents> {
 
   private onConnectorClick(node: GraphNode) {
     this.lastEdge = this.createEdge(node)
+    this.lastNode = node
   }
 
   private onNodeClick(node: GraphNode) {
-    if (this.lastEdge) {
-      this.connectEdge(node, this.lastEdge)
+    if (this.lastNode && this.lastEdge) {
+      this.lastEdge.destroy()
       this.lastEdge = null
+      this.onConnectNodes(this.lastNode, node)
     } else {
       this.lastNode = node
     }
@@ -153,7 +172,7 @@ export class Flow extends Component<{}, FlowEvents> {
   }
 
   private onCreateNode({ x, y }: { x: number; y: number }) {
-    const id = Math.random().toString(32)
+    const id = Math.random().toString(32).slice(2)
     const params = { x, y, id }
     const node = this.createNode(params)
     this.emit('createNode', params)
@@ -164,6 +183,17 @@ export class Flow extends Component<{}, FlowEvents> {
     const params = { id: node.id }
     this.removeNode(params)
     this.emit('removeNode', params)
+  }
+
+  private onConnectNodes(fromNode: GraphNode, toNode: GraphNode) {
+    this.connectNodes(fromNode, toNode)
+    this.emit('connectNodes', { from: fromNode.id, to: toNode.id })
+  }
+
+  private onDisconnectEdge(fromNode: GraphNode, edge: Edge) {
+    const toNode = this.nodes.find((node) => node.inEdges.includes(edge))
+    this.disconnectNodes(fromNode, toNode, edge)
+    this.emit('disconnectNodes', { from: fromNode.id, to: toNode.id })
   }
 
   private onEditNode(node: GraphNode, content: string) {

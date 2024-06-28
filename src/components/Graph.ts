@@ -18,9 +18,6 @@ export class Graph extends Component<{}, PanEvents> {
         width: '100vw',
         height: '100vh',
         overflow: 'auto',
-        backgroundImage: 'radial-gradient(circle, #555 1px, transparent 1px)',
-        backgroundSize: '30px 30px',
-        cursor: 'crosshair',
       },
     })
 
@@ -29,7 +26,7 @@ export class Graph extends Component<{}, PanEvents> {
     this.pan = new Pan()
     this.pan.setProps({ width: WIDTH, height: HEIGHT })
 
-    this.container.append(this.svg.container)
+    this.pan.container.append(this.svg.container)
     this.container.append(this.pan.container)
 
     this.on = this.pan.on.bind(this.pan)

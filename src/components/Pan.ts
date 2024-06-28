@@ -18,6 +18,9 @@ export class Pan extends Component<PanProps, PanEvents> {
     super('div', {
       style: {
         position: 'absolute',
+        backgroundImage: 'radial-gradient(circle, #555 1px, transparent 1px)',
+        backgroundSize: '30px 30px',
+        cursor: 'crosshair',
       },
 
       onclick: (e: MouseEvent) => {
