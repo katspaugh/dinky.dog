@@ -54,6 +54,16 @@ class Drawer extends Component<{}, {}> {
   }
 }
 
+const makeButton = (styles?: Partial<CSSStyleDeclaration>) => {
+  const button = new Button()
+  button.container.innerHTML = '<img src="/images/dinky-small.png" alt="Dinky Dog" width="20px" height="auto" />'
+  css(button.container, {
+    padding: '9px 10px 5px',
+    ...styles,
+  })
+  return button
+}
+
 export class Sidebar extends Component<SidebarProps, SidebarEvents> {
   private input: Input
   private colorpicker: Colorpicker
@@ -62,14 +72,6 @@ export class Sidebar extends Component<SidebarProps, SidebarEvents> {
     const input = new Input()
     const menu = new Menu()
     const fixedMenu = new Menu()
-
-    const button = new Button()
-    button.container.innerHTML = '<img src="/images/dinky-small.png" alt="Dinky Dog" width="20px" height="auto" />'
-    css(button.container, {
-      padding: '9px 10px 5px',
-      position: 'relative',
-      zIndex: '3',
-    })
 
     const colorpicker = new Colorpicker()
     css(colorpicker.container, {
@@ -85,8 +87,17 @@ export class Sidebar extends Component<SidebarProps, SidebarEvents> {
 
     const heading = new Heading()
 
+    const button = makeButton()
+
+    const drawerButton = makeButton({
+      position: 'absolute',
+      top: '10px',
+      right: '10px',
+      boxShadow: 'none',
+    })
+
     const drawer = new Drawer()
-    drawer.container.append(heading.container, menu.container, fixedMenu.container)
+    drawer.container.append(heading.container, menu.container, fixedMenu.container, drawerButton.container)
 
     super(
       'div',
@@ -105,14 +116,13 @@ export class Sidebar extends Component<SidebarProps, SidebarEvents> {
       [input.container, button.container, drawer.container, colorpicker.container],
     )
 
-    let isExpanded = false
-
     button.on('click', () => {
-      isExpanded = !isExpanded
-      drawer.container.style.transform = isExpanded ? 'translateX(0)' : ''
-      button.container.style.boxShadow = isExpanded ? 'none' : ''
-
+      drawer.container.style.transform = 'translateX(0)'
       this.updateMenu(menu)
+    })
+
+    drawerButton.on('click', () => {
+      drawer.container.style.transform = ''
     })
 
     input.on('change', ({ value }) => {
