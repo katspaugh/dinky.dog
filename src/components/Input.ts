@@ -14,6 +14,7 @@ export class Input extends Component<InputProps, InputEvents> {
 
   constructor() {
     super('input', {
+      // @ts-ignore
       size: 30,
 
       placeholder: 'Untitled',
@@ -30,13 +31,19 @@ export class Input extends Component<InputProps, InputEvents> {
       },
 
       oninput: (e: Event) => {
-        this.lastInput = (e.target as HTMLInputElement).value
-        this.emit('input', { value: this.lastInput })
+        const value = (e.target as HTMLInputElement).value
+        if (value !== this.lastInput) {
+          this.lastInput = value
+          this.emit('input', { value })
+        }
       },
 
       onchange: (e: Event) => {
-        this.lastInput = (e.target as HTMLInputElement).value
-        this.emit('change', { value: this.lastInput })
+        const value = (e.target as HTMLInputElement).value
+        if (value !== this.lastInput) {
+          this.lastInput = value
+          this.emit('change', { value })
+        }
       },
     })
   }

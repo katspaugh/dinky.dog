@@ -3,11 +3,11 @@ import { css } from '../lib/dom.js'
 import { draggable } from '../lib/draggable.js'
 
 export type DraggableEvents = {
-  drag: { dx: number; dy: number }
+  drag: { x: number; y: number }
   dragstart: { x: number; y: number }
 }
 
-type DraggableProps = {
+export type DraggableProps = {
   x: number
   y: number
 }
@@ -39,7 +39,8 @@ export class Draggable extends Component<DraggableProps, DraggableEvents> {
     draggable(
       this.container,
       (dx, dy) => {
-        this.emit('drag', { dx, dy })
+        this.setProps({ x: this.props.x + dx, y: this.props.y + dy })
+        this.emit('drag', this.props)
       },
       (x, y) => {
         this.emit('dragstart', { x, y })

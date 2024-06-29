@@ -1,13 +1,11 @@
 import { Component } from '../lib/component.js'
 import { Card } from './Card.js'
 import { Connector } from './Connector.js'
-import { Draggable } from './Draggable.js'
+import { Draggable, type DraggableEvents } from './Draggable.js'
 
-type DragCardEvents = {
+type DragCardEvents = DraggableEvents & {
   click: {}
   connectorClick: {}
-  drag: { dx: number; dy: number }
-  dragstart: { x: number; y: number }
 }
 
 type DragCardProps = {
@@ -54,12 +52,12 @@ export class DragCard extends Component<DragCardProps, DragCardEvents> {
       this.emit('connectorClick', {})
     })
 
-    draggable.on('drag', ({ dx, dy }) => {
-      this.emit('drag', { dx, dy })
+    draggable.on('drag', (params) => {
+      this.emit('drag', params)
     })
 
-    draggable.on('dragstart', ({ x, y }) => {
-      this.emit('dragstart', { x, y })
+    draggable.on('dragstart', (params) => {
+      this.emit('dragstart', params)
     })
   }
 
@@ -79,11 +77,16 @@ export class DragCard extends Component<DragCardProps, DragCardEvents> {
     }
   }
 
-  setProps(props: DragCardProps) {
+  setProps(props: Partial<DragCardProps>) {
     super.setProps(props)
-    const { content, x, y } = this.props
-    this.card.setProps({ content })
-    this.draggable.setProps({ x, y })
+    const { content, x, y } = props
+
+    if (content) {
+      this.card.setProps({ content })
+    }
+    if (x !== undefined || y !== undefined) {
+      this.draggable.setProps({ x, y })
+    }
   }
 
   render() {

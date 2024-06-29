@@ -192,13 +192,8 @@ export class Flow extends Component<FlowProps, FlowEvents> {
     }
   }
 
-  private onDrag(node: GraphNode, dx: number, dy: number) {
-    const props = node.card.getProps()
-    const params = {
-      id: node.id,
-      x: props.x + dx,
-      y: props.y + dy,
-    }
+  private onDrag(node: GraphNode, x: number, y: number) {
+    const params = { id: node.id, x, y }
     this.repositionNode(params)
     this.emitDebounced('command', { command: 'repositionNode', params })
   }
@@ -252,7 +247,7 @@ export class Flow extends Component<FlowProps, FlowEvents> {
 
     card.on('dragstart', () => this.adjustEdges(node))
 
-    card.on('drag', (props) => this.onDrag(node, props.dx, props.dy))
+    card.on('drag', (props) => this.onDrag(node, props.x, props.y))
 
     card.on('click', () => this.onNodeClick(node))
 
