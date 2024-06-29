@@ -5,11 +5,15 @@ type GeneralPropTypes = {
   [PropName: string]: unknown
 }
 
-export class Component<
-  PropTypes extends GeneralPropTypes,
-  EventTypes extends GeneralEventTypes,
-> extends EventEmitter<EventTypes> {
+type ComponentEvents = {
+  destroy: {}
+}
+
+export class Component<PropTypes extends GeneralPropTypes, EventTypes extends GeneralEventTypes> extends EventEmitter<
+  EventTypes & ComponentEvents
+> {
   private _container: HTMLElement
+  private raf: number | null = null
   protected props: PropTypes = {} as PropTypes
 
   constructor(...args: Parameters<typeof el>) {
@@ -34,7 +38,8 @@ export class Component<
     if (Object.keys(newProps).every((key) => newProps[key] === this.props[key])) return
     this.props = newProps
 
-    requestAnimationFrame(() => {
+    if (this.raf) cancelAnimationFrame(this.raf)
+    this.raf = requestAnimationFrame(() => {
       this.render()
     })
   }
@@ -43,15 +48,11 @@ export class Component<
     // render the component
   }
 
-  protected onDestroy() {
-    // cleanup
-  }
-
   public destroy() {
     if (!this.container) return
     this.container.remove()
     delete this.container
+    this.emit('destroy', {} as EventTypes['destroy'])
     this.unAll()
-    this.onDestroy()
   }
 }

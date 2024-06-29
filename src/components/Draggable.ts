@@ -39,8 +39,9 @@ export class Draggable extends Component<DraggableProps, DraggableEvents> {
     draggable(
       this.container,
       (dx, dy) => {
-        this.setProps({ x: this.props.x + dx, y: this.props.y + dy })
-        this.emit('drag', this.props)
+        const newProps = { x: this.props.x + dx, y: this.props.y + dy }
+        this.emit('drag', newProps)
+        this.setProps(newProps)
       },
       (x, y) => {
         this.emit('dragstart', { x, y })

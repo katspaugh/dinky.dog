@@ -62,10 +62,16 @@ export class Flow extends Component<FlowProps, FlowEvents> {
   render() {
     const { nodes, backgroundColor } = this.props
 
+    if (backgroundColor) {
+      this.container.style.backgroundColor = backgroundColor
+    }
+
     Object.values(nodes).forEach((item) => {
       this.createNode(item)
+    })
 
-      Promise.resolve().then(() => {
+    requestAnimationFrame(() => {
+      Object.values(nodes).forEach((item) => {
         if (item.connections) {
           item.connections.forEach((id) => {
             this.connectNodes({ from: item.id, to: id })
@@ -73,10 +79,6 @@ export class Flow extends Component<FlowProps, FlowEvents> {
         }
       })
     })
-
-    if (backgroundColor) {
-      this.container.style.backgroundColor = backgroundColor
-    }
   }
 
   // @ts-ignore
@@ -161,22 +163,6 @@ export class Flow extends Component<FlowProps, FlowEvents> {
     edge.setProps({ x2: x - rect.left, y2: y - rect.top })
   }
 
-  private adjustEdges(node: GraphNode) {
-    const rect = this.graph.getOffset()
-    const fromPoint = node.card.getOutPoint()
-
-    node.connections.forEach((item) => {
-      const toPoint = item.node.card.getInPoint()
-
-      item.edge.setProps({
-        x1: fromPoint.x - rect.left,
-        y1: fromPoint.y - rect.top,
-        x2: toPoint.x - rect.left,
-        y2: toPoint.y - rect.top,
-      })
-    })
-  }
-
   private onConnectorClick(node: GraphNode) {
     this.lastEdge = this.createEdge(node)
     this.lastNode = node
@@ -244,8 +230,6 @@ export class Flow extends Component<FlowProps, FlowEvents> {
     const node = { id, connections: [], card, editor }
 
     card.on('connectorClick', () => this.onConnectorClick(node))
-
-    card.on('dragstart', () => this.adjustEdges(node))
 
     card.on('drag', (props) => this.onDrag(node, props.x, props.y))
 

@@ -3,16 +3,17 @@ import { Card } from './Card.js'
 import { Connector } from './Connector.js'
 import { Draggable, type DraggableEvents } from './Draggable.js'
 
-type DragCardEvents = DraggableEvents & {
-  click: {}
-  connectorClick: {}
-}
-
 type DragCardProps = {
   x: number
   y: number
   background?: string
   content?: HTMLElement
+}
+
+type DragCardEvents = DraggableEvents & {
+  render: {}
+  click: {}
+  connectorClick: {}
 }
 
 export class DragCard extends Component<DragCardProps, DragCardEvents> {
@@ -58,6 +59,9 @@ export class DragCard extends Component<DragCardProps, DragCardEvents> {
 
     draggable.on('dragstart', (params) => {
       this.emit('dragstart', params)
+
+      // Remove selection
+      window.getSelection()?.removeAllRanges()
     })
   }
 
