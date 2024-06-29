@@ -9,7 +9,7 @@ export class Connector extends Component<{}, ConnectorEvents> {
     super('button', {
       style: {
         borderRadius: '100%',
-        backgroundColor: 'red',
+        backgroundColor: 'var(--accent-color)',
         width: '20px',
         height: '20px',
         cursor: 'pointer',

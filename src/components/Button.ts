@@ -19,7 +19,7 @@ export class Button extends Component<ButtonProps, ButtonEvents> {
         padding: '0.5em 0.7em',
         fontSize: '16px',
         cursor: 'pointer',
-        transition: 'box-shadow 0.2s',
+        transition: 'box-shadow 0.2s, transform 0.1s',
         pointerEvents: 'all',
       },
       onclick: () => {

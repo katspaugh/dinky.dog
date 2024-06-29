@@ -27,11 +27,6 @@ export class DragCard extends Component<DragCardProps, DragCardEvents> {
     const connector = new Connector()
 
     super(draggable.container, {
-      style: {
-        backgroundColor: '#f5f5f5',
-        opacity: '0.9',
-      },
-
       onclick: (e: MouseEvent) => {
         e.preventDefault()
         this.emit('click', {})
@@ -89,7 +84,7 @@ export class DragCard extends Component<DragCardProps, DragCardEvents> {
 
   setProps(props: Partial<DragCardProps>) {
     super.setProps(props)
-    const { content, x, y } = props
+    const { content, x, y, background } = props
 
     if (content) {
       this.card.setProps({ content })
@@ -97,12 +92,8 @@ export class DragCard extends Component<DragCardProps, DragCardEvents> {
     if (x !== undefined || y !== undefined) {
       this.draggable.setProps({ x, y })
     }
-  }
-
-  render() {
-    const { background } = this.props
     if (background) {
-      this.container.style.backgroundColor = background
+      this.card.setProps({ background })
     }
   }
 }

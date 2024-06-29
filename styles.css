@@ -1,29 +1,18 @@
 :root {
-  --background-color: #fffffa80;
-  --text-color: #111;
-  --secondary-text-color: #555;
-  --link-color: #a52a2a;
-  --link-hover-color: #cd5c5c;
-  --hover-color: #aaf;
-  --point-color: #faa;
-  --edge-color: #aaf;
-  --edge-hover-color: #cd5c5c;
-  --border-color: #d4d4d4;
-  --grid-color: #777;
-  --border-hover-color: #a0a0a0;
-  --textarea-color: #fff;
-  --text-dim-color: #aaa;
-  --text-node-color: #000;
-  --shadow-color: #555;
-  --button-color: #eee;
-  --menu-color: #fafafa;
+  --overlay-color: rgba(255, 255, 255, 0.2);
+  --accent-color: #FF5A5F;
+  --edge-color: #0074D9;
   --menu-text-color: #333;
   --menu-hover-color: #ECECEC;
   --menu-hover-text-color: #000;
+  --card-color: #f5f5f5;
+  --shadow-color: #000;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
+    --overlay-color: rgba(0, 0, 0, 0.1);
+    --card-color: #f1f1f1;
   }
 }
 
@@ -61,22 +50,52 @@ input:focus::placeholder {
   color: transparent;
 }
 
-[contenteditable] img {
+.Edge:hover {
+  stroke-width: 6px;
+}
+
+.Button:hover {
+  transform: scale(1.05);
+}
+
+@keyframes wobble {
+  0% {
+    transform: scale(1.01) rotate(0deg);
+  }
+  25% {
+    transform: scale(1.01) rotate(.5deg);
+  }
+  50% {
+    transform: scale(1.01) rotate(-.5deg);
+  }
+  75% {
+    transform: scale(1.01) rotate(.3deg);
+  }
+  100% {
+    transform: scale(1.01) rotate(0deg);
+  }
+}
+
+.Card:hover {
+  transform: scale(1.01);
+  box-shadow: 2px 2px var(--shadow-color);
+}
+
+.Card:active {
+  animation: wobble 0.5s infinite;
+  animation-delay: 0.1s;
+  box-shadow: 2px 2px var(--shadow-color);
+}
+
+.Editable:focus {
+  outline: 1px solid var(--accent-color);
+  border-color: var(--accent-color);
+}
+
+.Editable img {
   display: block;
   border-radius: inherit;
   width: 100%;
   height: auto;
   pointer-events: none;
-}
-
-path:hover {
-  stroke-width: 6px;
-}
-
-button {
-  transition: transform 0.1s;
-}
-
-button:hover {
-  transform: scale(1.05);
 }

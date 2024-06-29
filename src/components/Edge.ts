@@ -19,7 +19,7 @@ export class Edge extends Component<EdgeProps, EdgeEvents> {
 
     super(path as unknown as HTMLElement, {
       style: {
-        stroke: 'blue',
+        stroke: 'var(--edge-color)',
         strokeWidth: '4px',
         fill: 'none',
         transition: 'stroke-width 0.2s',
