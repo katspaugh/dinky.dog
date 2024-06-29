@@ -18,7 +18,8 @@ export class Connector extends Component<{}, ConnectorEvents> {
         position: 'absolute',
         right: '0',
         top: '50%',
-        transform: 'translate(50%, -50%)',
+        marginTop: '-10px',
+        marginRight: '-10px',
       },
 
       onclick: (e) => {

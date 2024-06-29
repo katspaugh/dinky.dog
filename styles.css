@@ -68,3 +68,15 @@ input:focus::placeholder {
   height: auto;
   pointer-events: none;
 }
+
+path:hover {
+  stroke-width: 6px;
+}
+
+button {
+  transition: transform 0.1s;
+}
+
+button:hover {
+  transform: scale(1.05);
+}

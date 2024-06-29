@@ -30,22 +30,12 @@ export class Edge extends Component<EdgeProps, EdgeEvents> {
       onclick: () => {
         this.emit('click', {})
       },
-
-      onmouseenter: () => {
-        path.style.strokeWidth = '6px'
-      },
-
-      onmouseleave: () => {
-        path.style.strokeWidth = '4px'
-      },
     })
   }
 
   render() {
     const { x1, y1, x2, y2 } = this.props
-
     this.container.setAttribute('d', `M ${x1} ${y1} C ${x1 + 100} ${y1} ${x2 - 100} ${y2} ${x2} ${y2}`)
-
     this.emit('position', this.props)
   }
 }

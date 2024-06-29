@@ -93,8 +93,8 @@ export class Sidebar extends Component<SidebarProps, SidebarEvents> {
 
     button.on('click', () => {
       isExpanded = !isExpanded
-      drawer.container.style.transform = isExpanded ? 'translateX(0)' : 'translateX(100%)'
-      button.container.style.boxShadow = isExpanded ? '' : '1px 1px #000'
+      drawer.container.style.transform = isExpanded ? 'translateX(0)' : ''
+      button.container.style.boxShadow = isExpanded ? 'none' : ''
 
       this.updateMenu(menu)
     })
