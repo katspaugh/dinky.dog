@@ -22,17 +22,17 @@ export class Draggable extends Component<DraggableProps, DraggableEvents> {
         userSelect: 'none',
       },
 
-      onpointerdown: (e: PointerEvent) => {
+      onpointerdown: () => {
         css(this.container, {
           zIndex: '2',
           cursor: 'grabbing',
         })
       },
 
-      onpointerup: (e: PointerEvent) => {
+      onpointerup: () => {
         css(this.container, {
           zIndex: '',
-          cursor: 'grab',
+          cursor: '',
         })
       },
     })

@@ -260,6 +260,12 @@ export class Flow extends Component<FlowProps, FlowEvents> {
     this.emitDebounced('command', { command: 'editNode', params: { id: node.id, content } })
   }
 
+  private onNodeBackgroundChange(node: GraphNode, background: string) {
+    const params = { id: node.id, background }
+    this.changeNodeBackground(params)
+    this.emit('command', { command: 'changeNodeBackground', params })
+  }
+
   /* Public methods */
 
   public createNode({ id, width, height, content = '', ...cardProps }: NodeProps) {
@@ -274,8 +280,9 @@ export class Flow extends Component<FlowProps, FlowEvents> {
     const node = { id, connections: [], card, editor }
 
     card.on('connectorClick', () => this.onConnectorClick(node))
-    card.on('drag', (props) => this.onDrag(node, props.x, props.y))
+    card.on('drag', (params) => this.onDrag(node, params.x, params.y))
     card.on('dragend', () => this.onDragEnd(node))
+    card.on('backgroundChange', ({ background }) => this.onNodeBackgroundChange(node, background))
 
     card.on('click', () => this.onNodeClick(node))
 
@@ -373,5 +380,11 @@ export class Flow extends Component<FlowProps, FlowEvents> {
     const node = this.nodes[id]
     if (!node) return
     node.editor.setProps({ content })
+  }
+
+  public changeNodeBackground({ id, background }: { id: string; background: string }) {
+    const node = this.nodes[id]
+    if (!node) return
+    node.card.setProps({ background })
   }
 }

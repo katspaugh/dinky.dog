@@ -1,5 +1,5 @@
 import { Component } from '../lib/component.js'
-import { Card } from './Card.js'
+import { Card, type CardEvents } from './Card.js'
 import { Connector } from './Connector.js'
 import { Draggable, type DraggableEvents } from './Draggable.js'
 
@@ -10,11 +10,12 @@ type DragCardProps = {
   content?: HTMLElement
 }
 
-type DragCardEvents = DraggableEvents & {
-  render: {}
-  click: {}
-  connectorClick: {}
-}
+type DragCardEvents = DraggableEvents &
+  CardEvents & {
+    render: {}
+    click: {}
+    connectorClick: {}
+  }
 
 export class DragCard extends Component<DragCardProps, DragCardEvents> {
   private connector: Connector
@@ -46,6 +47,10 @@ export class DragCard extends Component<DragCardProps, DragCardEvents> {
 
     this.connector.on('click', () => {
       this.emit('connectorClick', {})
+    })
+
+    this.card.on('backgroundChange', ({ background }) => {
+      this.emit('backgroundChange', { background })
     })
 
     draggable.on('drag', (params) => {

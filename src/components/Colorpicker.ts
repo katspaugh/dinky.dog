@@ -16,7 +16,7 @@ const PASTEL_COLORS = [
 ]
 
 // Share the same datalist for all colorwheels
-let _datalist: HTMLDataListElement | null = null
+let datalist: HTMLDataListElement | null = null
 
 type ColorpickerProps = {
   color: string
@@ -28,13 +28,13 @@ type ColorpickerEvents = {
 
 export class Colorpicker extends Component<ColorpickerProps, ColorpickerEvents> {
   constructor() {
-    if (!_datalist) {
-      _datalist = el(
+    if (!datalist) {
+      datalist = el(
         'datalist',
         { id: 'colors' },
         PASTEL_COLORS.map((color) => el('option', { value: color })),
       )
-      document.body.appendChild(_datalist)
+      document.body.appendChild(datalist)
     }
 
     super('input', {
@@ -45,9 +45,15 @@ export class Colorpicker extends Component<ColorpickerProps, ColorpickerEvents> 
       oninput: () => {
         this.emit('change', { color: (this.container as HTMLInputElement).value })
       },
+      onclick: (e: PointerEvent) => {
+        e.stopPropagation()
+      },
+      style: {
+        cursor: 'pointer',
+      },
     })
 
-    this.container.setAttribute('list', _datalist.id)
+    this.container.setAttribute('list', datalist.id)
   }
 
   render() {
