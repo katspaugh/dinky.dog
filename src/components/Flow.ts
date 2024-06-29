@@ -26,7 +26,7 @@ type NodeProps = {
   content?: string
 }
 
-type FlowProps = {
+export type FlowProps = {
   nodes: Record<
     string,
     NodeProps & {
@@ -36,7 +36,7 @@ type FlowProps = {
   backgroundColor?: string
 }
 
-type FlowEvents = {
+export type FlowEvents = {
   command: {
     command: keyof Flow
     params: unknown
@@ -100,9 +100,8 @@ export class Flow extends Component<FlowProps, FlowEvents> {
     }
   }
 
-  // @ts-ignore
   getProps() {
-    return Object.values(this.nodes).reduce((acc, node) => {
+    const nodes = Object.values(this.nodes).reduce((acc, node) => {
       const { id } = node
       const { x, y, background } = node.card.getProps()
       const { content, width, height } = node.editor.getProps()
@@ -118,6 +117,8 @@ export class Flow extends Component<FlowProps, FlowEvents> {
       }
       return acc
     }, {})
+
+    return { nodes, backgroundColor: this.props.backgroundColor }
   }
 
   private emitDebounced = debounce((event, params) => {

@@ -55,6 +55,7 @@ input:focus::placeholder {
   stroke-width: 6px;
 }
 
+.Connector:hover,
 .Button:hover {
   transform: scale(1.05);
 }

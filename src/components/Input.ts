@@ -40,10 +40,7 @@ export class Input extends Component<InputProps, InputEvents> {
 
       onchange: (e: Event) => {
         const value = (e.target as HTMLInputElement).value
-        if (value !== this.lastInput) {
-          this.lastInput = value
-          this.emit('change', { value })
-        }
+        this.emit('change', { value })
       },
     })
   }

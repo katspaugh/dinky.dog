@@ -12,7 +12,7 @@ type SidebarProps = {
   backgroundColor?: string
 }
 
-type SidebarEvents = {
+export type SidebarEvents = {
   titleChange: { title: string }
   backgroundColorChange: { backgroundColor: string }
 }
@@ -161,7 +161,7 @@ export class Sidebar extends Component<SidebarProps, SidebarEvents> {
       const items = savedStates.map((state) => {
         return {
           text: state.title,
-          href: makeUrl(state.id),
+          href: makeUrl(state.id, state.title),
         }
       })
       menu.setProps({ items })
@@ -180,10 +180,5 @@ export class Sidebar extends Component<SidebarProps, SidebarEvents> {
     }
   }
 
-  render() {
-    const { title } = this.props
-    if (title) {
-      document.title = `Dinky Dog — ${title}`
-    }
-  }
+  render() { }
 }

@@ -1,12 +1,11 @@
-import { Component } from './lib/component.js'
-import { Flow } from './components/Flow.js'
 import { initDurableStream } from './lib/durable-stream.js'
 import { loadData, saveData } from './lib/database.js'
 import { compressObjectToString, decompressStringToObject } from './lib/compress.js'
-import { Sidebar } from './components/Sidebar.js'
-import { getClientId, getUrlId, saveToLocalStorage } from './lib/persist.js'
+import { getClientId, getUrlId, saveToLocalStorage, setUrlId } from './lib/persist.js'
+import { App, type AppProps } from './components/App.js'
+import { randomId } from './lib/utils.js'
 
-async function initRealtimeSync(flow: Flow, lastSequence = 0) {
+async function initRealtimeSync(app: App, lastSequence = 0) {
   const clientId = getClientId()
 
   const durableClient = await initDurableStream({
@@ -15,15 +14,12 @@ async function initRealtimeSync(flow: Flow, lastSequence = 0) {
     onMessage: (msg) => {
       if (msg.data.clientId !== clientId) {
         console.log('Received message', msg)
-
-        if (msg.data.command && msg.data.command in flow) {
-          flow[msg.data.command](msg.data.params)
-        }
+        app.callCommand(msg.data.command, msg.data.params)
       }
     },
   })
 
-  flow.on('command', ({ command, params }) => {
+  app.on('command', ({ command, params }) => {
     durableClient.publish({
       clientId,
       command,
@@ -56,7 +52,7 @@ async function loadFromDatabase() {
   return { ...data, nodes }
 }
 
-async function saveToDatabase(flowNodes, restData) {
+async function saveToDatabase(flowNodes: AppProps['state']['nodes'], restData: AppProps['state']) {
   const nodes = Object.entries(flowNodes).reduce((acc, [key, value]: any) => {
     acc[key] = {
       data: {
@@ -83,17 +79,21 @@ async function saveToDatabase(flowNodes, restData) {
   await saveData(data.id, encData)
 }
 
-function initSpecialPages(flow) {
-  const isSpecial = location.pathname.startsWith('/privacy') || location.pathname.startsWith('/terms')
+function initSpecialPages(app: App) {
+  if (!(location.pathname.startsWith('/privacy') || location.pathname.startsWith('/terms'))) return false
 
-  if (isSpecial) {
-    const textEl = document.getElementById('text')
-    textEl.style.display = 'none'
-    flow.setProps({
+  const textEl = document.getElementById('text')
+  const content = textEl.innerHTML
+  textEl.remove()
+
+  app.setProps({
+    state: {
+      id: location.pathname,
+      lastSequence: 0,
       nodes: {
         '1': {
           id: '1',
-          content: textEl.innerHTML,
+          content,
           x: 20,
           y: 20,
           width: window.innerWidth > 1000 ? window.innerWidth * 0.7 : window.innerWidth - 40,
@@ -101,52 +101,59 @@ function initSpecialPages(flow) {
           connections: [],
         },
       },
-    })
-  }
+    },
+  })
 
-  return isSpecial
+  return true
 }
 
-async function initPersistence(flow, sidebar) {
-  let data = await loadFromDatabase()
-
-  if (data) {
-    flow.setProps({ nodes: data.nodes, backgroundColor: data.backgroundColor })
-    sidebar.setProps({ title: data.title, backgroundColor: data.backgroundColor })
-  }
+async function initPersistence(app: App) {
+  let state = await loadFromDatabase()
 
   const save = () => {
-    saveToDatabase(flow.getProps(), data)
-    saveToLocalStorage(data)
+    if (!state.id) {
+      state.id = randomId()
+    }
+    saveToDatabase(app.getProps().state.nodes, state)
+    saveToLocalStorage(state)
   }
 
-  flow.on('command', save)
+  const updateTitle = () => {
+    if (!state.title) return
+    document.title = `Dinky Dog — ${state.title}`
+    setUrlId(state.id, state.title)
+  }
 
-  sidebar.on('titleChange', ({ title }) => {
-    data = { ...data, title }
+  if (state) {
+    app.setProps({ state: state })
+    updateTitle()
+  }
+
+  app.on('command', save)
+
+  app.on('titleChange', ({ title }) => {
+    state.title = title
+    app.setProps({ state })
+    save()
+    updateTitle()
+  })
+
+  app.on('backgroundColorChange', ({ backgroundColor }) => {
+    state.backgroundColor = backgroundColor
+    app.setProps({ state })
     save()
   })
 
-  sidebar.on('backgroundColorChange', ({ backgroundColor }) => {
-    data = { ...data, backgroundColor }
-    flow.setProps({ backgroundColor })
-    save()
-  })
-
-  return data
+  return state
 }
 
-class App extends Component<{}, {}> { }
-
 async function init() {
-  const flow = new Flow()
-  const sidebar = new Sidebar()
-  const appContainer = new App('div', {}, [flow.container, sidebar.container])
-  document.body.append(appContainer.container)
+  const app = new App()
+  document.body.append(app.container)
 
-  if (initSpecialPages(flow)) return
+  if (initSpecialPages(app)) return
 
-  const data = await initPersistence(flow, sidebar)
+  const data = await initPersistence(app)
 
   //initRealtimeSync(flow, data?.lastSequence)
 }

@@ -12,11 +12,23 @@ const CLIENT_ID_KEY = 'stream-clientId'
 
 export function getUrlId() {
   const url = new URL(window.location.href)
-  return url.searchParams.get('q')
+  const q = url.searchParams.get('q')
+  return q.replace(/(.+?_)?(.+)$/gi, '$2') // ignore any prefix like 'state_'
 }
 
-export function makeUrl(id: string) {
-  return `${window.location.origin}/?q=${encodeURIComponent(id)}`
+function addPrefix(id: string, title?: string) {
+  const prefix = title ? slugify(title.slice(0, 50)) : ''
+  return prefix ? `${prefix}_${id}` : id
+}
+
+export function setUrlId(id: string, title?: string) {
+  const url = new URL(window.location.href)
+  url.searchParams.set('q', encodeURIComponent(addPrefix(id, title)))
+  window.history.replaceState({}, '', url.toString())
+}
+
+export function makeUrl(id: string, title?: string) {
+  return `${window.location.origin}/?q=${encodeURIComponent(addPrefix(id, title))}`
 }
 
 export function slugify(text: string) {
