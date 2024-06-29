@@ -60,3 +60,11 @@ li:hover {
 input:focus::placeholder {
   color: transparent;
 }
+
+[contenteditable] img {
+  display: block;
+  border-radius: inherit;
+  width: 100%;
+  height: auto;
+  pointer-events: none;
+}

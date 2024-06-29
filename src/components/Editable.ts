@@ -24,7 +24,6 @@ export class Editable extends Component<EditableProps, EditableEvents> {
         borderRadius: '4px',
         border: '1px solid #333',
         padding: '8px',
-        paddingRight: '20px',
         minWidth: '160px',
         minHeight: '70px',
         maxWidth: '300px',
@@ -74,5 +73,9 @@ export class Editable extends Component<EditableProps, EditableEvents> {
 
   focus() {
     this.container.focus()
+  }
+
+  blur() {
+    this.container.blur()
   }
 }

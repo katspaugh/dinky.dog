@@ -1,9 +1,11 @@
 import { Component } from '../lib/component.js'
+import { debounce, randomId } from '../lib/utils.js'
 import { Graph } from './Graph.js'
 import { Edge } from './Edge.js'
 import { DragCard } from './DragCard.js'
 import { Editable } from './Editable.js'
-import { debounce, randomId } from '../lib/utils.js'
+import { Drop } from './Drop.js'
+import { uploadImage } from '../lib/upload-image.js'
 
 type GraphNode = {
   id: string
@@ -48,14 +50,29 @@ export class Flow extends Component<FlowProps, FlowEvents> {
   private lastNode: GraphNode | null = null
 
   constructor() {
-    super('div', {
-      style: {
-        height: '100vh',
+    const drop = new Drop()
+    const graph = new Graph()
+
+    super(
+      drop.container,
+      {
+        style: {
+          height: '100vh',
+        },
       },
+      [graph.container],
+    )
+
+    drop.on('drop', (props) => {
+      this.onFileUpload(props)
     })
 
-    this.graph = new Graph()
-    this.container.append(this.graph.container)
+    this.on('destroy', () => {
+      drop.destroy()
+      graph.destroy()
+    })
+
+    this.graph = graph
     this.subscribeUiEvents()
   }
 
@@ -193,6 +210,26 @@ export class Flow extends Component<FlowProps, FlowEvents> {
     return node
   }
 
+  private async onFileUpload({ x, y, file }: { x: number; y: number; file: File }) {
+    const node = this.onCreateNode({ x, y })
+    node.editor.blur()
+
+    // Local preview
+    const tempUrl = URL.createObjectURL(file)
+    if (tempUrl) {
+      const content = `<img src="${tempUrl}" alt="${file.name}" />`
+      node.editor.setProps({ content })
+    }
+
+    try {
+      const url = await uploadImage(file)
+      this.editNode({ id: node.id, content: `<img src="${url}" alt="${file.name}" />` })
+      tempUrl && URL.revokeObjectURL(tempUrl)
+    } catch (e) {
+      console.error('Failed to upload image', e)
+    }
+  }
+
   private onRemoveNode(node: GraphNode) {
     const params = { id: node.id }
     this.removeNode(params)
@@ -294,6 +331,8 @@ export class Flow extends Component<FlowProps, FlowEvents> {
     })
 
     node.card.destroy()
+    node.editor.destroy()
+
     delete this.nodes[id]
   }
 

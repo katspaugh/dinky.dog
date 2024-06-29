@@ -63,6 +63,12 @@ export class DragCard extends Component<DragCardProps, DragCardEvents> {
       // Remove selection
       window.getSelection()?.removeAllRanges()
     })
+
+    this.on('destroy', () => {
+      draggable.destroy()
+      card.destroy()
+      connector.destroy()
+    })
   }
 
   getInPoint() {
