@@ -5,6 +5,7 @@ import { draggable } from '../lib/draggable.js'
 export type DraggableEvents = {
   drag: { x: number; y: number }
   dragstart: { x: number; y: number }
+  dragend: {}
 }
 
 export type DraggableProps = {
@@ -47,6 +48,8 @@ export class Draggable extends Component<DraggableProps, DraggableEvents> {
         this.emit('dragstart', { x, y })
       },
       () => {
+        this.emit('dragend', {})
+
         css(this.container, {
           zIndex: '',
           cursor: 'grab',

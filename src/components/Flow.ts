@@ -198,7 +198,12 @@ export class Flow extends Component<FlowProps, FlowEvents> {
   private onDrag(node: GraphNode, x: number, y: number) {
     const params = { id: node.id, x, y }
     this.repositionNode(params)
-    this.emitDebounced('command', { command: 'repositionNode', params })
+  }
+
+  private onDragEnd(node: GraphNode) {
+    const { x, y } = node.card.getProps()
+    const params = { id: node.id, x, y }
+    this.emit('command', { command: 'repositionNode', params })
   }
 
   private onCreateNode({ x, y }: { x: number; y: number }) {
@@ -267,8 +272,8 @@ export class Flow extends Component<FlowProps, FlowEvents> {
     const node = { id, connections: [], card, editor }
 
     card.on('connectorClick', () => this.onConnectorClick(node))
-
     card.on('drag', (props) => this.onDrag(node, props.x, props.y))
+    card.on('dragend', () => this.onDragEnd(node))
 
     card.on('click', () => this.onNodeClick(node))
 
@@ -284,7 +289,6 @@ export class Flow extends Component<FlowProps, FlowEvents> {
   public repositionNode({ id, x, y }: { id: string; x: number; y: number }) {
     const node = this.nodes[id]
     if (!node) return
-
     const oldProps = node.card.getProps()
     const dx = x - oldProps.x
     const dy = y - oldProps.y
