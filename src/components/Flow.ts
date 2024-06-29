@@ -219,7 +219,8 @@ export class Flow extends Component<FlowProps, FlowEvents> {
   }
 
   private async onFileUpload({ x, y, file }: { x: number; y: number; file: File }) {
-    const node = this.onCreateNode({ x, y })
+    const rect = this.graph.getOffset()
+    const node = this.onCreateNode({ x: x - rect.left, y: y - rect.top })
     node.editor.blur()
 
     // Local preview
