@@ -230,8 +230,8 @@ export class Flow extends Component<FlowProps, FlowEvents> {
 
     try {
       const url = await uploadImage(file)
-      this.editNode({ id: node.id, content: `<img src="${url}" alt="${file.name}" />` })
       tempUrl && URL.revokeObjectURL(tempUrl)
+      this.editNode({ id: node.id, content: `<img src="${url}" alt="${file.name}" />` })
     } catch (e) {
       console.error('Failed to upload image', e)
     }
@@ -266,6 +266,22 @@ export class Flow extends Component<FlowProps, FlowEvents> {
     this.emit('command', { command: 'changeNodeBackground', params })
   }
 
+  private onResize(node: GraphNode, { dx, dy }: { dx: number; dy: number }) {
+    let props = node.editor.getProps()
+    if (props.width == null || props.height == null) {
+      const size = node.editor.getSize()
+      props = { ...props, ...size }
+    }
+    const params = { id: node.id, width: props.width + dx, height: props.height + dy }
+    this.resizeNode(params)
+  }
+
+  private onResizeEnd(node: GraphNode) {
+    const props = node.editor.getProps()
+    const params = { id: node.id, width: props.width, height: props.height }
+    this.emit('command', { command: 'resizeNode', params })
+  }
+
   /* Public methods */
 
   public createNode({ id, width, height, content = '', ...cardProps }: NodeProps) {
@@ -283,6 +299,8 @@ export class Flow extends Component<FlowProps, FlowEvents> {
     card.on('drag', (params) => this.onDrag(node, params.x, params.y))
     card.on('dragend', () => this.onDragEnd(node))
     card.on('backgroundChange', ({ background }) => this.onNodeBackgroundChange(node, background))
+    card.on('resize', (params) => this.onResize(node, params))
+    card.on('resizeEnd', (params) => this.onResizeEnd(node))
 
     card.on('click', () => this.onNodeClick(node))
 
@@ -386,5 +404,11 @@ export class Flow extends Component<FlowProps, FlowEvents> {
     const node = this.nodes[id]
     if (!node) return
     node.card.setProps({ background })
+  }
+
+  public resizeNode({ id, width, height }: { id: string; width: number; height: number }) {
+    const node = this.nodes[id]
+    if (!node) return
+    node.editor.setProps({ width, height })
   }
 }

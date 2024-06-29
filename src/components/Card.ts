@@ -66,6 +66,10 @@ export class Card extends Component<CardProps, CardEvents> {
     this.colorpicker.on('change', ({ color }) => {
       this.emit('backgroundChange', { background: color })
     })
+
+    this.on('destroy', () => {
+      colorpickerWrapper.destroy()
+    })
   }
 
   setProps(props: Partial<CardProps>) {

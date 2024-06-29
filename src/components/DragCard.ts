@@ -2,6 +2,7 @@ import { Component } from '../lib/component.js'
 import { Card, type CardEvents } from './Card.js'
 import { Connector } from './Connector.js'
 import { Draggable, type DraggableEvents } from './Draggable.js'
+import { Resizer, ResizerEvents } from './Resizer.js'
 
 type DragCardProps = {
   x: number
@@ -11,6 +12,7 @@ type DragCardProps = {
 }
 
 type DragCardEvents = DraggableEvents &
+  ResizerEvents &
   CardEvents & {
     render: {}
     click: {}
@@ -26,20 +28,22 @@ export class DragCard extends Component<DragCardProps, DragCardEvents> {
     const draggable = new Draggable()
     const card = new Card()
     const connector = new Connector()
+    const resizer = new Resizer()
 
-    super(draggable.container, {
-      onclick: (e: MouseEvent) => {
-        e.preventDefault()
-        this.emit('click', {})
+    super(
+      draggable.container,
+      {
+        onclick: (e: MouseEvent) => {
+          e.preventDefault()
+          this.emit('click', {})
+        },
+
+        ondblclick: (e: MouseEvent) => {
+          e.stopPropagation()
+        },
       },
-
-      ondblclick: (e: MouseEvent) => {
-        e.stopPropagation()
-      },
-    })
-
-    draggable.container.appendChild(card.container)
-    card.container.appendChild(connector.container)
+      [resizer.container, connector.container, card.container],
+    )
 
     this.connector = connector
     this.draggable = draggable
@@ -59,15 +63,26 @@ export class DragCard extends Component<DragCardProps, DragCardEvents> {
 
     draggable.on('dragstart', (params) => {
       this.emit('dragstart', params)
-
-      // Remove selection
       window.getSelection()?.removeAllRanges()
+    })
+
+    draggable.on('dragend', (params) => {
+      this.emit('dragend', params)
+    })
+
+    resizer.on('resize', ({ dx, dy }) => {
+      this.emit('resize', { dx, dy })
+    })
+
+    resizer.on('resizeEnd', () => {
+      this.emit('resizeEnd', {})
     })
 
     this.on('destroy', () => {
       draggable.destroy()
       card.destroy()
       connector.destroy()
+      resizer.destroy()
     })
   }
 

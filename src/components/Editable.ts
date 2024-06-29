@@ -63,11 +63,18 @@ export class Editable extends Component<EditableProps, EditableEvents> {
     }
     if (width != null) {
       this.container.style.width = `${width}px`
-      this.container.style.maxWidth = ''
+      this.container.style.maxWidth = 'none'
     }
     if (height != null) {
       this.container.style.height = `${height}px`
-      this.container.style.maxHeight = ''
+      this.container.style.maxHeight = 'none'
+    }
+  }
+
+  getSize() {
+    return {
+      width: this.container.offsetWidth,
+      height: this.container.offsetHeight,
     }
   }
 

@@ -16,6 +16,7 @@ export class Connector extends Component<{}, ConnectorEvents> {
         border: 'none',
         padding: '0',
         position: 'absolute',
+        zIndex: '2',
         right: '0',
         top: '50%',
         marginTop: '-10px',
