@@ -134,19 +134,15 @@ async function initPersistence(flow, sidebar) {
   return data
 }
 
-async function init() {
-  const appContainer = new Component('div')
+class App extends Component<{}, {}> { }
 
+async function init() {
   const flow = new Flow()
   const sidebar = new Sidebar()
-
-  appContainer.container.append(flow.container)
-  appContainer.container.append(sidebar.container)
+  const appContainer = new App('div', {}, [flow.container, sidebar.container])
   document.body.append(appContainer.container)
 
-  if (initSpecialPages(flow)) {
-    return
-  }
+  if (initSpecialPages(flow)) return
 
   const data = await initPersistence(flow, sidebar)
 

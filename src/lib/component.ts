@@ -1,4 +1,4 @@
-import { el } from './dom.js'
+import { el, insertCssClass } from './dom.js'
 import EventEmitter, { type GeneralEventTypes } from './event-emitter.js'
 
 type GeneralPropTypes = {
@@ -18,7 +18,20 @@ export class Component<PropTypes extends GeneralPropTypes, EventTypes extends Ge
 
   constructor(...args: Parameters<typeof el>) {
     super()
-    this.container = el(args[0] ?? 'div', args[1], args[2])
+
+    const tag = args[0] ?? 'div'
+    let props = args[1]
+    const children = args[2]
+    const componentName = this.constructor.name
+
+    if (props && 'style' in props) {
+      const css = props.style
+      insertCssClass(componentName, css)
+      props = { ...props, style: undefined }
+    }
+
+    this.container = el(tag, props, children)
+    this.container.classList.add(componentName)
   }
 
   public get container(): HTMLElement {

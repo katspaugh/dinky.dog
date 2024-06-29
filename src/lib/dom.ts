@@ -53,3 +53,20 @@ export function getRelativeCoords(e: MouseEvent) {
     y: e.clientY - rect.top,
   }
 }
+
+export function camelCaseToDashes(str: string) {
+  return str.replace(/[A-Z]/g, (m) => `-${m.toLowerCase()}`)
+}
+
+let insertedClasses: Record<string, boolean> = {}
+
+export function insertCssClass(className: string, css: Partial<CSSStyleDeclaration>) {
+  if (insertedClasses[className]) return
+  insertedClasses[className] = true
+  const style = document.createElement('style')
+  style.type = 'text/css'
+  style.innerHTML = `.${className} { ${Object.entries(css)
+    .map(([key, value]) => `${camelCaseToDashes(key)}: ${value}`)
+    .join('; ')} }`
+  document.getElementsByTagName('head')[0].appendChild(style)
+}

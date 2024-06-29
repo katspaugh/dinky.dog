@@ -14,6 +14,43 @@ type SidebarEvents = {
   titleChange: { title: string }
 }
 
+class Heading extends Component<{}, {}> {
+  constructor() {
+    super('h1', {
+      textContent: 'Dinky Dog',
+      style: {
+        fontSize: '22px',
+        margin: '0 0 20px',
+        padding: '10px 10px 20px',
+        borderBottom: '1px solid #ddd',
+      },
+    })
+  }
+}
+
+class Drawer extends Component<{}, {}> {
+  constructor() {
+    super('div', {
+      style: {
+        width: '300px',
+        height: '100vh',
+        padding: '10px',
+        transition: 'transform 0.2s',
+        transform: 'translateX(100%)',
+        backgroundColor: '#f5f5f5',
+        pointerEvents: 'all',
+        boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)',
+        display: 'flex',
+        flexDirection: 'column',
+        position: 'absolute',
+        top: '0',
+        right: '0',
+        zIndex: '2',
+      },
+    })
+  }
+}
+
 export class Sidebar extends Component<SidebarProps, SidebarEvents> {
   private input: Input
 
@@ -30,38 +67,10 @@ export class Sidebar extends Component<SidebarProps, SidebarEvents> {
       zIndex: '3',
     })
 
-    const heading = new Component('h1', {
-      textContent: 'Dinky Dog',
-      style: {
-        fontSize: '22px',
-        margin: '0 0 20px',
-        padding: '10px 10px 20px',
-        borderBottom: '1px solid #ddd',
-      },
-    })
+    const heading = new Heading()
 
-    const drawer = new Component(
-      'div',
-      {
-        style: {
-          width: '300px',
-          height: '100vh',
-          padding: '10px',
-          transition: 'transform 0.2s',
-          transform: 'translateX(100%)',
-          backgroundColor: '#f5f5f5',
-          pointerEvents: 'all',
-          boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)',
-          display: 'flex',
-          flexDirection: 'column',
-          position: 'absolute',
-          top: '0',
-          right: '0',
-          zIndex: '2',
-        },
-      },
-      [heading.container, menu.container, fixedMenu.container],
-    )
+    const drawer = new Drawer()
+    drawer.container.append(heading.container, menu.container, fixedMenu.container)
 
     super(
       'div',
