@@ -10,7 +10,7 @@ export class Component<
   EventTypes extends GeneralEventTypes,
 > extends EventEmitter<EventTypes> {
   public container: HTMLElement
-  private props: PropTypes = {} as PropTypes
+  protected props: PropTypes = {} as PropTypes
 
   constructor(...args: Parameters<typeof el>) {
     super()
@@ -22,11 +22,13 @@ export class Component<
   }
 
   public setProps(props: Partial<PropTypes>) {
-    this.props = { ...this.props, ...props }
-    this.render(this.props)
+    const newProps = { ...this.props, ...props }
+    if (Object.keys(newProps).every((key) => newProps[key] === this.props[key])) return
+    this.props = newProps
+    this.render()
   }
 
-  protected render(_props: PropTypes) {
+  protected render() {
     // render the component
   }
 

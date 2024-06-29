@@ -132,10 +132,18 @@ export class Sidebar extends Component<SidebarProps, SidebarEvents> {
     }
   }
 
-  render(props: SidebarProps) {
+  setProps(props: SidebarProps) {
+    super.setProps(props)
+
     if (props.title) {
       this.input.setProps({ value: props.title })
-      document.title = `Dinky Dog —— ${props.title}`
+    }
+  }
+
+  render() {
+    const { title } = this.props
+    if (title) {
+      document.title = `Dinky Dog — ${title}`
     }
   }
 }

@@ -13,8 +13,6 @@ type DragCardEvents = {
 type DragCardProps = {
   x: number
   y: number
-  width?: number
-  height?: number
   background?: string
   content?: HTMLElement
 }
@@ -81,12 +79,17 @@ export class DragCard extends Component<DragCardProps, DragCardEvents> {
     }
   }
 
-  render(props: DragCardProps) {
-    this.card.render({ content: props.content })
-    this.draggable.render({ x: props.x, y: props.y })
+  setProps(props: DragCardProps) {
+    super.setProps(props)
+    const { content, x, y } = this.props
+    this.card.setProps({ content })
+    this.draggable.setProps({ x, y })
+  }
 
-    if (props.background) {
-      this.container.style.backgroundColor = props.background
+  render() {
+    const { background } = this.props
+    if (background) {
+      this.container.style.backgroundColor = background
     }
   }
 }

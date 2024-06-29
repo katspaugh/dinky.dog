@@ -43,8 +43,9 @@ export class Pan extends Component<PanProps, PanEvents> {
     })
   }
 
-  render(props: PanProps) {
-    this.container.style.width = `${props.width}px`
-    this.container.style.height = `${props.height}px`
+  render() {
+    const { width, height } = this.props
+    this.container.style.width = `${width}px`
+    this.container.style.height = `${height}px`
   }
 }

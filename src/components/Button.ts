@@ -28,7 +28,7 @@ export class Button extends Component<ButtonProps, ButtonEvents> {
     })
   }
 
-  render(props: ButtonProps) {
-    this.container.textContent = props.text
+  render() {
+    this.container.textContent = this.props.text
   }
 }

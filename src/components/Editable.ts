@@ -55,17 +55,19 @@ export class Editable extends Component<EditableProps, EditableEvents> {
     this.emit('input', { content })
   }
 
-  render(props: EditableProps) {
-    if (props.content !== this.lastContent) {
-      this.lastContent = props.content
-      this.container.innerHTML = sanitizeHtml(props.content)
+  render() {
+    const { content, width, height } = this.props
+
+    if (content !== this.lastContent) {
+      this.lastContent = content
+      this.container.innerHTML = sanitizeHtml(content)
     }
-    if (props.width != null) {
-      this.container.style.width = `${props.width}px`
+    if (width != null) {
+      this.container.style.width = `${width}px`
       this.container.style.maxWidth = ''
     }
-    if (props.height != null) {
-      this.container.style.height = `${props.height}px`
+    if (height != null) {
+      this.container.style.height = `${height}px`
       this.container.style.maxHeight = ''
     }
   }

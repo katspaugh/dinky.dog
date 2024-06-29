@@ -41,10 +41,11 @@ export class Input extends Component<InputProps, InputEvents> {
     })
   }
 
-  render(props: InputProps) {
-    if (props.value !== this.lastInput) {
-      this.lastInput = props.value
-        ; (this.container as HTMLInputElement).value = props.value
+  render() {
+    const { value } = this.props
+    if (value !== this.lastInput) {
+      this.lastInput = value
+        ; (this.container as HTMLInputElement).value = value
     }
   }
 }

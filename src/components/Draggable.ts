@@ -53,7 +53,8 @@ export class Draggable extends Component<DraggableProps, DraggableEvents> {
     )
   }
 
-  render(props: DraggableProps) {
-    this.container.style.transform = `translate(${props.x}px, ${props.y}px)`
+  render() {
+    const { x, y } = this.props
+    this.container.style.transform = `translate(${x}px, ${y}px)`
   }
 }

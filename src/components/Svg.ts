@@ -18,9 +18,10 @@ export class Svg extends Component<SvgProps, {}> {
     })
   }
 
-  render(props: SvgProps) {
-    this.container.setAttribute('viewBox', `0 0 ${props.width} ${props.height}`)
-    this.container.style.width = `${props.width}px`
-    this.container.style.height = `${props.height}px`
+  render() {
+    const { width, height } = this.props
+    this.container.setAttribute('viewBox', `0 0 ${width} ${height}`)
+    this.container.style.width = `${width}px`
+    this.container.style.height = `${height}px`
   }
 }

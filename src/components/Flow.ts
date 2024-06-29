@@ -41,7 +41,7 @@ type FlowEvents = {
   }
 }
 
-export class Flow extends Component<{}, FlowEvents> {
+export class Flow extends Component<FlowProps, FlowEvents> {
   private nodes: Record<string, GraphNode> = {}
   private graph: Graph
   private lastEdge: Edge | null = null
@@ -59,8 +59,10 @@ export class Flow extends Component<{}, FlowEvents> {
     this.subscribeUiEvents()
   }
 
-  render(props: FlowProps) {
-    Object.values(props.nodes).forEach((item) => {
+  render() {
+    const { nodes, backgroundColor } = this.props
+
+    Object.values(nodes).forEach((item) => {
       this.createNode(item)
 
       Promise.resolve().then(() => {
@@ -72,11 +74,12 @@ export class Flow extends Component<{}, FlowEvents> {
       })
     })
 
-    if (props.backgroundColor) {
-      this.container.style.backgroundColor = props.backgroundColor
+    if (backgroundColor) {
+      this.container.style.backgroundColor = backgroundColor
     }
   }
 
+  // @ts-ignore
   getProps() {
     return Object.values(this.nodes).reduce((acc, node) => {
       const { id } = node

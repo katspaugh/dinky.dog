@@ -15,9 +15,7 @@ export class Card extends Component<CardProps, {}> {
     })
   }
 
-  render(props: CardProps) {
-    if (props.content !== undefined) {
-      this.container.append(props.content)
-    }
+  render() {
+    this.container.append(this.props.content)
   }
 }
