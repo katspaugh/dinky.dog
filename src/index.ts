@@ -108,27 +108,29 @@ function initSpecialPages(flow) {
 }
 
 async function initPersistence(flow, sidebar) {
-  const data = await loadFromDatabase()
+  let data = await loadFromDatabase()
 
   if (data) {
     flow.setProps({ nodes: data.nodes, backgroundColor: data.backgroundColor })
-
-    if (data.title) {
-      sidebar.setProps({ title: data.title })
-    }
+    sidebar.setProps({ title: data.title, backgroundColor: data.backgroundColor })
   }
 
-  const save = (restData) => {
-    saveToDatabase(flow.getProps(), restData)
-    saveToLocalStorage(restData)
+  const save = () => {
+    saveToDatabase(flow.getProps(), data)
+    saveToLocalStorage(data)
   }
 
-  flow.on('command', () => {
-    save(data)
-  })
+  flow.on('command', save)
 
   sidebar.on('titleChange', ({ title }) => {
-    save({ ...data, title })
+    data = { ...data, title }
+    save()
+  })
+
+  sidebar.on('backgroundColorChange', ({ backgroundColor }) => {
+    data = { ...data, backgroundColor }
+    flow.setProps({ backgroundColor })
+    save()
   })
 
   return data

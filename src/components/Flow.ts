@@ -83,19 +83,21 @@ export class Flow extends Component<FlowProps, FlowEvents> {
       this.container.style.backgroundColor = backgroundColor
     }
 
-    Object.values(nodes).forEach((item) => {
-      this.createNode(item)
-    })
-
-    requestAnimationFrame(() => {
+    if (Object.keys(this.nodes).length === 0) {
       Object.values(nodes).forEach((item) => {
-        if (item.connections) {
-          item.connections.forEach((id) => {
-            this.connectNodes({ from: item.id, to: id })
-          })
-        }
+        this.createNode(item)
       })
-    })
+
+      requestAnimationFrame(() => {
+        Object.values(nodes).forEach((item) => {
+          if (item.connections) {
+            item.connections.forEach((id) => {
+              this.connectNodes({ from: item.id, to: id })
+            })
+          }
+        })
+      })
+    }
   }
 
   // @ts-ignore

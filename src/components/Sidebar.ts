@@ -3,15 +3,18 @@ import { css } from '../lib/dom.js'
 import { getSavedStates, makeUrl } from '../lib/persist.js'
 import { sanitizeHtml } from '../lib/sanitize-html.js'
 import { Button } from './Button.js'
+import { Colorpicker } from './Colorpicker.js'
 import { Input } from './Input.js'
 import { Menu } from './Menu.js'
 
 type SidebarProps = {
   title: string
+  backgroundColor?: string
 }
 
 type SidebarEvents = {
   titleChange: { title: string }
+  backgroundColorChange: { backgroundColor: string }
 }
 
 class Heading extends Component<{}, {}> {
@@ -53,6 +56,7 @@ class Drawer extends Component<{}, {}> {
 
 export class Sidebar extends Component<SidebarProps, SidebarEvents> {
   private input: Input
+  private colorpicker: Colorpicker
 
   constructor() {
     const input = new Input()
@@ -65,6 +69,18 @@ export class Sidebar extends Component<SidebarProps, SidebarEvents> {
       padding: '9px 10px 5px',
       position: 'relative',
       zIndex: '3',
+    })
+
+    const colorpicker = new Colorpicker()
+    css(colorpicker.container, {
+      position: 'fixed',
+      bottom: '10px',
+      right: '10px',
+      zIndex: '1',
+      pointerEvents: 'all',
+    })
+    colorpicker.on('change', ({ color }) => {
+      this.emit('backgroundColorChange', { backgroundColor: color })
     })
 
     const heading = new Heading()
@@ -86,7 +102,7 @@ export class Sidebar extends Component<SidebarProps, SidebarEvents> {
           pointerEvents: 'none',
         },
       },
-      [input.container, button.container, drawer.container],
+      [input.container, button.container, drawer.container, colorpicker.container],
     )
 
     let isExpanded = false
@@ -126,6 +142,7 @@ export class Sidebar extends Component<SidebarProps, SidebarEvents> {
     })
 
     this.input = input
+    this.colorpicker = colorpicker
   }
 
   private updateMenu(menu: Menu) {
@@ -146,6 +163,10 @@ export class Sidebar extends Component<SidebarProps, SidebarEvents> {
 
     if (props.title) {
       this.input.setProps({ value: props.title })
+    }
+
+    if (props.backgroundColor) {
+      this.colorpicker.setProps({ color: props.backgroundColor })
     }
   }
 
