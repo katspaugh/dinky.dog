@@ -2,7 +2,7 @@ import { Component } from '../lib/component.js'
 import { debounce, randomId } from '../lib/utils.js'
 import { Graph } from './Graph.js'
 import { Edge } from './Edge.js'
-import { DragCard } from './DragCard.js'
+import { DragCard, type DragCardProps } from './DragCard.js'
 import { Drop } from './Drop.js'
 import { uploadImage } from '../lib/upload-image.js'
 
@@ -22,6 +22,7 @@ type NodeProps = {
   width?: number
   height?: number
   content?: string
+  background?: string
 }
 
 export type FlowProps = {
@@ -230,7 +231,7 @@ export class Flow extends Component<FlowProps, FlowEvents> {
     try {
       const url = await uploadImage(file)
       tempUrl && URL.revokeObjectURL(tempUrl)
-      this.editNode({ id: node.id, content: `<img src="${url}" alt="${file.name}" />` })
+      this.updateNode({ id: node.id, content: `<img src="${url}" alt="${file.name}" />` })
     } catch (e) {
       console.error('Failed to upload image', e)
     }
@@ -255,14 +256,14 @@ export class Flow extends Component<FlowProps, FlowEvents> {
   }
 
   private onEditNode(node: GraphNode, content: string) {
-    this.editNode({ id: node.id, content })
-    this.emitDebounced('command', { command: 'editNode', params: { id: node.id, content } })
+    this.updateNode({ id: node.id, content })
+    this.emitDebounced('command', { command: 'updateNode', params: { id: node.id, content } })
   }
 
   private onNodeBackgroundChange(node: GraphNode, background: string) {
     const params = { id: node.id, background }
-    this.changeNodeBackground(params)
-    this.emit('command', { command: 'changeNodeBackground', params })
+    this.updateNode(params)
+    this.emit('command', { command: 'updateNode', params })
   }
 
   private onResize(node: GraphNode, diff?: { dx: number; dy: number }) {
@@ -276,13 +277,13 @@ export class Flow extends Component<FlowProps, FlowEvents> {
       params.width = Math.round(props.width + diff.dx)
       params.height = Math.round(props.height + diff.dy)
     }
-    this.resizeNode(params)
+    this.updateNode(params)
   }
 
   private onResizeEnd(node: GraphNode) {
     const props = node.card.getProps()
     const params = { id: node.id, width: props.width, height: props.height }
-    this.emit('command', { command: 'resizeNode', params })
+    this.emit('command', { command: 'updateNode', params })
   }
 
   /* Public methods */
@@ -393,21 +394,9 @@ export class Flow extends Component<FlowProps, FlowEvents> {
     fromNode.connections = fromNode.connections.filter((item) => item.node !== toNode)
   }
 
-  public editNode({ id, content }: { id: string; content: string }) {
+  public updateNode({ id, ...params }: { id: string } & DragCardProps) {
     const node = this.nodes[id]
     if (!node) return
-    node.card.setProps({ content })
-  }
-
-  public changeNodeBackground({ id, background }: { id: string; background: string }) {
-    const node = this.nodes[id]
-    if (!node) return
-    node.card.setProps({ background })
-  }
-
-  public resizeNode({ id, width, height }: { id: string; width: number; height: number }) {
-    const node = this.nodes[id]
-    if (!node) return
-    node.card.setProps({ width, height })
+    node.card.setProps(params)
   }
 }

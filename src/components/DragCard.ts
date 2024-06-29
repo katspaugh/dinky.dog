@@ -6,7 +6,7 @@ import { Draggable, type DraggableEvents } from './Draggable.js'
 import { Editable } from './Editable.js'
 import { Resizer, ResizerEvents } from './Resizer.js'
 
-type DragCardProps = {
+export type DragCardProps = {
   x: number
   y: number
   width?: number
@@ -125,7 +125,7 @@ export class DragCard extends Component<DragCardProps, DragCardEvents> {
     }
   }
 
-  setProps(props: Partial<DragCardProps>) {
+  setProps(props: DragCardProps) {
     super.setProps(props)
     const { content, x, y, background, width, height } = props
 
