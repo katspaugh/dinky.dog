@@ -27,7 +27,7 @@ type ColorpickerEvents = {
 }
 
 export class Colorpicker extends Component<ColorpickerProps, ColorpickerEvents> {
-  constructor() {
+  constructor(styles?: Partial<CSSStyleDeclaration>) {
     if (!datalist) {
       datalist = el(
         'datalist',
@@ -50,6 +50,7 @@ export class Colorpicker extends Component<ColorpickerProps, ColorpickerEvents> 
       },
       style: {
         cursor: 'pointer',
+        ...styles,
       },
     })
 

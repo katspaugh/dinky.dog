@@ -89,11 +89,11 @@ input:focus::placeholder {
   box-shadow: 2px 2px var(--shadow-color);
 }
 
-.Card:hover .Colorpicker {
+.DragCard:hover .Colorpicker {
   opacity: 1;
 }
 
-.Card .Colorpicker:hover {
+.DragCard .Colorpicker:hover {
   background-color: var(--card-hover-color);
 }
 

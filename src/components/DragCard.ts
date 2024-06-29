@@ -1,5 +1,6 @@
 import { Component } from '../lib/component.js'
-import { Card, type CardEvents } from './Card.js'
+import { Card } from './Card.js'
+import { CardColorpicker } from './CardColorpicker.js'
 import { Connector } from './Connector.js'
 import { Draggable, type DraggableEvents } from './Draggable.js'
 import { Resizer, ResizerEvents } from './Resizer.js'
@@ -12,23 +13,25 @@ type DragCardProps = {
 }
 
 type DragCardEvents = DraggableEvents &
-  ResizerEvents &
-  CardEvents & {
+  ResizerEvents & {
     render: {}
     click: {}
     connectorClick: {}
+    backgroundChange: { background: string }
   }
 
 export class DragCard extends Component<DragCardProps, DragCardEvents> {
   private connector: Connector
   private draggable: Draggable
   private card: Card
+  private colorpicker: CardColorpicker
 
   constructor() {
     const draggable = new Draggable()
     const card = new Card()
     const connector = new Connector()
     const resizer = new Resizer()
+    const colorpicker = new CardColorpicker()
 
     super(
       draggable.container,
@@ -42,19 +45,20 @@ export class DragCard extends Component<DragCardProps, DragCardEvents> {
           e.stopPropagation()
         },
       },
-      [resizer.container, connector.container, card.container],
+      [resizer.container, connector.container, card.container, colorpicker.container],
     )
 
     this.connector = connector
     this.draggable = draggable
     this.card = card
+    this.colorpicker = colorpicker
 
-    this.connector.on('click', () => {
+    connector.on('click', () => {
       this.emit('connectorClick', {})
     })
 
-    this.card.on('backgroundChange', ({ background }) => {
-      this.emit('backgroundChange', { background })
+    colorpicker.on('change', ({ color }) => {
+      this.emit('backgroundChange', { background: color })
     })
 
     draggable.on('drag', (params) => {
@@ -87,6 +91,7 @@ export class DragCard extends Component<DragCardProps, DragCardEvents> {
       card.destroy()
       connector.destroy()
       resizer.destroy()
+      colorpicker.destroy()
     })
   }
 
@@ -117,6 +122,7 @@ export class DragCard extends Component<DragCardProps, DragCardEvents> {
       this.draggable.setProps({ x, y })
     }
     if (background) {
+      this.colorpicker.setProps({ color: background })
       this.card.setProps({ background })
     }
   }
