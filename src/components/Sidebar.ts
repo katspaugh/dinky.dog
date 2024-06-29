@@ -153,6 +153,16 @@ export class Sidebar extends Component<SidebarProps, SidebarEvents> {
 
     this.input = input
     this.colorpicker = colorpicker
+
+    this.on('destroy', () => {
+      colorpicker.destroy()
+      input.destroy()
+      button.destroy()
+      drawerButton.destroy()
+      drawer.destroy()
+      menu.destroy()
+      fixedMenu.destroy()
+    })
   }
 
   private updateMenu(menu: Menu) {

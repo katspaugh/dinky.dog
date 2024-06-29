@@ -39,6 +39,11 @@ export class App extends Component<AppProps, AppEvents> {
       flow.setProps(params)
       this.emit('backgroundColorChange', params)
     })
+
+    this.on('destroy', () => {
+      flow.destroy()
+      sidebar.destroy()
+    })
   }
 
   getProps() {

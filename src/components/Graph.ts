@@ -21,10 +21,11 @@ export class Graph extends Component<{}, PanEvents> {
       },
     })
 
+    const size = { width: WIDTH, height: HEIGHT }
     this.svg = new Svg()
-    this.svg.setProps({ width: WIDTH, height: HEIGHT })
+    this.svg.setProps(size)
     this.pan = new Pan()
-    this.pan.setProps({ width: WIDTH, height: HEIGHT })
+    this.pan.setProps(size)
 
     this.pan.container.append(this.svg.container)
     this.container.append(this.pan.container)

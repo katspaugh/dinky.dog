@@ -125,7 +125,7 @@ export class DragCard extends Component<DragCardProps, DragCardEvents> {
     }
   }
 
-  setProps(props: DragCardProps) {
+  setProps(props: Partial<DragCardProps>) {
     super.setProps(props)
     const { content, x, y, background, width, height } = props
 

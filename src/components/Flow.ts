@@ -102,20 +102,13 @@ export class Flow extends Component<FlowProps, FlowEvents> {
   getProps() {
     const nodes = Object.values(this.nodes).reduce((acc, node) => {
       const { id } = node
-      const { x, y, background, content, width, height } = node.card.getProps()
       acc[id] = {
         id,
-        x,
-        y,
-        width,
-        height,
-        background,
-        content,
+        ...node.card.getProps(),
         connections: node.connections.map((item) => item.node.id),
       }
       return acc
     }, {})
-
     return { nodes, backgroundColor: this.props.backgroundColor }
   }
 
@@ -256,8 +249,9 @@ export class Flow extends Component<FlowProps, FlowEvents> {
   }
 
   private onEditNode(node: GraphNode, content: string) {
-    this.updateNode({ id: node.id, content })
-    this.emitDebounced('command', { command: 'updateNode', params: { id: node.id, content } })
+    const params = { id: node.id, content }
+    this.updateNode(params)
+    this.emitDebounced('command', { command: 'updateNode', params })
   }
 
   private onNodeBackgroundChange(node: GraphNode, background: string) {
@@ -394,7 +388,7 @@ export class Flow extends Component<FlowProps, FlowEvents> {
     fromNode.connections = fromNode.connections.filter((item) => item.node !== toNode)
   }
 
-  public updateNode({ id, ...params }: { id: string } & DragCardProps) {
+  public updateNode({ id, ...params }: { id: string } & Partial<DragCardProps>) {
     const node = this.nodes[id]
     if (!node) return
     node.card.setProps(params)
