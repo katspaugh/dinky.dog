@@ -78,6 +78,10 @@ export class DragCard extends Component<DragCardProps, DragCardEvents> {
       this.emit('resizeEnd', {})
     })
 
+    resizer.on('resizeReset', () => {
+      this.emit('resizeReset', {})
+    })
+
     this.on('destroy', () => {
       draggable.destroy()
       card.destroy()

@@ -4,6 +4,7 @@ import { draggable } from '../lib/draggable.js'
 export type ResizerEvents = {
   resize: { dx: number; dy: number }
   resizeEnd: {}
+  resizeReset: {}
 }
 
 type ResizerProps = {}
@@ -14,14 +15,18 @@ export class Resizer extends Component<ResizerProps, ResizerEvents> {
       style: {
         position: 'absolute',
         zIndex: '1',
-        bottom: '2px',
-        right: '2px',
+        bottom: '0',
+        right: '0',
         userSelect: 'none',
-        width: '10px',
-        height: '10px',
-        background: 'linear-gradient(135deg, transparent 0%, transparent 50%, #999 50%, #999 100%)',
-        cursor: 'nwse-resize',
+        width: '100%',
+        height: '4px',
+        cursor: 'ns-resize',
         borderRadius: '0 0 2px 0',
+      },
+
+      ondblclick: (e: MouseEvent) => {
+        e.preventDefault()
+        this.emit('resizeReset', {})
       },
     })
 

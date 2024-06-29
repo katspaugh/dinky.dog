@@ -266,13 +266,17 @@ export class Flow extends Component<FlowProps, FlowEvents> {
     this.emit('command', { command: 'changeNodeBackground', params })
   }
 
-  private onResize(node: GraphNode, { dx, dy }: { dx: number; dy: number }) {
+  private onResize(node: GraphNode, diff?: { dx: number; dy: number }) {
     let props = node.editor.getProps()
     if (props.width == null || props.height == null) {
       const size = node.editor.getSize()
       props = { ...props, ...size }
     }
-    const params = { id: node.id, width: props.width + dx, height: props.height + dy }
+    const params = { id: node.id, width: null, height: null }
+    if (diff) {
+      params.width = Math.round(props.width + diff.dx)
+      params.height = Math.round(props.height + diff.dy)
+    }
     this.resizeNode(params)
   }
 
@@ -300,7 +304,11 @@ export class Flow extends Component<FlowProps, FlowEvents> {
     card.on('dragend', () => this.onDragEnd(node))
     card.on('backgroundChange', ({ background }) => this.onNodeBackgroundChange(node, background))
     card.on('resize', (params) => this.onResize(node, params))
-    card.on('resizeEnd', (params) => this.onResizeEnd(node))
+    card.on('resizeEnd', () => this.onResizeEnd(node))
+    card.on('resizeReset', () => {
+      this.onResize(node)
+      this.onResizeEnd(node)
+    })
 
     card.on('click', () => this.onNodeClick(node))
 

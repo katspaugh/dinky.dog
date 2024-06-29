@@ -40,7 +40,7 @@ export class Draggable extends Component<DraggableProps, DraggableEvents> {
     draggable(
       this.container,
       (dx, dy) => {
-        const newProps = { x: this.props.x + dx, y: this.props.y + dy }
+        const newProps = { x: Math.round(this.props.x + dx), y: Math.round(this.props.y + dy) }
         this.emit('drag', newProps)
         this.setProps(newProps)
       },

@@ -1,4 +1,5 @@
 import { Component } from '../lib/component.js'
+import { css } from '../lib/dom.js'
 import { sanitizeHtml } from '../lib/sanitize-html.js'
 
 type EditableEvents = {
@@ -7,9 +8,12 @@ type EditableEvents = {
 
 type EditableProps = {
   content: string
-  width?: number
-  height?: number
+  width?: number | null
+  height?: number | null
 }
+
+const ABS_MIN_WIDTH = 70
+const ABS_MIN_HEIGHT = 37
 
 export class Editable extends Component<EditableProps, EditableEvents> {
   private lastContent = ''
@@ -24,6 +28,7 @@ export class Editable extends Component<EditableProps, EditableEvents> {
         borderRadius: '4px',
         border: '1px solid #333',
         padding: '8px',
+        paddingRight: '20px',
         minWidth: '160px',
         minHeight: '70px',
         maxWidth: '300px',
@@ -61,13 +66,21 @@ export class Editable extends Component<EditableProps, EditableEvents> {
       this.lastContent = content
       this.container.innerHTML = sanitizeHtml(content)
     }
-    if (width != null) {
-      this.container.style.width = `${width}px`
-      this.container.style.maxWidth = 'none'
+    if (width !== undefined) {
+      const reset = width === null
+      css(this.container, {
+        width: reset ? '' : `${width}px`,
+        maxWidth: 'none',
+        minWidth: `${ABS_MIN_WIDTH}px`,
+      })
     }
-    if (height != null) {
-      this.container.style.height = `${height}px`
-      this.container.style.maxHeight = 'none'
+    if (height !== undefined) {
+      const reset = height === null
+      css(this.container, {
+        height: reset ? '' : `${height}px`,
+        maxHeight: 'none',
+        minHeight: `${ABS_MIN_HEIGHT}px`,
+      })
     }
   }
 

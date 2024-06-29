@@ -104,7 +104,20 @@ input:focus::placeholder {
 .Editable img {
   display: block;
   border-radius: inherit;
-  width: 100%;
+  width: calc(100% + 12px);
   height: auto;
   pointer-events: none;
+}
+
+.Resizer:after {
+  content: '';
+  display: block;
+  background: linear-gradient(135deg, transparent 0%, transparent 50%, #999 50%, #999 100%);
+  width: 10px;
+  height: 10px;
+  position: absolute;
+  z-index: 1;
+  bottom: 2px;
+  right: 2px;
+  cursor: nwse-resize;
 }
