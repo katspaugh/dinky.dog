@@ -1,7 +1,6 @@
 import { Component } from '../lib/component.js'
 
 type CardProps = {
-  content: HTMLElement
   background?: string
 }
 
@@ -9,7 +8,6 @@ type CardEvents = {}
 
 export class Card extends Component<CardProps, CardEvents> {
   private lastBackground: string = ''
-  private lastContent: HTMLElement
 
   constructor() {
     super('div', {
@@ -25,13 +23,7 @@ export class Card extends Component<CardProps, CardEvents> {
   }
 
   render() {
-    const { content, background } = this.props
-
-    if (content && content !== this.lastContent) {
-      this.lastContent = content
-      this.container.append(content)
-    }
-
+    const { background } = this.props
     if (background !== this.lastBackground) {
       this.lastBackground = background
       this.container.style.backgroundColor = background

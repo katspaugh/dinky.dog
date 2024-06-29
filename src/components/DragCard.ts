@@ -3,13 +3,16 @@ import { Card } from './Card.js'
 import { CardColorpicker } from './CardColorpicker.js'
 import { Connector } from './Connector.js'
 import { Draggable, type DraggableEvents } from './Draggable.js'
+import { Editable } from './Editable.js'
 import { Resizer, ResizerEvents } from './Resizer.js'
 
 type DragCardProps = {
   x: number
   y: number
+  width?: number
+  height?: number
   background?: string
-  content?: HTMLElement
+  content?: string
 }
 
 type DragCardEvents = DraggableEvents &
@@ -18,6 +21,7 @@ type DragCardEvents = DraggableEvents &
     click: {}
     connectorClick: {}
     backgroundChange: { background: string }
+    contentChange: { content: string }
   }
 
 export class DragCard extends Component<DragCardProps, DragCardEvents> {
@@ -25,6 +29,7 @@ export class DragCard extends Component<DragCardProps, DragCardEvents> {
   private draggable: Draggable
   private card: Card
   private colorpicker: CardColorpicker
+  private editor: Editable
 
   constructor() {
     const draggable = new Draggable()
@@ -32,6 +37,7 @@ export class DragCard extends Component<DragCardProps, DragCardEvents> {
     const connector = new Connector()
     const resizer = new Resizer()
     const colorpicker = new CardColorpicker()
+    const editor = new Editable()
 
     super(
       draggable.container,
@@ -48,10 +54,13 @@ export class DragCard extends Component<DragCardProps, DragCardEvents> {
       [resizer.container, connector.container, card.container, colorpicker.container],
     )
 
+    card.container.append(editor.container)
+
     this.connector = connector
     this.draggable = draggable
     this.card = card
     this.colorpicker = colorpicker
+    this.editor = editor
 
     connector.on('click', () => {
       this.emit('connectorClick', {})
@@ -86,12 +95,17 @@ export class DragCard extends Component<DragCardProps, DragCardEvents> {
       this.emit('resizeReset', {})
     })
 
+    editor.on('input', (params) => {
+      this.emit('contentChange', params)
+    })
+
     this.on('destroy', () => {
       draggable.destroy()
-      card.destroy()
       connector.destroy()
       resizer.destroy()
       colorpicker.destroy()
+      editor.destroy()
+      card.destroy()
     })
   }
 
@@ -113,17 +127,24 @@ export class DragCard extends Component<DragCardProps, DragCardEvents> {
 
   setProps(props: Partial<DragCardProps>) {
     super.setProps(props)
-    const { content, x, y, background } = props
+    const { content, x, y, background, width, height } = props
 
-    if (content) {
-      this.card.setProps({ content })
-    }
     if (x !== undefined || y !== undefined) {
       this.draggable.setProps({ x, y })
     }
-    if (background) {
+    if (background !== undefined) {
       this.colorpicker.setProps({ color: background })
       this.card.setProps({ background })
     }
+    if (content !== undefined) {
+      this.editor.setProps({ content })
+    }
+    if (width !== undefined || height !== undefined) {
+      this.editor.setProps({ width, height })
+    }
   }
+
+  getSize = () => this.editor.getSize()
+  focus = () => this.editor.focus()
+  blur = () => this.editor.blur()
 }

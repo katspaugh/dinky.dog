@@ -3,7 +3,6 @@ import { debounce, randomId } from '../lib/utils.js'
 import { Graph } from './Graph.js'
 import { Edge } from './Edge.js'
 import { DragCard } from './DragCard.js'
-import { Editable } from './Editable.js'
 import { Drop } from './Drop.js'
 import { uploadImage } from '../lib/upload-image.js'
 
@@ -14,7 +13,6 @@ type GraphNode = {
     edge: Edge
   }>
   card: DragCard
-  editor: Editable
 }
 
 type NodeProps = {
@@ -103,8 +101,7 @@ export class Flow extends Component<FlowProps, FlowEvents> {
   getProps() {
     const nodes = Object.values(this.nodes).reduce((acc, node) => {
       const { id } = node
-      const { x, y, background } = node.card.getProps()
-      const { content, width, height } = node.editor.getProps()
+      const { x, y, background, content, width, height } = node.card.getProps()
       acc[id] = {
         id,
         x,
@@ -213,7 +210,7 @@ export class Flow extends Component<FlowProps, FlowEvents> {
     const id = randomId()
     const params = { x, y, id }
     const node = this.createNode(params)
-    node.editor.focus()
+    node.card.focus()
     this.emit('command', { command: 'createNode', params })
     return node
   }
@@ -221,13 +218,13 @@ export class Flow extends Component<FlowProps, FlowEvents> {
   private async onFileUpload({ x, y, file }: { x: number; y: number; file: File }) {
     const rect = this.graph.getOffset()
     const node = this.onCreateNode({ x: x - rect.left, y: y - rect.top })
-    node.editor.blur()
+    node.card.blur()
 
     // Local preview
     const tempUrl = URL.createObjectURL(file)
     if (tempUrl) {
       const content = `<img src="${tempUrl}" alt="${file.name}" />`
-      node.editor.setProps({ content })
+      node.card.setProps({ content })
     }
 
     try {
@@ -269,9 +266,9 @@ export class Flow extends Component<FlowProps, FlowEvents> {
   }
 
   private onResize(node: GraphNode, diff?: { dx: number; dy: number }) {
-    let props = node.editor.getProps()
+    let props = node.card.getProps()
     if (props.width == null || props.height == null) {
-      const size = node.editor.getSize()
+      const size = node.card.getSize()
       props = { ...props, ...size }
     }
     const params = { id: node.id, width: null, height: null }
@@ -283,23 +280,16 @@ export class Flow extends Component<FlowProps, FlowEvents> {
   }
 
   private onResizeEnd(node: GraphNode) {
-    const props = node.editor.getProps()
+    const props = node.card.getProps()
     const params = { id: node.id, width: props.width, height: props.height }
     this.emit('command', { command: 'resizeNode', params })
   }
 
   /* Public methods */
 
-  public createNode({ id, width, height, content = '', ...cardProps }: NodeProps) {
+  public createNode({ id, ...cardProps }: NodeProps) {
     const card = new DragCard()
     card.setProps(cardProps)
-
-    // Text editor
-    const editor = new Editable()
-    editor.setProps({ content, width, height })
-    editor.on('input', ({ content }) => this.onEditNode(node, content))
-
-    const node = { id, connections: [], card, editor }
 
     card.on('connectorClick', () => this.onConnectorClick(node))
     card.on('drag', (params) => this.onDrag(node, params.x, params.y))
@@ -311,12 +301,12 @@ export class Flow extends Component<FlowProps, FlowEvents> {
       this.onResize(node)
       this.onResizeEnd(node)
     })
-
+    card.on('contentChange', ({ content }) => this.onEditNode(node, content))
     card.on('click', () => this.onNodeClick(node))
 
-    node.card.setProps({ content: editor.container })
     this.graph.renderCard(card.container)
 
+    const node = { id, connections: [], card }
     this.nodes[id] = node
     this.lastNode = node
 
@@ -372,7 +362,6 @@ export class Flow extends Component<FlowProps, FlowEvents> {
     })
 
     node.card.destroy()
-    node.editor.destroy()
 
     delete this.nodes[id]
   }
@@ -407,7 +396,7 @@ export class Flow extends Component<FlowProps, FlowEvents> {
   public editNode({ id, content }: { id: string; content: string }) {
     const node = this.nodes[id]
     if (!node) return
-    node.editor.setProps({ content })
+    node.card.setProps({ content })
   }
 
   public changeNodeBackground({ id, background }: { id: string; background: string }) {
@@ -419,6 +408,6 @@ export class Flow extends Component<FlowProps, FlowEvents> {
   public resizeNode({ id, width, height }: { id: string; width: number; height: number }) {
     const node = this.nodes[id]
     if (!node) return
-    node.editor.setProps({ width, height })
+    node.card.setProps({ width, height })
   }
 }

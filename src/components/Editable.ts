@@ -64,8 +64,9 @@ export class Editable extends Component<EditableProps, EditableEvents> {
 
     if (content !== this.lastContent) {
       this.lastContent = content
-      this.container.innerHTML = sanitizeHtml(content)
+      this.container.innerHTML = sanitizeHtml(content ?? '')
     }
+
     if (width !== undefined) {
       const reset = width === null
       css(this.container, {
@@ -74,6 +75,7 @@ export class Editable extends Component<EditableProps, EditableEvents> {
         minWidth: `${ABS_MIN_WIDTH}px`,
       })
     }
+
     if (height !== undefined) {
       const reset = height === null
       css(this.container, {
