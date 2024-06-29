@@ -3,13 +3,11 @@ import { Flow, type FlowProps, type FlowEvents } from './Flow.js'
 import { Sidebar, type SidebarEvents } from '../components/Sidebar.js'
 
 export type AppProps = {
-  state?: {
-    id: string
-    nodes: FlowProps['nodes']
-    title?: string
-    backgroundColor?: string
-    lastSequence: number
-  }
+  id: string
+  nodes: FlowProps['nodes']
+  title?: string
+  backgroundColor?: string
+  lastSequence: number
 }
 
 type AppEvents = FlowEvents & SidebarEvents & {}
@@ -48,21 +46,16 @@ export class App extends Component<AppProps, AppEvents> {
 
   getProps() {
     return {
-      state: {
-        ...this.props.state,
-        ...this.flow.getProps(),
-      },
+      ...this.props,
+      ...this.flow.getProps(),
     }
   }
 
   setProps(props: AppProps) {
     super.setProps(props)
 
-    const data = props.state
-    if (data) {
-      this.flow.setProps({ nodes: data.nodes, backgroundColor: data.backgroundColor })
-      this.sidebar.setProps({ title: data.title, backgroundColor: data.backgroundColor })
-    }
+    this.flow.setProps({ nodes: props.nodes, backgroundColor: props.backgroundColor })
+    this.sidebar.setProps({ title: props.title, backgroundColor: props.backgroundColor })
   }
 
   callCommand(command: string, params: any) {

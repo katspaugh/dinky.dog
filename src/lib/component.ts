@@ -13,7 +13,6 @@ export class Component<PropTypes extends GeneralPropTypes, EventTypes extends Ge
   EventTypes & ComponentEvents
 > {
   private _container: HTMLElement
-  private raf: number | null = null
   protected props: PropTypes = {} as PropTypes
 
   constructor(...args: Parameters<typeof el>) {
@@ -51,10 +50,7 @@ export class Component<PropTypes extends GeneralPropTypes, EventTypes extends Ge
     if (Object.keys(newProps).every((key) => newProps[key] === this.props[key])) return
     this.props = newProps
 
-    if (this.raf) cancelAnimationFrame(this.raf)
-    this.raf = requestAnimationFrame(() => {
-      this.render()
-    })
+    this.render()
   }
 
   protected render() {

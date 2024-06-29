@@ -178,7 +178,7 @@ export class Sidebar extends Component<SidebarProps, SidebarEvents> {
     }
   }
 
-  setProps(props: SidebarProps) {
+  setProps(props: Partial<SidebarProps>) {
     super.setProps(props)
 
     if (props.title) {

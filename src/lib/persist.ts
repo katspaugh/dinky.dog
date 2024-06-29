@@ -13,7 +13,7 @@ const CLIENT_ID_KEY = 'stream-clientId'
 export function getUrlId() {
   const url = new URL(window.location.href)
   const q = url.searchParams.get('q')
-  return q.replace(/(.+?_)?(.+)$/gi, '$2') // ignore any prefix like 'state_'
+  return q ? q.replace(/(.+?_)?(.+)$/gi, '$2') : '' // ignore any prefix like 'state_'
 }
 
 function addPrefix(id: string, title?: string) {

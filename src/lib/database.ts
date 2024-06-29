@@ -1,12 +1,38 @@
+import { compressObjectToString, decompressStringToObject } from './compress.js'
+
 const API_URL = 'https://state.dinky.dog'
 
-export async function loadData(id: string) {
+export type DinkyData = {
+  id: string
+  lastSequence: number
+  title?: string
+  backgroundColor?: string
+  nodes: Record<
+    string,
+    {
+      id: string
+      data: {
+        operatorData: string
+      }
+      props: {
+        x: number
+        y: number
+        width?: number
+        height?: number
+        background?: string
+      }
+      connections: { inputId: string }[]
+    }
+  >
+}
+
+export async function loadData(id: string): Promise<DinkyData> {
   const res = await fetch(API_URL + `?id=${encodeURIComponent(id)}`)
   if (!res.ok) {
     throw new Error(`HTTP error! Status: ${res.status}`)
   }
   const json = await res.json()
-  return json.data
+  return await decompressStringToObject(json.data)
 }
 
 async function postData(id: string, data: any) {
@@ -28,10 +54,11 @@ function sendBeacon(id: string, data: any) {
   }
 }
 
-export async function saveData(id: string, data: any, useBeacon = false) {
+export async function saveData(data: any, useBeacon = false) {
+  const encData = await compressObjectToString(data)
   if (useBeacon && navigator.sendBeacon) {
-    return sendBeacon(id, data)
+    return sendBeacon(data.id, encData)
   } else {
-    return postData(id, data)
+    return postData(data.id, encData)
   }
 }

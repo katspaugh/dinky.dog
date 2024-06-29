@@ -1,6 +1,5 @@
 import { initDurableStream } from './lib/durable-stream.js'
-import { loadData, saveData } from './lib/database.js'
-import { compressObjectToString, decompressStringToObject } from './lib/compress.js'
+import { DinkyData, loadData, saveData } from './lib/database.js'
 import { getClientId, getUrlId, saveToLocalStorage, setUrlId } from './lib/persist.js'
 import { App, type AppProps } from './components/App.js'
 import { randomId } from './lib/utils.js'
@@ -29,13 +28,19 @@ async function initRealtimeSync(app: App, lastSequence = 0) {
 }
 
 async function loadFromDatabase() {
-  const encData = await loadData(getUrlId())
-  const data = await decompressStringToObject(encData)
+  const id = getUrlId()
+  if (!id) return
+  let data: DinkyData
+  try {
+    data = await loadData(id)
+  } catch (e) {
+    console.error('Error loading data', e)
+    return
+  }
 
   console.log('Loaded data', data)
 
-  // @ts-ignore
-  const nodes = Object.entries(data.nodes).reduce((acc, [key, value]: any) => {
+  const nodes = Object.entries(data.nodes).reduce((acc, [key, value]) => {
     acc[key] = {
       id: key,
       content: value.data.operatorData,
@@ -52,8 +57,8 @@ async function loadFromDatabase() {
   return { ...data, nodes }
 }
 
-async function saveToDatabase(flowNodes: AppProps['state']['nodes'], restData: AppProps['state']) {
-  const nodes = Object.entries(flowNodes).reduce((acc, [key, value]: any) => {
+async function saveToDatabase(flowNodes: AppProps['nodes'], restData: AppProps) {
+  const nodes = Object.entries(flowNodes).reduce<DinkyData>((acc, [key, value]) => {
     acc[key] = {
       data: {
         operatorData: value.content,
@@ -68,15 +73,16 @@ async function saveToDatabase(flowNodes: AppProps['state']['nodes'], restData: A
       connections: value.connections.map((inputId) => ({ inputId })),
     }
     return acc
-  }, {})
+  }, {} as DinkyData)
 
   const data = {
     ...restData,
     nodes,
   }
 
-  const encData = await compressObjectToString(data)
-  await saveData(data.id, encData)
+  console.log('Saving data', data)
+
+  await saveData(data)
 }
 
 function initSpecialPages(app: App) {
@@ -87,19 +93,17 @@ function initSpecialPages(app: App) {
   textEl.remove()
 
   app.setProps({
-    state: {
-      id: location.pathname,
-      lastSequence: 0,
-      nodes: {
-        '1': {
-          id: '1',
-          content,
-          x: 20,
-          y: 20,
-          width: window.innerWidth > 1000 ? window.innerWidth * 0.7 : window.innerWidth - 40,
-          height: window.innerHeight - 40,
-          connections: [],
-        },
+    id: location.pathname,
+    lastSequence: 0,
+    nodes: {
+      '1': {
+        id: '1',
+        content,
+        x: 20,
+        y: 20,
+        width: window.innerWidth > 1000 ? window.innerWidth * 0.7 : window.innerWidth - 40,
+        height: window.innerHeight - 40,
+        connections: [],
       },
     },
   })
@@ -111,11 +115,9 @@ async function initPersistence(app: App) {
   let state = await loadFromDatabase()
 
   const save = () => {
-    if (!state.id) {
-      state.id = randomId()
-    }
-    saveToDatabase(app.getProps().state.nodes, state)
-    saveToLocalStorage(state)
+    if (!state.title) return // Don't autosave if no title
+    saveToDatabase(app.getProps().nodes, state)
+    saveToLocalStorage({ id: state.id, title: state.title })
   }
 
   const updateTitle = () => {
@@ -125,22 +127,37 @@ async function initPersistence(app: App) {
   }
 
   if (state) {
-    app.setProps({ state: state })
+    app.setProps(state)
     updateTitle()
+  } else {
+    state = {
+      id: randomId(),
+      lastSequence: 0,
+      nodes: {
+        '1': {
+          id: '1',
+          x: window.innerWidth / 2 - 80,
+          y: 100,
+          content: 'Hello, dinky!',
+          connections: [],
+        },
+      },
+    }
+    app.setProps(state)
   }
 
   app.on('command', save)
 
   app.on('titleChange', ({ title }) => {
     state.title = title
-    app.setProps({ state })
+    app.setProps(state)
     save()
     updateTitle()
   })
 
   app.on('backgroundColorChange', ({ backgroundColor }) => {
     state.backgroundColor = backgroundColor
-    app.setProps({ state })
+    app.setProps(state)
     save()
   })
 
