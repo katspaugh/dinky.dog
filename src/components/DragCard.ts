@@ -34,6 +34,7 @@ export class DragCard extends Component<DragCardProps, DragCardEvents> {
   private card: Card
   private colorpicker: CardColorpicker
   private editor: Editable
+  private lastBackgroundCheck: boolean
 
   constructor() {
     const draggable = new Draggable()
@@ -151,10 +152,13 @@ export class DragCard extends Component<DragCardProps, DragCardEvents> {
   render() {
     const isBackgroundCard =
       this.props.background && this.props.width >= MIN_BG_WIDTH && this.props.height >= MIN_BG_HEIGHT
-    css(this.container, {
-      opacity: isBackgroundCard ? '0.5' : '',
-      zIndex: isBackgroundCard ? '-1' : '',
-    })
+    if (isBackgroundCard !== this.lastBackgroundCheck) {
+      this.lastBackgroundCheck = isBackgroundCard
+      css(this.container, {
+        opacity: isBackgroundCard ? '0.5' : '',
+        zIndex: isBackgroundCard ? '-1' : '',
+      })
+    }
   }
 
   getSize = () => this.editor.getSize()

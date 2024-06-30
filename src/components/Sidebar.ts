@@ -2,6 +2,7 @@ import { Component } from '../lib/component.js'
 import { css } from '../lib/dom.js'
 import { getSavedStates, makeUrl } from '../lib/persist.js'
 import { sanitizeHtml } from '../lib/sanitize-html.js'
+import { randomId } from '../lib/utils.js'
 import { Button } from './Button.js'
 import { Colorpicker } from './Colorpicker.js'
 import { Input } from './Input.js'
@@ -166,16 +167,25 @@ export class Sidebar extends Component<SidebarProps, SidebarEvents> {
   }
 
   private updateMenu(menu: Menu) {
+    let items = [
+      {
+        text: '+ New',
+        href: makeUrl(randomId()),
+      },
+    ]
+
     const savedStates = getSavedStates()
     if (savedStates) {
-      const items = savedStates.map((state) => {
-        return {
-          text: state.title,
-          href: makeUrl(state.id, state.title),
-        }
-      })
-      menu.setProps({ items })
+      items = items.concat(
+        savedStates.map((state) => {
+          return {
+            text: state.title,
+            href: makeUrl(state.id, state.title),
+          }
+        }),
+      )
     }
+    menu.setProps({ items })
   }
 
   setProps(props: Partial<SidebarProps>) {
