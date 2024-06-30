@@ -5,6 +5,7 @@ import { Edge } from './Edge.js'
 import { DragCard, type DragCardProps } from './DragCard.js'
 import { Drop } from './Drop.js'
 import { uploadImage } from '../lib/upload-image.js'
+import { el } from '../lib/dom.js'
 
 type GraphNode = {
   id: string
@@ -217,14 +218,19 @@ export class Flow extends Component<FlowProps, FlowEvents> {
     // Local preview
     const tempUrl = URL.createObjectURL(file)
     if (tempUrl) {
-      const content = `<img src="${tempUrl}" alt="${file.name}" />`
-      node.card.setProps({ content })
+      node.card.setProps({ content: '<img />', height: null })
+      node.card.container.querySelector('img')?.setAttribute('src', tempUrl)
     }
 
     try {
-      const url = await uploadImage(file)
-      tempUrl && URL.revokeObjectURL(tempUrl)
-      this.updateNode({ id: node.id, content: `<img src="${url}" alt="${file.name}" />`, height: null })
+      const img = el('img', {
+        src: await uploadImage(file),
+        alt: file.name,
+        onload: () => {
+          this.updateNode({ id: node.id, content: img.outerHTML })
+          tempUrl && URL.revokeObjectURL(tempUrl)
+        },
+      })
     } catch (e) {
       console.error('Failed to upload image', e)
     }
