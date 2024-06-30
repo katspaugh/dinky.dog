@@ -12,7 +12,6 @@ export class Connector extends Component<{}, ConnectorEvents> {
         backgroundColor: 'var(--accent-color)',
         width: '20px',
         height: '20px',
-        cursor: 'pointer',
         border: 'none',
         padding: '0',
         position: 'absolute',
@@ -21,6 +20,7 @@ export class Connector extends Component<{}, ConnectorEvents> {
         top: '50%',
         marginTop: '-10px',
         marginRight: '-10px',
+        cursor: `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='48' viewport='0 0 100 100' style='fill:black;font-size:24px;'><text y='50%'>∿</text></svg>") 0 16, pointer`,
       },
 
       onclick: (e) => {

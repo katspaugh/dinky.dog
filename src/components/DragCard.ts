@@ -1,10 +1,14 @@
 import { Component } from '../lib/component.js'
+import { css } from '../lib/dom.js'
 import { Card } from './Card.js'
 import { CardColorpicker } from './CardColorpicker.js'
 import { Connector } from './Connector.js'
 import { Draggable, type DraggableEvents } from './Draggable.js'
 import { Editable } from './Editable.js'
 import { Resizer, ResizerEvents } from './Resizer.js'
+
+const MIN_BG_WIDTH = 400
+const MIN_BG_HEIGHT = 400
 
 export type DragCardProps = {
   x: number
@@ -142,6 +146,15 @@ export class DragCard extends Component<DragCardProps, DragCardEvents> {
     if (width !== undefined || height !== undefined) {
       this.editor.setProps({ width, height })
     }
+  }
+
+  render() {
+    const isBackgroundCard =
+      this.props.background && this.props.width >= MIN_BG_WIDTH && this.props.height >= MIN_BG_HEIGHT
+    css(this.container, {
+      opacity: isBackgroundCard ? '0.5' : '',
+      zIndex: isBackgroundCard ? '-1' : '',
+    })
   }
 
   getSize = () => this.editor.getSize()

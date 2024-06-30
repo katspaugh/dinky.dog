@@ -35,14 +35,10 @@ export function parseUrl(text = '') {
   return match ? match[1] || '' : ''
 }
 
-export function parseImageUrl(text = '') {
-  const url = parseUrl(text)
-  if (!url) return ''
+export function parseImageUrl(url: string) {
   return /\.(jpe?g|png|gif|webp|svg)($|\?)/.test(url) ? url : ''
 }
 
-export function parseAudioUrl(text = '') {
-  const url = parseUrl(text)
-  if (!url) return ''
+export function parseAudioUrl(url: string) {
   return /\.(mp3|wav|ogg|flac|aac|wma|alac|aiff|webm)($|\?)/.test(url) ? url : ''
 }
