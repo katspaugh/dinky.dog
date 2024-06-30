@@ -48,6 +48,7 @@ export class Flow extends Component<FlowProps, FlowEvents> {
   private graph: Graph
   private lastEdge: Edge | null = null
   private lastNode: GraphNode | null = null
+  private selectedNodes: GraphNode[] = []
 
   constructor() {
     const drop = new Drop()
@@ -65,6 +66,14 @@ export class Flow extends Component<FlowProps, FlowEvents> {
 
     drop.on('drop', (props) => {
       this.onFileUpload(props)
+    })
+
+    graph.on('select', (props) => {
+      this.onSelectBox(props)
+    })
+
+    graph.on('click', () => {
+      this.onUnselect()
     })
 
     this.on('destroy', () => {
@@ -190,15 +199,33 @@ export class Flow extends Component<FlowProps, FlowEvents> {
     }
   }
 
-  private onDrag(node: GraphNode, x: number, y: number) {
-    const params = { id: node.id, x, y }
-    this.repositionNode(params)
+  private onDrag(node: GraphNode, { dx, dy }: { dx: number; dy: number }) {
+    const updatePosition = (selectedNode: GraphNode) => {
+      const { x, y } = selectedNode.card.getProps()
+      const params = { id: selectedNode.id, x: Math.round(x + dx), y: Math.round(y + dy) }
+      this.repositionNode(params)
+    }
+
+    if (this.selectedNodes.includes(node)) {
+      this.selectedNodes.forEach(updatePosition)
+    } else {
+      updatePosition(node)
+    }
   }
 
   private onDragEnd(node: GraphNode) {
-    const { x, y } = node.card.getProps()
-    const params = { id: node.id, x, y }
-    this.emit('command', { command: 'repositionNode', params })
+    const savePosition = (selectedNode: GraphNode) => {
+      const { x, y } = selectedNode.card.getProps()
+      const params = { id: node.id, x, y }
+      this.emit('command', { command: 'repositionNode', params })
+    }
+
+    if (this.selectedNodes.includes(node)) {
+      this.selectedNodes.forEach(savePosition)
+      this.onUnselect()
+    } else {
+      savePosition(node)
+    }
   }
 
   private onCreateNode({ x, y }: { x: number; y: number }) {
@@ -302,6 +329,35 @@ export class Flow extends Component<FlowProps, FlowEvents> {
     })
   }
 
+  private onSelectBox({ x1, y1, x2, y2 }: { x1: number; y1: number; x2: number; y2: number }) {
+    const matchingNodes = Object.values(this.nodes).filter((node) => {
+      let { x, y, width, height } = node.card.getProps()
+      if (!width || !height) {
+        const size = node.card.getSize()
+        width = size.width
+        height = size.height
+      }
+      return (
+        (x > x1 && y > y1 && x + width < x2 && y + height < y2) ||
+        (x + width > x1 && y + height > y1 && x < x2 && y < y2)
+      )
+    })
+
+    matchingNodes.forEach((node) => {
+      node.card.setProps({ selected: true })
+    })
+
+    this.selectedNodes = matchingNodes
+  }
+
+  private onUnselect() {
+    this.selectedNodes.forEach((node) => {
+      node.card.setProps({ selected: false })
+    })
+
+    this.selectedNodes = []
+  }
+
   /* Public methods */
 
   public createNode({ id, ...cardProps }: NodeProps) {
@@ -309,7 +365,7 @@ export class Flow extends Component<FlowProps, FlowEvents> {
     card.setProps(cardProps)
 
     card.on('connectorClick', () => this.onConnectorClick(node))
-    card.on('drag', (params) => this.onDrag(node, params.x, params.y))
+    card.on('drag', (params) => this.onDrag(node, params))
     card.on('dragend', () => this.onDragEnd(node))
     card.on('backgroundChange', ({ background }) => this.onNodeBackgroundChange(node, background))
     card.on('resize', (params) => this.onResize(node, params))

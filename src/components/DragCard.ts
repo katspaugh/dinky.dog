@@ -16,6 +16,7 @@ export type DragCardProps = {
   height?: number
   background?: string
   content?: string
+  selected?: boolean
 }
 
 type DragCardEvents = DraggableEvents &
@@ -34,6 +35,7 @@ export class DragCard extends Component<DragCardProps, DragCardEvents> {
   private colorpicker: CardColorpicker
   private editor: Editable
   private lastBackgroundCheck: boolean
+  private lastSelected: boolean
 
   constructor() {
     const draggable = new Draggable()
@@ -46,6 +48,10 @@ export class DragCard extends Component<DragCardProps, DragCardEvents> {
     super(
       draggable.container,
       {
+        style: {
+          borderRadius: '4px',
+        },
+
         onclick: (e: MouseEvent) => {
           e.preventDefault()
           this.emit('click', {})
@@ -155,6 +161,13 @@ export class DragCard extends Component<DragCardProps, DragCardEvents> {
       css(this.container, {
         opacity: isBackgroundCard ? '0.6' : '',
         zIndex: isBackgroundCard ? '1' : '',
+      })
+    }
+
+    if (this.props.selected !== this.lastSelected) {
+      this.lastSelected = this.props.selected
+      css(this.container, {
+        outline: this.props.selected ? '2px solid rgba(100, 0, 100, 0.7)' : '',
       })
     }
   }

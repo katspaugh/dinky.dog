@@ -1,36 +1,65 @@
 import { Component } from '../lib/component.js'
 import { Svg } from './Svg.js'
 import { Pan, type PanEvents } from './Pan.js'
+import { SelectionBox, type SelectionBoxEvents } from './SelectionBox.js'
 
 const WIDTH = 5000
 const HEIGHT = 5000
 
-export class Graph extends Component<{}, PanEvents> {
+export class Graph extends Component<{}, PanEvents & SelectionBoxEvents> {
   private svg: Svg
   private pan: Pan
 
   constructor() {
-    super('div', {
-      style: {
-        position: 'absolute',
-        left: '0',
-        top: '0',
-        width: '100vw',
-        height: '100vh',
-        overflow: 'auto',
+    const size = { width: WIDTH, height: HEIGHT }
+
+    const svg = new Svg()
+    svg.setProps(size)
+
+    const pan = new Pan()
+    pan.setProps(size)
+
+    const selectionBox = new SelectionBox(pan.container)
+
+    super(
+      'div',
+      {
+        style: {
+          position: 'absolute',
+          left: '0',
+          top: '0',
+          width: '100vw',
+          height: '100vh',
+          overflow: 'auto',
+        },
       },
+      [pan.container, selectionBox.container],
+    )
+
+    pan.container.append(svg.container)
+
+    this.svg = svg
+    this.pan = pan
+
+    pan.on('click', (params) => {
+      this.emit('click', params)
     })
 
-    const size = { width: WIDTH, height: HEIGHT }
-    this.svg = new Svg()
-    this.svg.setProps(size)
-    this.pan = new Pan()
-    this.pan.setProps(size)
+    pan.on('dblclick', (params) => {
+      this.emit('dblclick', params)
+    })
 
-    this.pan.container.append(this.svg.container)
-    this.container.append(this.pan.container)
+    pan.on('pointermove', (params) => {
+      this.emit('pointermove', params)
+    })
 
-    this.on = this.pan.on.bind(this.pan)
+    pan.on('escape', () => {
+      this.emit('escape', {})
+    })
+
+    selectionBox.on('select', (params) => {
+      this.emit('select', params)
+    })
   }
 
   renderCard(card: HTMLElement) {
