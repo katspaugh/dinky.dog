@@ -61,6 +61,7 @@ export class Editable extends Component<EditableProps, EditableEvents> {
             })
           }
         }
+
         this.updateContent(sanitizeHtml(content))
       },
 
@@ -90,7 +91,6 @@ export class Editable extends Component<EditableProps, EditableEvents> {
   private async loadPreview(url: string) {
     try {
       const data = await fetchPreview(url)
-      console.log('Link preview', data)
       return data
     } catch (error) {
       console.error('Failed to fetch preview for', url, error)

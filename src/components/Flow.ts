@@ -114,7 +114,7 @@ export class Flow extends Component<FlowProps, FlowEvents> {
 
   private emitDebounced = debounce((event, params) => {
     this.emit(event, params)
-  }, 100)
+  }, 300)
 
   private subscribeUiEvents() {
     // Double click
@@ -280,6 +280,22 @@ export class Flow extends Component<FlowProps, FlowEvents> {
     this.emit('command', { command: 'updateNode', params })
   }
 
+  private adjustEdges(node: GraphNode) {
+    const rect = this.graph.getOffset()
+    const fromPoint = node.card.getOutPoint()
+
+    node.connections.forEach((item) => {
+      const toPoint = item.node.card.getInPoint()
+
+      item.edge.setProps({
+        x1: fromPoint.x - rect.left,
+        y1: fromPoint.y - rect.top,
+        x2: toPoint.x - rect.left,
+        y2: toPoint.y - rect.top,
+      })
+    })
+  }
+
   /* Public methods */
 
   public createNode({ id, ...cardProps }: NodeProps) {
@@ -392,5 +408,6 @@ export class Flow extends Component<FlowProps, FlowEvents> {
     const node = this.nodes[id]
     if (!node) return
     node.card.setProps(params)
+    this.adjustEdges(node)
   }
 }

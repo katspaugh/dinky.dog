@@ -51,11 +51,12 @@ export class App extends Component<AppProps, AppEvents> {
     }
   }
 
-  setProps(props: AppProps) {
+  setProps(props: Partial<AppProps>) {
     super.setProps(props)
 
-    this.flow.setProps({ nodes: props.nodes, backgroundColor: props.backgroundColor })
-    this.sidebar.setProps({ title: props.title, backgroundColor: props.backgroundColor })
+    const { nodes, title, backgroundColor } = this.props
+    this.flow.setProps({ nodes, backgroundColor })
+    this.sidebar.setProps({ title, backgroundColor })
   }
 
   callCommand(command: string, params: any) {

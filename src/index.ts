@@ -2,7 +2,9 @@ import { initDurableStream } from './lib/durable-stream.js'
 import { DinkyData, loadData, saveData } from './lib/database.js'
 import { getClientId, getUrlId, saveToLocalStorage, setUrlId } from './lib/persist.js'
 import { App, type AppProps } from './components/App.js'
-import { randomId } from './lib/utils.js'
+import { debounce, randomId } from './lib/utils.js'
+
+const SAVE_DELAY = 5000
 
 async function initRealtimeSync(app: App, lastSequence = 0) {
   const clientId = getClientId()
@@ -57,7 +59,9 @@ async function loadFromDatabase() {
   return { ...data, nodes }
 }
 
-async function saveToDatabase(flowNodes: AppProps['nodes'], restData: AppProps) {
+const debouncedSaveData = debounce(saveData, SAVE_DELAY)
+
+async function saveToDatabase(flowNodes: AppProps['nodes'], restData: AppProps, isUnload = false) {
   const nodes = Object.entries(flowNodes).reduce<DinkyData>((acc, [key, value]) => {
     acc[key] = {
       data: {
@@ -82,7 +86,11 @@ async function saveToDatabase(flowNodes: AppProps['nodes'], restData: AppProps) 
 
   console.log('Saving data', data)
 
-  await saveData(data)
+  try {
+    isUnload ? await saveData(data, isUnload) : debouncedSaveData(data)
+  } catch (e) {
+    console.error('Error saving data', e)
+  }
 }
 
 function initSpecialPages(app: App) {
@@ -111,54 +119,58 @@ function initSpecialPages(app: App) {
   return true
 }
 
-async function initPersistence(app: App) {
-  let state = await loadFromDatabase()
+function getDefaultState(): AppProps {
+  return {
+    id: randomId(),
+    lastSequence: 0,
+    nodes: {
+      '1': {
+        id: '1',
+        x: window.innerWidth / 2 - 80,
+        y: 100,
+        content: 'Hello, dinky!',
+        connections: [],
+      },
+    },
+  }
+}
 
-  const save = () => {
+async function initPersistence(app: App) {
+  const state = (await loadFromDatabase()) || getDefaultState()
+
+  const save = (isUnload = false) => {
     if (!state.title) return // Don't autosave if no title
-    saveToDatabase(app.getProps().nodes, state)
-    saveToLocalStorage({ id: state.id, title: state.title })
+    saveToDatabase(app.getProps().nodes, state, isUnload)
   }
 
   const updateTitle = () => {
     if (!state.title) return
     document.title = `Dinky Dog — ${state.title}`
     setUrlId(state.id, state.title)
+    saveToLocalStorage({ id: state.id, title: state.title })
   }
 
-  if (state) {
-    app.setProps(state)
-    updateTitle()
-  } else {
-    state = {
-      id: randomId(),
-      lastSequence: 0,
-      nodes: {
-        '1': {
-          id: '1',
-          x: window.innerWidth / 2 - 80,
-          y: 100,
-          content: 'Hello, dinky!',
-          connections: [],
-        },
-      },
-    }
-    app.setProps(state)
-  }
+  updateTitle()
 
-  app.on('command', save)
+  app.setProps(state)
+
+  app.on('command', () => save())
 
   app.on('titleChange', ({ title }) => {
     state.title = title
-    app.setProps(state)
+    app.setProps({ title })
     save()
     updateTitle()
   })
 
   app.on('backgroundColorChange', ({ backgroundColor }) => {
     state.backgroundColor = backgroundColor
-    app.setProps(state)
+    app.setProps({ backgroundColor })
     save()
+  })
+
+  window.addEventListener('beforeunload', (e) => {
+    save(true)
   })
 
   return state
@@ -170,9 +182,9 @@ async function init() {
 
   if (initSpecialPages(app)) return
 
-  const data = await initPersistence(app)
+  const state = await initPersistence(app)
 
-  //initRealtimeSync(flow, data?.lastSequence)
+  //initRealtimeSync(app, state.lastSequence)
 }
 
 init()
