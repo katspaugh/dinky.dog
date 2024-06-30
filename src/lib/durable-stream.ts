@@ -28,7 +28,6 @@ export async function initDurableStream({
 
   client.subscribe(lastSequence, (msg, ack) => {
     ack()
-    console.log('Received message', msg)
     onMessage(msg)
   })
 

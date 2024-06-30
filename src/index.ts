@@ -6,11 +6,11 @@ import { debounce, randomId } from './lib/utils.js'
 
 const SAVE_DELAY = 5000
 
-async function initRealtimeSync(app: App, lastSequence = 0) {
+async function initRealtimeSync(app: App, id: string, lastSequence: number) {
   const clientId = getClientId()
 
   const durableClient = await initDurableStream({
-    subject: 'test5',
+    subject: id,
     lastSequence,
     onMessage: (msg) => {
       if (msg.data.clientId !== clientId) {
@@ -184,7 +184,7 @@ async function init() {
 
   const state = await initPersistence(app)
 
-  //initRealtimeSync(app, state.lastSequence)
+  initRealtimeSync(app, state.id, state.lastSequence)
 }
 
 init()
