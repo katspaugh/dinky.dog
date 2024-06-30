@@ -4,6 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=0.8">
     <title>Dinky Dog: shareable flow diagrams</title>
+
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self';
+        img-src 'self' *;
+        script-src 'self' 'unsafe-inline' https://esm.sh https://unpkg.com;
+        style-src 'self' 'unsafe-inline';
+        connect-src 'self' https://*.dinky.dog;
+        ">
+
     <link rel="icon" href="/favicon.ico" />
     <link rel="stylesheet" href="/styles.css" />
   </head>

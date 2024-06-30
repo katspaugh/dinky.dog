@@ -1,6 +1,8 @@
 import { Component } from '../lib/component.js'
-import { css } from '../lib/dom.js'
+import { css, el } from '../lib/dom.js'
+import { type LinkPreview, fetchPreview } from '../lib/link-preview.js'
 import { sanitizeHtml } from '../lib/sanitize-html.js'
+import { parseImageUrl, parseUrl } from '../lib/utils.js'
 
 type EditableEvents = {
   input: { content: string }
@@ -42,7 +44,24 @@ export class Editable extends Component<EditableProps, EditableEvents> {
       },
 
       onblur: () => {
-        this.updateContent(sanitizeHtml(this.container.innerHTML))
+        let content = this.container.innerHTML
+
+        const url = parseUrl(content)
+        if (url) {
+          if (parseImageUrl(url)) {
+            content = this.getPreviewImg(url)
+          } else {
+            content = this.getPreviewLink(url)
+
+            // Load preview and replace content
+            this.loadPreview(url).then((data) => {
+              if (data) {
+                this.emit('input', { content: this.getPreviewContent(data) })
+              }
+            })
+          }
+        }
+        this.updateContent(sanitizeHtml(content))
       },
 
       onkeydown: (e: KeyboardEvent) => {
@@ -51,12 +70,53 @@ export class Editable extends Component<EditableProps, EditableEvents> {
           this.container.blur()
         }
       },
+
+      onclick: (e: MouseEvent) => {
+        if (e.target instanceof HTMLAnchorElement) {
+          e.preventDefault()
+          window.open(e.target.href, '_blank')
+        }
+      },
     })
   }
 
   private updateContent(content: string) {
-    this.lastContent = content
-    this.emit('input', { content })
+    if (content !== this.props.content) {
+      this.lastContent = content
+      this.emit('input', { content })
+    }
+  }
+
+  private async loadPreview(url: string) {
+    try {
+      const data = await fetchPreview(url)
+      console.log('Link preview', data)
+      return data
+    } catch (error) {
+      console.error('Failed to fetch preview for', url, error)
+      return null
+    }
+  }
+
+  private getPreviewImg(src: string) {
+    return el('img', { src, alt: 'preview', crossOrigin: 'anonymous' }).outerHTML
+  }
+
+  private getPreviewLink(url: string, text?: string) {
+    return el('a', { href: url, textContent: text || url, target: '_blank' }).outerHTML
+  }
+
+  private getPreviewText(text?: string) {
+    return text ? el('p', { textContent: text }).outerHTML : ''
+  }
+
+  private getPreviewContent(data: LinkPreview) {
+    const domain = new URL(data.url).hostname
+    const img = data.image ? this.getPreviewImg(data.image) : ''
+    const title = this.getPreviewLink(data.url, data.title)
+    const description = this.getPreviewText(data.description)
+    const source = this.getPreviewLink(data.url, domain)
+    return `${img}${title}${description}${source}`
   }
 
   render() {

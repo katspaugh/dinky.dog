@@ -106,8 +106,23 @@ input:focus::placeholder {
   display: block;
   border-radius: inherit;
   width: calc(100% + 12px);
+  margin-right: -12px;
   height: auto;
   pointer-events: none;
+}
+
+.Editable a {
+  color: var(--edge-color);
+  cursor: pointer;
+}
+
+.Editable img + a {
+  display: block;
+  margin-top: 0.5em;
+}
+
+.Editable img + a + p {
+  margin: 0.5em 0;
 }
 
 .Resizer:after {

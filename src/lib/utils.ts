@@ -29,3 +29,20 @@ export function randomEmoji() {
   const emoji = String.fromCodePoint(emojiGroup[0] + Math.floor(Math.random() * (emojiGroup[1] - emojiGroup[0])))
   return emoji
 }
+
+export function parseUrl(text = '') {
+  const match = text.match(/^(https?:\/\/[-a-z0-9._]+?\.[a-z]{2,}(\/[-a-z0-9._?=&%]+)*)(?=\s|<|$)/i)
+  return match ? match[1] || '' : ''
+}
+
+export function parseImageUrl(text = '') {
+  const url = parseUrl(text)
+  if (!url) return ''
+  return /\.(jpe?g|png|gif|webp|svg)($|\?)/.test(url) ? url : ''
+}
+
+export function parseAudioUrl(text = '') {
+  const url = parseUrl(text)
+  if (!url) return ''
+  return /\.(mp3|wav|ogg|flac|aac|wma|alac|aiff|webm)($|\?)/.test(url) ? url : ''
+}

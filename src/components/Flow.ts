@@ -224,7 +224,7 @@ export class Flow extends Component<FlowProps, FlowEvents> {
     try {
       const url = await uploadImage(file)
       tempUrl && URL.revokeObjectURL(tempUrl)
-      this.updateNode({ id: node.id, content: `<img src="${url}" alt="${file.name}" />` })
+      this.updateNode({ id: node.id, content: `<img src="${url}" alt="${file.name}" />`, height: null })
     } catch (e) {
       console.error('Failed to upload image', e)
     }
