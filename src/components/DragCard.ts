@@ -7,7 +7,7 @@ import { Draggable, type DraggableEvents } from './Draggable.js'
 import { Editable } from './Editable.js'
 import { Resizer, ResizerEvents } from './Resizer.js'
 
-const BG_THRESHOLD = 100e3
+const BG_THRESHOLD = 110e3
 
 export type DragCardProps = {
   x: number
