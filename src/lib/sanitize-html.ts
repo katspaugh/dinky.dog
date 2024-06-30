@@ -49,7 +49,8 @@ export function sanitizeHtml(html = '') {
       'td',
       'div',
       'span',
+      'audio',
     ],
-    ALLOWED_ATTR: ['href', 'src', 'width', 'height', 'alt', 'title'],
+    ALLOWED_ATTR: ['href', 'src', 'width', 'height', 'alt', 'title', 'crossorigin', 'controls', 'target'],
   })
 }

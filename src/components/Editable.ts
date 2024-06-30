@@ -2,7 +2,7 @@ import { Component } from '../lib/component.js'
 import { css, el } from '../lib/dom.js'
 import { type LinkPreview, fetchPreview } from '../lib/link-preview.js'
 import { sanitizeHtml } from '../lib/sanitize-html.js'
-import { parseImageUrl, parseUrl } from '../lib/utils.js'
+import { parseAudioUrl, parseImageUrl, parseUrl } from '../lib/utils.js'
 
 type EditableEvents = {
   input: { content: string }
@@ -54,12 +54,13 @@ export class Editable extends Component<EditableProps, EditableEvents> {
 
         const url = parseUrl(html)
         if (url) {
+          let content = url
           if (parseImageUrl(url)) {
-            const content = this.getPreviewImg(url)
-            this.emit('input', { content })
+            content = this.getPreviewImg(url)
+          } else if (parseAudioUrl(url)) {
+            content = this.getPreviewAudio(url)
           } else {
-            const content = this.getPreviewLink(url)
-            this.emit('input', { content })
+            content = this.getPreviewLink(url)
 
             // Load preview and replace content
             this.loadPreview(url).then((data) => {
@@ -69,6 +70,7 @@ export class Editable extends Component<EditableProps, EditableEvents> {
               }
             })
           }
+          this.emit('input', { content })
         }
       },
 
@@ -83,6 +85,8 @@ export class Editable extends Component<EditableProps, EditableEvents> {
         if (e.target instanceof HTMLAnchorElement) {
           e.preventDefault()
           window.open(e.target.href, '_blank')
+        } else if (e.target instanceof HTMLAudioElement) {
+          e.stopPropagation()
         }
       },
     })
@@ -113,15 +117,19 @@ export class Editable extends Component<EditableProps, EditableEvents> {
     return el('a', { href: url, textContent: text || url, target: '_blank' }).outerHTML
   }
 
-  private getPreviewText(text?: string) {
-    return text ? el('p', { textContent: text }).outerHTML : ''
+  private getPreviewText(text: string) {
+    return el('p', { textContent: text }).outerHTML
+  }
+
+  private getPreviewAudio(src: string) {
+    return el('audio', { src, crossOrigin: 'anonymous', controls: true }).outerHTML
   }
 
   private getPreviewContent(data: LinkPreview) {
     const domain = new URL(data.url).hostname
     const img = data.image ? this.getPreviewImg(data.image) : ''
     const title = this.getPreviewLink(data.url, data.title)
-    const description = this.getPreviewText(data.description)
+    const description = this.getPreviewText(data.description ?? '')
     const source = this.getPreviewLink(data.url, domain)
     return `${img}${title}${description}${source}`
   }

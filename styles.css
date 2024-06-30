@@ -106,10 +106,14 @@ input:focus::placeholder {
 .Editable img {
   display: block;
   border-radius: inherit;
-  width: calc(100% + 12px);
-  margin-right: -12px;
   height: auto;
   pointer-events: none;
+  width: calc(100% + 12px);
+  margin-right: -12px;
+}
+
+.Editable audio {
+  width: 300px;
 }
 
 .Editable a {
@@ -131,7 +135,7 @@ input:focus::placeholder {
 .Editable h3,
 .Editable h4,
 .Editable h5 {
-  margin: 0;
+  margin: 0.5em 0;
   font-optical-sizing: auto;
   font-family: 'Lucida Grande', Arial, sans-serif;
 }
