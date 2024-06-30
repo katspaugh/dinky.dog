@@ -17,12 +17,17 @@ type EditableProps = {
 const ABS_MIN_WIDTH = 70
 const ABS_MIN_HEIGHT = 37
 
+const INITIAL_WIDTH = 130
+const INITIAL_HEIGHT = 55
+
 export class Editable extends Component<EditableProps, EditableEvents> {
   private lastContent = ''
 
   constructor() {
     super('div', {
       contentEditable: 'true',
+
+      tabIndex: 1,
 
       style: {
         whiteSpace: 'pre-wrap',
@@ -31,8 +36,8 @@ export class Editable extends Component<EditableProps, EditableEvents> {
         border: '1px solid #333',
         padding: '8px',
         paddingRight: '20px',
-        minWidth: '160px',
-        minHeight: '70px',
+        minWidth: `${INITIAL_WIDTH}px`,
+        minHeight: `${INITIAL_HEIGHT}px`,
         maxWidth: '260px',
         maxHeight: '260px',
         overflowY: 'auto',

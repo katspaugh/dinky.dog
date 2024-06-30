@@ -125,6 +125,29 @@ input:focus::placeholder {
   margin: 0.5em 0;
 }
 
+.Editable h1,
+.Editable h2,
+.Editable h3,
+.Editable h4,
+.Editable h5 {
+  margin: 0;
+  font-optical-sizing: auto;
+  font-family: 'Lucida Grande', Arial, sans-serif;
+}
+
+.Editable *:first-child {
+  margin-top: 0;
+}
+
+.Editable *:last-child {
+  margin-bottom: 0;
+}
+
+.Editable ol,
+.Editable ul {
+  padding-left: 1.2em;
+}
+
 .Resizer:after {
   content: '';
   display: block;

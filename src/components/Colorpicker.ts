@@ -41,7 +41,7 @@ export class Colorpicker extends Component<ColorpickerProps, ColorpickerEvents> 
       // @ts-ignore
       type: 'color',
       value: PASTEL_COLORS[0],
-      tabIndex: 2,
+      tabIndex: -1,
       oninput: () => {
         this.emit('change', { color: (this.container as HTMLInputElement).value })
       },
