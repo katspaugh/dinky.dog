@@ -7,8 +7,7 @@ import { Draggable, type DraggableEvents } from './Draggable.js'
 import { Editable } from './Editable.js'
 import { Resizer, ResizerEvents } from './Resizer.js'
 
-const MIN_BG_WIDTH = 400
-const MIN_BG_HEIGHT = 400
+const BG_THRESHOLD = 100e3
 
 export type DragCardProps = {
   x: number
@@ -150,13 +149,12 @@ export class DragCard extends Component<DragCardProps, DragCardEvents> {
   }
 
   render() {
-    const isBackgroundCard =
-      this.props.background && this.props.width >= MIN_BG_WIDTH && this.props.height >= MIN_BG_HEIGHT
+    const isBackgroundCard = this.props.background && this.props.width * this.props.height >= BG_THRESHOLD
     if (isBackgroundCard !== this.lastBackgroundCheck) {
       this.lastBackgroundCheck = isBackgroundCard
       css(this.container, {
-        opacity: isBackgroundCard ? '0.5' : '',
-        zIndex: isBackgroundCard ? '-1' : '',
+        opacity: isBackgroundCard ? '0.6' : '',
+        zIndex: isBackgroundCard ? '1' : '',
       })
     }
   }

@@ -49,25 +49,27 @@ export class Editable extends Component<EditableProps, EditableEvents> {
       },
 
       onblur: () => {
-        let content = this.container.innerHTML
+        const html = this.container.innerHTML
+        this.updateContent(sanitizeHtml(html))
 
-        const url = parseUrl(content)
+        const url = parseUrl(html)
         if (url) {
           if (parseImageUrl(url)) {
-            content = this.getPreviewImg(url)
+            const content = this.getPreviewImg(url)
+            this.emit('input', { content })
           } else {
-            content = this.getPreviewLink(url)
+            const content = this.getPreviewLink(url)
+            this.emit('input', { content })
 
             // Load preview and replace content
             this.loadPreview(url).then((data) => {
               if (data) {
-                this.emit('input', { content: this.getPreviewContent(data) })
+                const content = this.getPreviewContent(data)
+                this.emit('input', { content })
               }
             })
           }
         }
-
-        this.updateContent(sanitizeHtml(content))
       },
 
       onkeydown: (e: KeyboardEvent) => {
@@ -87,7 +89,7 @@ export class Editable extends Component<EditableProps, EditableEvents> {
   }
 
   private updateContent(content: string) {
-    if (content !== this.props.content) {
+    if (content !== this.lastContent) {
       this.lastContent = content
       this.emit('input', { content })
     }

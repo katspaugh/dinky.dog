@@ -20,11 +20,12 @@ export class Draggable extends Component<DraggableProps, DraggableEvents> {
         position: 'absolute',
         cursor: 'grab',
         userSelect: 'none',
+        zIndex: '2',
       },
 
       onpointerdown: () => {
         css(this.container, {
-          zIndex: '2',
+          zIndex: '3',
           cursor: 'grabbing',
         })
       },
