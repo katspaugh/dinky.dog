@@ -15,7 +15,10 @@ async function initRealtimeSync(app: App, id: string, lastSequence: number) {
     onMessage: (msg) => {
       if (msg.data.clientId !== clientId) {
         console.log('Received message', msg)
-        app.callCommand(msg.data.command, msg.data.params)
+
+        if (msg.data.command) {
+          app.callCommand(msg.data.command, msg.data.params)
+        }
       }
     },
   })
