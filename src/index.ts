@@ -34,6 +34,13 @@ async function initRealtimeSync(app: App, state: AppProps) {
         if (msg.data.command) {
           app.callCommand(msg.data.command, msg.data.params)
         }
+
+        if (msg.data.message === 'ping') {
+          durableClient.publish({
+            clientId,
+            message: 'pong',
+          })
+        }
       }
     },
   })
@@ -48,7 +55,7 @@ async function initRealtimeSync(app: App, state: AppProps) {
 
   durableClient.publish({
     clientId,
-    message: 'hello',
+    message: 'ping',
   })
 }
 
