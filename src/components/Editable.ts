@@ -2,6 +2,7 @@ import { Component } from '../lib/component.js'
 import { css, el } from '../lib/dom.js'
 import { type LinkPreview, fetchPreview } from '../lib/link-preview.js'
 import { sanitizeHtml } from '../lib/sanitize-html.js'
+import { API_URL } from '../lib/upload-image.js'
 import { parseAudioUrl, parseImageUrl, parseUrl } from '../lib/utils.js'
 
 type EditableEvents = {
@@ -105,7 +106,8 @@ export class Editable extends Component<EditableProps, EditableEvents> {
   }
 
   private getPreviewImg(src: string) {
-    return el('img', { src, alt: 'preview', crossOrigin: 'anonymous' }).outerHTML
+    const crossOrigin = src.startsWith(API_URL) ? undefined : 'anonymous'
+    return el('img', { src, alt: 'preview', crossOrigin }).outerHTML
   }
 
   private getPreviewLink(url: string, text?: string) {
