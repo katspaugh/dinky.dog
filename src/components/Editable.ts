@@ -45,12 +45,14 @@ export class Editable extends Component<EditableProps, EditableEvents> {
       },
 
       oninput: () => {
-        this.updateContent(this.container.innerHTML)
+        this.lastContent = this.container.innerHTML
+        this.emit('input', { content: this.lastContent })
       },
 
       onblur: () => {
         const html = this.container.innerHTML
-        this.updateContent(sanitizeHtml(html))
+        const content = sanitizeHtml(html)
+        this.emit('input', { content })
 
         const url = parseUrl(html)
         if (url) {
@@ -90,13 +92,6 @@ export class Editable extends Component<EditableProps, EditableEvents> {
         }
       },
     })
-  }
-
-  private updateContent(content: string) {
-    if (content !== this.lastContent) {
-      this.lastContent = content
-      this.emit('input', { content })
-    }
   }
 
   private async loadPreview(url: string) {

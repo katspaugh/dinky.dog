@@ -144,7 +144,6 @@ async function initPersistence(app: App) {
   const state = (await loadFromDatabase()) || getDefaultState()
 
   const save = (isUnload = false) => {
-    if (!state.title) return // Don't autosave if no title
     saveToDatabase(app.getProps().nodes, state, isUnload)
   }
 

@@ -31,7 +31,7 @@ export function randomEmoji() {
 }
 
 export function parseUrl(text = '') {
-  const match = text.match(/^(https?:\/\/[-a-z0-9._]+?\.[a-z]{2,}(\/[-a-z0-9._?=&%]+)*)(?=\s|<|$)/i)
+  const match = text.match(/^(https?:\/\/\S+)(\s+|<br\s*\/?>)??$/) // match URL followed by space or <br>
   return match ? match[1] || '' : ''
 }
 
