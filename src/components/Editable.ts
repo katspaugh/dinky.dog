@@ -17,8 +17,8 @@ type EditableProps = {
 const ABS_MIN_WIDTH = 70
 const ABS_MIN_HEIGHT = 37
 
-const INITIAL_WIDTH = 130
-const INITIAL_HEIGHT = 55
+const INITIAL_WIDTH = 160
+const INITIAL_HEIGHT = 70
 
 export class Editable extends Component<EditableProps, EditableEvents> {
   private lastContent = ''
