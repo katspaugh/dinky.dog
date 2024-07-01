@@ -31,12 +31,12 @@ export function randomEmoji() {
 }
 
 export function parseUrl(text = '') {
-  const match = text.match(/^(https?:\/\/\S+)(\s+|<br\s*\/?>)??$/) // match URL followed by space or <br>
+  const match = text.match(/^((data:|https?:)\/\/\S+)(\s+|<br\s*\/?>)??$/) // match URL followed by space or <br>
   return match ? match[1] || '' : ''
 }
 
 export function parseImageUrl(url: string) {
-  return /\.(jpe?g|png|gif|webp|svg)($|\?)/.test(url) ? url : ''
+  return /^data:image\//.test(url) || /\.(jpe?g|png|gif|webp|svg)($|\?)/.test(url) ? url : ''
 }
 
 export function parseAudioUrl(url: string) {
