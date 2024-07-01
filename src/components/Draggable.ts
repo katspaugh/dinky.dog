@@ -14,25 +14,26 @@ export type DraggableProps = {
 }
 
 export class Draggable extends Component<DraggableProps, DraggableEvents> {
+  private setCursor(cursor: string) {
+    this.container.style.cursor = cursor
+  }
+
   constructor() {
     super('div', {
       style: {
         position: 'absolute',
+        zIndex: '2',
         cursor: 'grab',
         userSelect: 'none',
-        zIndex: '2',
       },
 
       onpointerdown: () => {
-        css(this.container, {
-          zIndex: '3',
-          cursor: 'grabbing',
-        })
+        this.setCursor('grabbing')
       },
 
       onpointerup: () => {
+        this.setCursor('')
         css(this.container, {
-          zIndex: '',
           cursor: '',
         })
       },
@@ -50,12 +51,8 @@ export class Draggable extends Component<DraggableProps, DraggableEvents> {
         this.emit('dragstart', { x, y })
       },
       () => {
+        this.setCursor('')
         this.emit('dragend', {})
-
-        css(this.container, {
-          zIndex: '',
-          cursor: 'grab',
-        })
       },
     )
   }
