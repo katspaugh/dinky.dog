@@ -5,7 +5,6 @@ type StateMetaData = {
   id: string
   title?: string
   timestamp: number
-  lastSequence?: number
 }
 
 const STATE_STORAGE_PREFIX = 'state-'
@@ -48,7 +47,6 @@ export function saveToLocalStorage(state: Omit<StateMetaData, 'timestamp'>) {
     const newData = {
       id: state.id,
       title: state.title,
-      lastSequence: state.lastSequence,
       timestamp: Date.now(),
     }
     if (!oldData || JSON.stringify(oldData) !== JSON.stringify(newData)) {
