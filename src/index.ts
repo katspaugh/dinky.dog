@@ -1,6 +1,13 @@
 import { initDurableStream } from './lib/durable-stream.js'
 import { DinkyData, loadData, saveData } from './lib/database.js'
-import { getClientId, getUrlId, loadFromLocalStorage, saveToLocalStorage, setUrlId } from './lib/persist.js'
+import {
+  getClientId,
+  getSavedStates,
+  getUrlId,
+  loadFromLocalStorage,
+  saveToLocalStorage,
+  setUrlId,
+} from './lib/persist.js'
 import { App, type AppProps } from './components/App.js'
 import { debounce, randomId } from './lib/utils.js'
 
@@ -45,8 +52,13 @@ async function initRealtimeSync(app: App, state: AppProps) {
   })
 }
 
+function getLastId() {
+  const savedStates = getSavedStates()
+  return savedStates?.[0]?.id
+}
+
 async function loadFromDatabase() {
-  const id = getUrlId()
+  const id = getUrlId() || getLastId()
   if (!id) return
 
   const localData = loadFromLocalStorage(id)
