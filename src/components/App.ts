@@ -8,6 +8,7 @@ export type AppProps = {
   title?: string
   backgroundColor?: string
   lastSequence: number
+  peers?: string[]
 }
 
 type AppEvents = FlowEvents & SidebarEvents & {}
@@ -51,12 +52,20 @@ export class App extends Component<AppProps, AppEvents> {
     }
   }
 
+  private getPeerList() {
+    const { peers } = this.props
+    return peers?.map((peer) => {
+      const [name, emoji] = peer.split('-')
+      return { name, emoji }
+    })
+  }
+
   setProps(props: Partial<AppProps>) {
     super.setProps(props)
 
     const { nodes, title, backgroundColor } = this.props
     this.flow.setProps({ nodes, backgroundColor })
-    this.sidebar.setProps({ title, backgroundColor })
+    this.sidebar.setProps({ title, backgroundColor, peers: this.getPeerList() })
   }
 
   callCommand(command: string, params: any) {

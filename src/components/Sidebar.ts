@@ -7,10 +7,12 @@ import { Button } from './Button.js'
 import { Colorpicker } from './Colorpicker.js'
 import { Input } from './Input.js'
 import { Menu } from './Menu.js'
+import { PeerList, type PeerListProps } from './PeerList.js'
 
 type SidebarProps = {
   title: string
   backgroundColor?: string
+  peers?: PeerListProps['peers']
 }
 
 export type SidebarEvents = {
@@ -68,11 +70,13 @@ const makeButton = (styles?: Partial<CSSStyleDeclaration>) => {
 export class Sidebar extends Component<SidebarProps, SidebarEvents> {
   private input: Input
   private colorpicker: Colorpicker
+  private peerList: PeerList
 
   constructor() {
     const input = new Input()
     const menu = new Menu()
     const fixedMenu = new Menu()
+    const peerList = new PeerList()
 
     const colorpicker = new Colorpicker()
     css(colorpicker.container, {
@@ -114,7 +118,7 @@ export class Sidebar extends Component<SidebarProps, SidebarEvents> {
           pointerEvents: 'none',
         },
       },
-      [input.container, button.container, drawer.container, colorpicker.container],
+      [input.container, button.container, drawer.container, colorpicker.container, peerList.container],
     )
 
     button.on('click', () => {
@@ -154,8 +158,10 @@ export class Sidebar extends Component<SidebarProps, SidebarEvents> {
 
     this.input = input
     this.colorpicker = colorpicker
+    this.peerList = peerList
 
     this.on('destroy', () => {
+      heading.destroy()
       colorpicker.destroy()
       input.destroy()
       button.destroy()
@@ -163,6 +169,7 @@ export class Sidebar extends Component<SidebarProps, SidebarEvents> {
       drawer.destroy()
       menu.destroy()
       fixedMenu.destroy()
+      peerList.destroy()
     })
   }
 
@@ -197,6 +204,10 @@ export class Sidebar extends Component<SidebarProps, SidebarEvents> {
 
     if (props.backgroundColor) {
       this.colorpicker.setProps({ color: props.backgroundColor })
+    }
+
+    if (props.peers) {
+      this.peerList.setProps({ peers: props.peers })
     }
   }
 

@@ -8,6 +8,7 @@ const SAVE_DELAY = 5000
 
 async function initRealtimeSync(app: App, state: AppProps) {
   const clientId = getClientId()
+  let peers = []
 
   const durableClient = await initDurableStream({
     subject: state.id,
@@ -17,6 +18,11 @@ async function initRealtimeSync(app: App, state: AppProps) {
 
       if (msg.data.clientId !== clientId) {
         console.log('Received message', msg)
+
+        if (!peers.includes(msg.data.clientId)) {
+          peers = peers.concat([msg.data.clientId])
+          app.setProps({ peers })
+        }
 
         if (msg.data.command) {
           app.callCommand(msg.data.command, msg.data.params)
