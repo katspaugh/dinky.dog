@@ -38,6 +38,11 @@ async function initRealtimeSync(app: App, state: AppProps) {
       params,
     })
   })
+
+  durableClient.publish({
+    clientId,
+    message: 'hello',
+  })
 }
 
 async function loadFromDatabase() {
