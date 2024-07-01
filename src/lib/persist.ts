@@ -59,6 +59,10 @@ export function saveToLocalStorage(state: { title: string; id: string }) {
   }
 }
 
+export function loadFromLocalStorage(id: string) {
+  return storage.getItem<StateMetaData>(`${STATE_STORAGE_PREFIX}${id}`)
+}
+
 export function getSavedStates(): StateMetaData[] {
   const states = storage.getMatchingItems<StateMetaData>(`${STATE_STORAGE_PREFIX}`)
   return Object.values(states).sort((a, b) => b.timestamp - a.timestamp)

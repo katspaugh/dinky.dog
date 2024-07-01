@@ -26,8 +26,8 @@ export type DinkyData = {
   >
 }
 
-export async function loadData(id: string): Promise<DinkyData> {
-  const res = await fetch(API_URL + `?id=${encodeURIComponent(id)}`)
+export async function loadData(id: string, cacheBust?: string): Promise<DinkyData> {
+  const res = await fetch(API_URL + `?id=${encodeURIComponent(id)}&timestamp=${cacheBust ?? ''}`)
   if (!res.ok) {
     throw new Error(`HTTP error! Status: ${res.status}`)
   }

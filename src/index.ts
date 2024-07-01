@@ -1,6 +1,6 @@
 import { initDurableStream } from './lib/durable-stream.js'
 import { DinkyData, loadData, saveData } from './lib/database.js'
-import { getClientId, getUrlId, saveToLocalStorage, setUrlId } from './lib/persist.js'
+import { getClientId, getUrlId, loadFromLocalStorage, saveToLocalStorage, setUrlId } from './lib/persist.js'
 import { App, type AppProps } from './components/App.js'
 import { debounce, randomId } from './lib/utils.js'
 
@@ -48,9 +48,12 @@ async function initRealtimeSync(app: App, state: AppProps) {
 async function loadFromDatabase() {
   const id = getUrlId()
   if (!id) return
+
+  const localData = loadFromLocalStorage(id)
+
   let data: DinkyData
   try {
-    data = await loadData(id)
+    data = await loadData(id, localData?.timestamp.toString())
   } catch (e) {
     console.error('Error loading data', e)
     return
