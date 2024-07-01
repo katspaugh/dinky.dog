@@ -8,13 +8,15 @@ const SAVE_DELAY = 5000
 
 async function initRealtimeSync(app: App, state: AppProps) {
   const clientId = getClientId()
+  const lastSequence = Math.max(state.lastSequence, loadFromLocalStorage(state.id)?.lastSequence || 0)
   let peers = []
 
   const durableClient = await initDurableStream({
     subject: state.id,
-    lastSequence: state.lastSequence,
+    lastSequence,
     onMessage: (msg) => {
       state.lastSequence = msg.sequence
+      saveToLocalStorage(state)
 
       if (msg.data.clientId !== clientId) {
         console.log('Received message', msg)
@@ -159,13 +161,13 @@ async function initPersistence(app: App) {
 
   const save = (isUnload = false) => {
     saveToDatabase(app.getProps().nodes, state, isUnload)
+    saveToLocalStorage(state)
   }
 
   const updateTitle = () => {
     if (!state.title) return
     document.title = `Dinky Dog — ${state.title}`
     setUrlId(state.id, state.title)
-    saveToLocalStorage({ id: state.id, title: state.title })
   }
 
   updateTitle()
@@ -187,7 +189,7 @@ async function initPersistence(app: App) {
     save()
   })
 
-  window.addEventListener('beforeunload', (e) => {
+  window.addEventListener('beforeunload', () => {
     save(true)
   })
 

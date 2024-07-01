@@ -3,8 +3,9 @@ import { randomEmoji, randomId } from './utils.js'
 
 type StateMetaData = {
   id: string
-  title: string
+  title?: string
   timestamp: number
+  lastSequence?: number
 }
 
 const STATE_STORAGE_PREFIX = 'state-'
@@ -39,7 +40,7 @@ export function slugify(text: string) {
     .replace(/[^a-z0-9-]/gi, '')
 }
 
-export function saveToLocalStorage(state: { title: string; id: string }) {
+export function saveToLocalStorage(state: Omit<StateMetaData, 'timestamp'>) {
   // Save meta data to localStorage if it has a title
   if (state.title) {
     const key = `${STATE_STORAGE_PREFIX}${state.id}`
@@ -47,6 +48,7 @@ export function saveToLocalStorage(state: { title: string; id: string }) {
     const newData = {
       id: state.id,
       title: state.title,
+      lastSequence: state.lastSequence,
       timestamp: Date.now(),
     }
     if (!oldData || JSON.stringify(oldData) !== JSON.stringify(newData)) {
