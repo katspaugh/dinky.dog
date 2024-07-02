@@ -132,30 +132,35 @@ async function saveToDatabase(flowNodes: AppProps['nodes'], restData: AppProps, 
 }
 
 function initSpecialPages(app: App) {
-  if (!(location.pathname.startsWith('/privacy') || location.pathname.startsWith('/terms'))) return false
+  if (getUrlId()?.startsWith('about')) {
+    loadFromDatabase().then((state) => app.setProps(state))
+    return true
+  }
 
-  const textEl = document.getElementById('text')
-  const content = textEl.innerHTML
-  textEl.remove()
+  if (location.pathname.startsWith('/privacy') || location.pathname.startsWith('/terms')) {
+    const textEl = document.getElementById('text')
+    const content = textEl.innerHTML
+    textEl.remove()
 
-  app.setProps({
-    id: location.pathname,
-    title: document.title,
-    lastSequence: 0,
-    nodes: {
-      '1': {
-        id: '1',
-        content,
-        x: 20,
-        y: 20,
-        width: window.innerWidth > 1000 ? window.innerWidth * 0.7 : window.innerWidth - 40,
-        height: window.innerHeight - 40,
-        connections: [],
+    app.setProps({
+      id: location.pathname,
+      title: document.title,
+      lastSequence: 0,
+      nodes: {
+        '1': {
+          id: '1',
+          content,
+          x: 20,
+          y: 20,
+          width: window.innerWidth > 1000 ? window.innerWidth * 0.7 : window.innerWidth - 40,
+          height: window.innerHeight - 40,
+          connections: [],
+        },
       },
-    },
-  })
+    })
 
-  return true
+    return true
+  }
 }
 
 function getDefaultState(): AppProps {
