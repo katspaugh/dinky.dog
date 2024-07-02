@@ -1,5 +1,6 @@
 import { Component } from '../lib/component.js'
 import { css } from '../lib/dom.js'
+import { type NodeProps } from './App.js'
 import { Card } from './Card.js'
 import { CardColorpicker } from './CardColorpicker.js'
 import { Connector } from './Connector.js'
@@ -9,13 +10,7 @@ import { Resizer, ResizerEvents } from './Resizer.js'
 
 const BG_THRESHOLD = 110e3
 
-export type DragCardProps = {
-  x: number
-  y: number
-  width?: number
-  height?: number
-  background?: string
-  content?: string
+export type DragCardProps = NodeProps & {
   selected?: boolean
 }
 
@@ -24,7 +19,7 @@ type DragCardEvents = DraggableEvents &
     render: {}
     click: {}
     connectorClick: {}
-    backgroundChange: { background: string }
+    colorChange: { color: string }
     contentChange: { content: string }
   }
 
@@ -76,8 +71,8 @@ export class DragCard extends Component<DragCardProps, DragCardEvents> {
       this.emit('connectorClick', {})
     })
 
-    colorpicker.on('change', ({ color }) => {
-      this.emit('backgroundChange', { background: color })
+    colorpicker.on('change', (params) => {
+      this.emit('colorChange', params)
     })
 
     draggable.on('drag', (params) => {
@@ -137,14 +132,14 @@ export class DragCard extends Component<DragCardProps, DragCardEvents> {
 
   setProps(props: Partial<DragCardProps>) {
     super.setProps(props)
-    const { content, x, y, background, width, height } = props
+    const { content, x, y, color, width, height } = props
 
     if (x !== undefined || y !== undefined) {
       this.draggable.setProps({ x, y })
     }
-    if (background !== undefined) {
-      this.colorpicker.setProps({ color: background })
-      this.card.setProps({ background })
+    if (color !== undefined) {
+      this.colorpicker.setProps({ color })
+      this.card.setProps({ color })
     }
     if (content !== undefined) {
       this.editor.setProps({ content })
@@ -155,7 +150,7 @@ export class DragCard extends Component<DragCardProps, DragCardEvents> {
   }
 
   render() {
-    const isBackgroundCard = this.props.background && this.props.width * this.props.height >= BG_THRESHOLD
+    const isBackgroundCard = this.props.color && this.props.width * this.props.height >= BG_THRESHOLD
     if (isBackgroundCard !== this.lastBackgroundCheck) {
       this.lastBackgroundCheck = isBackgroundCard
       css(this.container, {

@@ -1,7 +1,7 @@
 import { Component } from '../lib/component.js'
 
 type CardProps = {
-  background?: string
+  color?: string
 }
 
 type CardEvents = {}
@@ -23,10 +23,10 @@ export class Card extends Component<CardProps, CardEvents> {
   }
 
   render() {
-    const { background } = this.props
-    if (background !== this.lastBackground) {
-      this.lastBackground = background
-      this.container.style.backgroundColor = background
+    const { color } = this.props
+    if (color !== this.lastBackground) {
+      this.lastBackground = color
+      this.container.style.backgroundColor = color
     }
   }
 }

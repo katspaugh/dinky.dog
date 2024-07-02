@@ -266,8 +266,8 @@ export class Flow extends Component<FlowProps, FlowEvents> {
     this.emitDebounced('command', { command: 'updateNode', params })
   }
 
-  private onNodeBackgroundChange(node: GraphNode, background: string) {
-    const params = { id: node.id, background }
+  private onNodeBackgroundChange(node: GraphNode, color: string) {
+    const params = { id: node.id, color }
     this.updateNode(params)
     this.emit('command', { command: 'updateNode', params })
   }
@@ -354,7 +354,7 @@ export class Flow extends Component<FlowProps, FlowEvents> {
     card.on('connectorClick', () => this.onConnectorClick(node))
     card.on('drag', (params) => this.onDrag(node, params))
     card.on('dragend', () => this.onDragEnd(node))
-    card.on('backgroundChange', ({ background }) => this.onNodeBackgroundChange(node, background))
+    card.on('colorChange', ({ color }) => this.onNodeBackgroundChange(node, color))
     card.on('resize', (params) => this.onResize(node, params))
     card.on('resizeEnd', () => this.onResizeEnd(node))
     card.on('resizeReset', () => {

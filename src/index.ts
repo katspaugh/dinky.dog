@@ -88,7 +88,7 @@ async function loadFromDatabase(): Promise<AppProps | undefined> {
       y: node.props.y,
       width: node.props.width,
       height: node.props.height,
-      background: node.props.background,
+      color: node.props.background,
     }
   })
 
@@ -120,7 +120,7 @@ async function saveToDatabase(
         y: value.y,
         width: value.width,
         height: value.height,
-        background: value.background,
+        background: value.color,
       },
       connections: appData.edges.filter((edge) => edge.fromNode === id).map((edge) => ({ inputId: edge.toNode })),
     }

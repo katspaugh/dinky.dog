@@ -9,7 +9,7 @@ export type NodeProps = {
   width?: number
   height?: number
   content?: string
-  background?: string
+  color?: string
 }
 
 export type EdgeProps = {
