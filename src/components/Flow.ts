@@ -6,33 +6,11 @@ import { DragCard, type DragCardProps } from './DragCard.js'
 import { Drop } from './Drop.js'
 import { uploadImage } from '../lib/upload-image.js'
 import { el } from '../lib/dom.js'
-
-type GraphNode = {
-  id: string
-  connections: Array<{
-    node: GraphNode
-    edge: Edge
-  }>
-  card: DragCard
-}
-
-type NodeProps = {
-  id: string
-  x: number
-  y: number
-  width?: number
-  height?: number
-  content?: string
-  background?: string
-}
+import type { EdgeProps, NodeProps } from './App.js'
 
 export type FlowProps = {
-  nodes: Record<
-    string,
-    NodeProps & {
-      connections: string[]
-    }
-  >
+  nodes: NodeProps[]
+  edges: EdgeProps[]
   backgroundColor?: string
 }
 
@@ -43,10 +21,20 @@ export type FlowEvents = {
   }
 }
 
+type GraphNode = {
+  id: string
+  card: DragCard
+}
+
+type GraphEdge = EdgeProps & {
+  edge: Edge
+}
+
 export class Flow extends Component<FlowProps, FlowEvents> {
-  private nodes: Record<string, GraphNode> = {}
+  private nodes: GraphNode[] = []
+  private edges: GraphEdge[] = []
   private graph: Graph
-  private lastEdge: Edge | null = null
+  private tempEdge: Edge | null = null
   private lastNode: GraphNode | null = null
   private selectedNodes: GraphNode[] = []
 
@@ -58,22 +46,15 @@ export class Flow extends Component<FlowProps, FlowEvents> {
       drop.container,
       {
         style: {
-          height: '100vh',
+          height: '100%',
         },
       },
       [graph.container],
     )
 
+    // Drag and drop
     drop.on('drop', (props) => {
       this.onFileUpload(props)
-    })
-
-    graph.on('select', (props) => {
-      this.onSelectBox(props)
-    })
-
-    graph.on('click', () => {
-      this.onUnselect()
     })
 
     this.on('destroy', () => {
@@ -86,40 +67,29 @@ export class Flow extends Component<FlowProps, FlowEvents> {
   }
 
   render() {
-    const { nodes, backgroundColor } = this.props
+    const { nodes, edges, backgroundColor } = this.props
 
     if (backgroundColor) {
       this.container.style.backgroundColor = backgroundColor
     }
 
-    if (Object.keys(this.nodes).length === 0) {
-      Object.values(nodes).forEach((item) => {
+    if (nodes.length > 0) {
+      nodes.forEach((item) => {
         this.createNode(item)
       })
 
-      requestAnimationFrame(() => {
-        Object.values(nodes).forEach((item) => {
-          if (item.connections) {
-            item.connections.forEach((id) => {
-              this.connectNodes({ from: item.id, to: id })
-            })
-          }
+      if (edges.length > 0) {
+        requestAnimationFrame(() => {
+          edges.forEach((item) => this.connectNodes(item))
         })
-      })
+      }
     }
   }
 
   getProps() {
-    const nodes = Object.values(this.nodes).reduce((acc, node) => {
-      const { id } = node
-      acc[id] = {
-        id,
-        ...node.card.getProps(),
-        connections: node.connections.map((item) => item.node.id),
-      }
-      return acc
-    }, {})
-    return { nodes, backgroundColor: this.props.backgroundColor }
+    const nodes = this.nodes.map(({ id, card }) => ({ id, ...card.getProps() }))
+    const edges = this.edges.map(({ fromNode, toNode }) => ({ fromNode, toNode }))
+    return { nodes, edges, backgroundColor: this.props.backgroundColor }
   }
 
   private emitDebounced = debounce((event, params) => {
@@ -134,16 +104,18 @@ export class Flow extends Component<FlowProps, FlowEvents> {
 
     // Mouse move
     this.graph.on('pointermove', (props) => {
-      if (this.lastEdge) {
-        this.lastEdge.setProps({ x2: props.x, y2: props.y })
+      if (this.tempEdge) {
+        this.tempEdge.setProps({ x2: props.x, y2: props.y })
       }
     })
 
     // Click
     this.graph.on('click', (props) => {
-      if (this.lastEdge) {
-        this.lastEdge.destroy()
-        this.lastEdge = null
+      this.onUnselect()
+
+      if (this.tempEdge) {
+        this.tempEdge.destroy()
+        this.tempEdge = null
 
         const fromNode = this.lastNode
         const node = this.onCreateNode({ x: props.x, y: props.y })
@@ -153,14 +125,19 @@ export class Flow extends Component<FlowProps, FlowEvents> {
 
     // Escape
     this.graph.on('escape', () => {
-      if (this.lastEdge) {
-        this.lastEdge.destroy()
-        this.lastEdge = null
+      if (this.tempEdge) {
+        this.tempEdge.destroy()
+        this.tempEdge = null
       } else if (this.lastNode) {
         if (confirm('Are you sure you want to delete this card?')) {
           this.onRemoveNode(this.lastNode)
         }
       }
+    })
+
+    // Selection box
+    this.graph.on('select', (props) => {
+      this.onSelectBox(props)
     })
   }
 
@@ -185,14 +162,14 @@ export class Flow extends Component<FlowProps, FlowEvents> {
   }
 
   private onConnectorClick(node: GraphNode) {
-    this.lastEdge = this.createEdge(node)
+    this.tempEdge = this.createEdge(node)
     this.lastNode = node
   }
 
   private onNodeClick(node: GraphNode) {
-    if (this.lastNode && this.lastEdge) {
-      this.lastEdge.destroy()
-      this.lastEdge = null
+    if (this.lastNode && this.tempEdge) {
+      this.tempEdge.destroy()
+      this.tempEdge = null
       this.onConnectNodes(this.lastNode, node)
     } else {
       this.lastNode = node
@@ -269,16 +246,18 @@ export class Flow extends Component<FlowProps, FlowEvents> {
     this.emit('command', { command: 'removeNode', params })
   }
 
-  private onConnectNodes(fromNode: GraphNode, toNode: GraphNode) {
-    this.connectNodes({ from: fromNode.id, to: toNode.id })
-    this.emit('command', { command: 'connectNodes', params: { from: fromNode.id, to: toNode.id } })
+  private onConnectNodes(from: GraphNode, to: GraphNode) {
+    const params = { fromNode: from.id, toNode: to.id }
+    this.connectNodes(params)
+    this.emit('command', { command: 'connectNodes', params })
   }
 
-  private onDisconnectEdge(fromNode: GraphNode, edge: Edge) {
-    const toNode = fromNode.connections.find((item) => item.edge === edge)?.node
+  private onDisconnectEdge(from: GraphNode, edge: Edge) {
+    const toNode = this.edges.find((item) => item.fromNode === from.id && item.edge === edge)?.toNode
     if (!toNode) return
-    this.disconnectNodes({ from: fromNode.id, to: toNode.id })
-    this.emit('command', { command: 'disconnectNodes', params: { from: fromNode.id, to: toNode.id } })
+    const params = { fromNode: from.id, toNode }
+    this.disconnectNodes(params)
+    this.emit('command', { command: 'disconnectNodes', params })
   }
 
   private onEditNode(node: GraphNode, content: string) {
@@ -315,22 +294,31 @@ export class Flow extends Component<FlowProps, FlowEvents> {
 
   private adjustEdges(node: GraphNode) {
     const rect = this.graph.getOffset()
+    const { id } = node
     const fromPoint = node.card.getOutPoint()
+    const toPoint = node.card.getInPoint()
 
-    node.connections.forEach((item) => {
-      const toPoint = item.node.card.getInPoint()
-
-      item.edge.setProps({
-        x1: fromPoint.x - rect.left,
-        y1: fromPoint.y - rect.top,
-        x2: toPoint.x - rect.left,
-        y2: toPoint.y - rect.top,
-      })
+    this.edges.forEach((item) => {
+      if (item.fromNode === id || item.toNode === id) {
+        let point1 = fromPoint
+        let point2 = toPoint
+        if (item.fromNode === id) {
+          point2 = this.nodes.find((node) => node.id === item.toNode)?.card.getInPoint() || toPoint
+        } else {
+          point1 = this.nodes.find((node) => node.id === item.fromNode)?.card.getOutPoint() || fromPoint
+        }
+        item.edge.setProps({
+          x1: point1.x - rect.left,
+          y1: point1.y - rect.top,
+          x2: point2.x - rect.left,
+          y2: point2.y - rect.top,
+        })
+      }
     })
   }
 
   private onSelectBox({ x1, y1, x2, y2 }: { x1: number; y1: number; x2: number; y2: number }) {
-    const matchingNodes = Object.values(this.nodes).filter((node) => {
+    const matchingNodes = this.nodes.filter((node) => {
       let { x, y, width, height } = node.card.getProps()
       if (!width || !height) {
         const size = node.card.getSize()
@@ -354,7 +342,6 @@ export class Flow extends Component<FlowProps, FlowEvents> {
     this.selectedNodes.forEach((node) => {
       node.card.setProps({ selected: false })
     })
-
     this.selectedNodes = []
   }
 
@@ -379,15 +366,15 @@ export class Flow extends Component<FlowProps, FlowEvents> {
 
     this.graph.renderCard(card.container)
 
-    const node = { id, connections: [], card }
-    this.nodes[id] = node
+    const node = { id, card }
+    this.nodes.push(node)
     this.lastNode = node
 
     return node
   }
 
   public repositionNode({ id, x, y }: { id: string; x: number; y: number }) {
-    const node = this.nodes[id]
+    const node = this.nodes.find((item) => item.id === id)
     if (!node) return
     const oldProps = node.card.getProps()
     const dx = x - oldProps.x
@@ -395,79 +382,52 @@ export class Flow extends Component<FlowProps, FlowEvents> {
     node.card.setProps({ x, y })
 
     // Adjust outgoing connections
-    node.connections.forEach(({ edge }) => {
-      const { x1, y1 } = edge.getProps()
-      edge.setProps({ x1: x1 + dx, y1: y1 + dy })
-    })
-
-    // Adjust incoming connections
-    Object.values(this.nodes).forEach((otherNode) => {
-      otherNode.connections.forEach((item) => {
-        if (item.node === node) {
-          const { edge } = item
-          const { x2, y2 } = edge.getProps()
-          edge.setProps({ x2: x2 + dx, y2: y2 + dy })
-        }
-      })
+    this.edges.forEach((item) => {
+      if (item.fromNode === id) {
+        const { x1, y1 } = item.edge.getProps()
+        item.edge.setProps({ x1: x1 + dx, y1: y1 + dy })
+      }
+      if (item.toNode === id) {
+        const { x2, y2 } = item.edge.getProps()
+        item.edge.setProps({ x2: x2 + dx, y2: y2 + dy })
+      }
     })
   }
 
   public removeNode({ id }: { id: string }) {
-    const node = this.nodes[id]
+    const node = this.nodes.find((item) => item.id === id)
     if (!node) return
 
-    // Disconnect outgoing connections
-    node.connections.forEach((item) => {
-      this.disconnectNodes({ from: node.id, to: item.node.id })
-    })
-
-    // Disconnect incoming connections
-    Object.values(this.nodes).forEach((otherNode) => {
-      const newConnections = otherNode.connections.filter((item) => item.node !== node)
-      if (newConnections !== otherNode.connections) {
-        otherNode.connections.forEach((item) => {
-          if (item.node === node) {
-            this.disconnectNodes({ from: otherNode.id, to: node.id })
-          }
-        })
-        otherNode.connections = newConnections
+    this.edges.forEach((item) => {
+      if (item.fromNode === id || item.toNode === id) {
+        this.disconnectNodes(item)
       }
     })
 
     node.card.destroy()
 
-    delete this.nodes[id]
+    this.nodes = this.nodes.filter((item) => item.id !== id)
   }
 
-  public connectNodes({ from, to }: { from: string; to: string }) {
-    const fromNode = this.nodes[from]
-    const toNode = this.nodes[to]
-    if (!fromNode || !toNode) return
+  public connectNodes({ fromNode, toNode }: EdgeProps) {
+    const from = this.nodes.find((item) => item.id === fromNode)
+    const to = this.nodes.find((item) => item.id === toNode)
+    if (!from || !to) return
 
-    const edge = this.createEdge(fromNode)
-    this.connectEdge(toNode, edge)
+    const edge = this.createEdge(from)
+    this.connectEdge(to, edge)
 
-    fromNode.connections.push({
-      node: toNode,
-      edge,
-    })
+    this.edges.push({ fromNode, toNode, edge })
   }
 
-  public disconnectNodes({ from, to }: { from: string; to: string }) {
-    const fromNode = this.nodes[from]
-    const toNode = this.nodes[to]
-    if (!fromNode || !toNode) return
-
-    fromNode.connections
-      .filter((item) => item.node === toNode)
-      .forEach((item) => {
-        item.edge.destroy()
-      })
-    fromNode.connections = fromNode.connections.filter((item) => item.node !== toNode)
+  public disconnectNodes({ fromNode, toNode }: EdgeProps) {
+    const toDisconnect = this.edges.filter((item) => item.fromNode === fromNode && item.toNode === toNode)
+    toDisconnect.forEach((item) => item.edge.destroy())
+    this.edges = this.edges.filter((item) => item.fromNode !== fromNode || item.toNode !== toNode)
   }
 
   public updateNode({ id, ...params }: { id: string } & Partial<DragCardProps>) {
-    const node = this.nodes[id]
+    const node = this.nodes.find((item) => item.id === id)
     if (!node) return
     node.card.setProps(params)
     this.adjustEdges(node)

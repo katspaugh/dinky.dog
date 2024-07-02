@@ -8,7 +8,7 @@ import {
   saveToLocalStorage,
   setUrlId,
 } from './lib/persist.js'
-import { App, type AppProps } from './components/App.js'
+import { App, type EdgeProps, type NodeProps, type AppProps } from './components/App.js'
 import { debounce, randomId } from './lib/utils.js'
 
 const SAVE_DELAY = 5000
@@ -64,7 +64,7 @@ function getLastId() {
   return savedStates?.[0]?.id
 }
 
-async function loadFromDatabase() {
+async function loadFromDatabase(): Promise<AppProps | undefined> {
   const id = getUrlId() || getLastId()
   if (!id) return
 
@@ -80,28 +80,38 @@ async function loadFromDatabase() {
 
   console.log('Loaded data', data)
 
-  const nodes = Object.entries(data.nodes).reduce((acc, [key, value]) => {
-    acc[key] = {
-      id: key,
-      content: value.data.operatorData,
-      x: value.props.x,
-      y: value.props.y,
-      width: value.props.width,
-      height: value.props.height,
-      background: value.props.background,
-      connections: value.connections?.map((item) => item.inputId) || [],
+  const nodes = Object.entries(data.nodes).map(([id, node]) => {
+    return {
+      id,
+      content: node.data.operatorData,
+      x: node.props.x,
+      y: node.props.y,
+      width: node.props.width,
+      height: node.props.height,
+      background: node.props.background,
     }
-    return acc
-  }, {})
+  })
 
-  return { ...data, nodes }
+  const edges = Object.entries(data.nodes).reduce<EdgeProps[]>((acc, [id, node]) => {
+    node.connections.forEach((conn) => {
+      acc.push({ fromNode: id, toNode: conn.inputId })
+    })
+    return acc
+  }, [])
+
+  return { ...data, nodes, edges }
 }
 
 const debouncedSaveData = debounce(saveData, SAVE_DELAY)
 
-async function saveToDatabase(flowNodes: AppProps['nodes'], restData: AppProps, isUnload = false) {
-  const nodes = Object.entries(flowNodes).reduce<DinkyData>((acc, [key, value]) => {
-    acc[key] = {
+async function saveToDatabase(
+  appData: { nodes: NodeProps[]; edges: EdgeProps[] },
+  restData: AppProps,
+  isUnload = false,
+) {
+  const nodes = appData.nodes.reduce((acc, value) => {
+    const { id } = value
+    acc[id] = {
       data: {
         operatorData: value.content,
       },
@@ -112,7 +122,7 @@ async function saveToDatabase(flowNodes: AppProps['nodes'], restData: AppProps, 
         height: value.height,
         background: value.background,
       },
-      connections: value.connections.map((inputId) => ({ inputId })),
+      connections: appData.edges.filter((edge) => edge.fromNode === id).map((edge) => ({ inputId: edge.toNode })),
     }
     return acc
   }, {} as DinkyData)
@@ -146,17 +156,17 @@ function initSpecialPages(app: App) {
       id: location.pathname,
       title: document.title,
       lastSequence: 0,
-      nodes: {
-        '1': {
+      nodes: [
+        {
           id: '1',
           content,
           x: 20,
           y: 20,
           width: window.innerWidth > 1000 ? window.innerWidth * 0.7 : window.innerWidth - 40,
           height: window.innerHeight - 40,
-          connections: [],
         },
-      },
+      ],
+      edges: [],
     })
 
     return true
@@ -167,15 +177,15 @@ function getDefaultState(): AppProps {
   return {
     id: randomId(),
     lastSequence: 0,
-    nodes: {
-      '1': {
+    nodes: [
+      {
         id: '1',
         x: window.innerWidth / 2 - 80,
         y: 100,
         content: 'Hello, dinky!',
-        connections: [],
       },
-    },
+    ],
+    edges: [],
   }
 }
 
@@ -183,7 +193,7 @@ async function initPersistence(app: App) {
   const state = (await loadFromDatabase()) || getDefaultState()
 
   const save = (isUnload = false) => {
-    saveToDatabase(app.getProps().nodes, state, isUnload)
+    saveToDatabase(app.getProps(), state, isUnload)
     saveToLocalStorage(state)
   }
 

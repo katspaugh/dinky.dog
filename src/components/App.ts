@@ -1,10 +1,26 @@
 import { Component } from '../lib/component.js'
-import { Flow, type FlowProps, type FlowEvents } from './Flow.js'
+import { Flow, type FlowEvents } from './Flow.js'
 import { Sidebar, type SidebarEvents } from '../components/Sidebar.js'
+
+export type NodeProps = {
+  id: string
+  x: number
+  y: number
+  width?: number
+  height?: number
+  content?: string
+  background?: string
+}
+
+export type EdgeProps = {
+  fromNode: string
+  toNode: string
+}
 
 export type AppProps = {
   id: string
-  nodes: FlowProps['nodes']
+  nodes: NodeProps[]
+  edges: EdgeProps[]
   title?: string
   backgroundColor?: string
   lastSequence: number
@@ -21,7 +37,16 @@ export class App extends Component<AppProps, AppEvents> {
     const flow = new Flow()
     const sidebar = new Sidebar()
 
-    super('div', {}, [flow.container, sidebar.container])
+    super(
+      'div',
+      {
+        style: {
+          width: '100vw',
+          height: '100vh',
+        },
+      },
+      [flow.container, sidebar.container],
+    )
 
     this.flow = flow
     this.sidebar = sidebar
@@ -63,8 +88,8 @@ export class App extends Component<AppProps, AppEvents> {
   setProps(props: Partial<AppProps>) {
     super.setProps(props)
 
-    const { nodes, title, backgroundColor } = this.props
-    this.flow.setProps({ nodes, backgroundColor })
+    const { nodes, edges, title, backgroundColor } = this.props
+    this.flow.setProps({ nodes, edges, backgroundColor })
     this.sidebar.setProps({ title, backgroundColor, peers: this.getPeerList() })
   }
 
