@@ -23,6 +23,7 @@ const INITIAL_HEIGHT = 70
 
 export class Editable extends Component<EditableProps, EditableEvents> {
   private lastContent = ''
+  private firstContent = true
 
   constructor() {
     super('div', {
@@ -36,9 +37,9 @@ export class Editable extends Component<EditableProps, EditableEvents> {
         borderRadius: '4px',
         border: '1px solid #333',
         padding: '8px',
-        paddingRight: '20px',
-        minWidth: `${INITIAL_WIDTH}px`,
-        minHeight: `${INITIAL_HEIGHT}px`,
+        paddingRight: '30px',
+        minWidth: `${ABS_MIN_WIDTH}px`,
+        minHeight: `${ABS_MIN_HEIGHT}px`,
         maxWidth: '260px',
         maxHeight: '260px',
         overflowY: 'auto',
@@ -54,6 +55,10 @@ export class Editable extends Component<EditableProps, EditableEvents> {
         const html = this.container.innerHTML
         const content = sanitizeHtml(html)
         this.emit('input', { content })
+
+        if (content) {
+          this.resetMinSize()
+        }
 
         const url = parseUrl(html)
         if (url) {
@@ -93,6 +98,11 @@ export class Editable extends Component<EditableProps, EditableEvents> {
         }
       },
     })
+
+    css(this.container, {
+      minWidth: `${INITIAL_WIDTH}px`,
+      minHeight: `${INITIAL_HEIGHT}px`,
+    })
   }
 
   private async loadPreview(url: string) {
@@ -131,12 +141,26 @@ export class Editable extends Component<EditableProps, EditableEvents> {
     return `${img}${title}${description}${source}`
   }
 
+  private resetMinSize() {
+    if (this.firstContent) {
+      this.firstContent = false
+      css(this.container, {
+        minWidth: '',
+        minHeight: '',
+      })
+    }
+  }
+
   render() {
     const { content, width, height } = this.props
 
     if (content !== this.lastContent) {
       this.lastContent = content
       this.container.innerHTML = sanitizeHtml(content ?? '')
+
+      if (content) {
+        this.resetMinSize()
+      }
     }
 
     if (width !== undefined) {
@@ -144,7 +168,6 @@ export class Editable extends Component<EditableProps, EditableEvents> {
       css(this.container, {
         width: reset ? '' : `${width}px`,
         maxWidth: 'none',
-        minWidth: `${ABS_MIN_WIDTH}px`,
       })
     }
 
@@ -153,7 +176,6 @@ export class Editable extends Component<EditableProps, EditableEvents> {
       css(this.container, {
         height: reset ? '' : `${height}px`,
         maxHeight: 'none',
-        minHeight: `${ABS_MIN_HEIGHT}px`,
       })
     }
   }

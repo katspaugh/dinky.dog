@@ -39,11 +39,11 @@ html {
   box-sizing: border-box;
 }
 
-li {
+.Menu li {
   color: var(--menu-text-color);
 }
 
-li:hover {
+.Menu li:hover {
   background-color: var(--menu-hover-color);
   color: var(--menu-hover-text-color);
 }
@@ -108,8 +108,8 @@ input:focus::placeholder {
   border-radius: inherit;
   height: auto;
   pointer-events: none;
-  width: calc(100% + 12px);
-  margin-right: -12px;
+  width: calc(100% + 22px);
+  margin-right: -22px;
 }
 
 .Editable audio {

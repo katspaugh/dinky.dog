@@ -86,8 +86,19 @@ export class Flow extends Component<FlowProps, FlowEvents> {
     }
   }
 
-  getProps() {
-    const nodes = this.nodes.map(({ id, card }) => ({ id, ...card.getProps() }))
+  getProps(): FlowProps {
+    const nodes = this.nodes.map(({ id, card }) => {
+      const cardProps = card.getProps()
+      return {
+        id,
+        x: cardProps.x,
+        y: cardProps.y,
+        content: cardProps.content,
+        width: cardProps.width,
+        height: cardProps.height,
+        color: cardProps.color,
+      }
+    })
     const edges = this.edges.map(({ fromNode, toNode }) => ({ fromNode, toNode }))
     return { nodes, edges, backgroundColor: this.props.backgroundColor }
   }
@@ -125,13 +136,29 @@ export class Flow extends Component<FlowProps, FlowEvents> {
 
     // Escape
     this.graph.on('escape', () => {
+      console.log('Escape', this.selectedNodes.length, this.lastNode)
+
       if (this.tempEdge) {
         this.tempEdge.destroy()
         this.tempEdge = null
-      } else if (this.lastNode) {
+        return
+      }
+
+      if (this.selectedNodes.length > 0) {
+        if (confirm('Are you sure you want to delete the selected cards?')) {
+          this.selectedNodes.forEach((node) => this.onRemoveNode(node))
+          this.selectedNodes = []
+          this.lastNode = null
+        }
+        return
+      }
+
+      if (this.lastNode) {
         if (confirm('Are you sure you want to delete this card?')) {
           this.onRemoveNode(this.lastNode)
+          this.lastNode = null
         }
+        return
       }
     })
 

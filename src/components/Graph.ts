@@ -2,11 +2,17 @@ import { Component } from '../lib/component.js'
 import { Svg } from './Svg.js'
 import { Pan, type PanEvents } from './Pan.js'
 import { SelectionBox, type SelectionBoxEvents } from './SelectionBox.js'
+import { onEvent } from '../lib/dom.js'
 
 const WIDTH = 5000
 const HEIGHT = 5000
 
-export class Graph extends Component<{}, PanEvents & SelectionBoxEvents> {
+export type GraphEvents = PanEvents &
+  SelectionBoxEvents & {
+    escape: {}
+  }
+
+export class Graph extends Component<{}, GraphEvents> {
   private svg: Svg
   private pan: Pan
 
@@ -53,12 +59,18 @@ export class Graph extends Component<{}, PanEvents & SelectionBoxEvents> {
       this.emit('pointermove', params)
     })
 
-    pan.on('escape', () => {
-      this.emit('escape', {})
-    })
-
     selectionBox.on('select', (params) => {
       this.emit('select', params)
+    })
+
+    const unsubscribeKeydown = onEvent(document, 'keydown', (event) => {
+      if (event.key === 'Escape') {
+        this.emit('escape', {})
+      }
+    })
+
+    this.on('destroy', () => {
+      unsubscribeKeydown()
     })
   }
 

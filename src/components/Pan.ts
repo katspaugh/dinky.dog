@@ -5,7 +5,6 @@ export type PanEvents = {
   click: { x: number; y: number }
   dblclick: { x: number; y: number }
   pointermove: { x: number; y: number }
-  escape: {}
 }
 
 type PanProps = {
@@ -34,12 +33,6 @@ export class Pan extends Component<PanProps, PanEvents> {
 
       onpointermove: (e: PointerEvent) => {
         this.emit('pointermove', getRelativeCoords(e))
-      },
-
-      onkeydown: (e: KeyboardEvent) => {
-        if (e.key === 'Escape') {
-          this.emit('escape', {})
-        }
       },
     })
   }

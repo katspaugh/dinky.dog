@@ -70,3 +70,12 @@ export function insertCssClass(className: string, css: Partial<CSSStyleDeclarati
     .join('; ')} }`
   document.getElementsByTagName('head')[0].appendChild(style)
 }
+
+export function onEvent<EventName extends keyof HTMLElementEventMap>(
+  element: HTMLElement | SVGElement | Document | Window,
+  event: EventName,
+  handler: (e: HTMLElementEventMap[EventName]) => void,
+) {
+  element.addEventListener(event, handler)
+  return () => element.removeEventListener(event, handler)
+}

@@ -1,6 +1,7 @@
 import { Component } from '../lib/component.js'
 import { Flow, type FlowEvents } from './Flow.js'
 import { Sidebar, type SidebarEvents } from '../components/Sidebar.js'
+import { DinkyDataV2 } from '../lib/database.js'
 
 export type NodeProps = {
   id: string
@@ -17,13 +18,7 @@ export type EdgeProps = {
   toNode: string
 }
 
-export type AppProps = {
-  id: string
-  nodes: NodeProps[]
-  edges: EdgeProps[]
-  title?: string
-  backgroundColor?: string
-  lastSequence: number
+export type AppProps = DinkyDataV2 & {
   peers?: string[]
 }
 
@@ -70,7 +65,7 @@ export class App extends Component<AppProps, AppEvents> {
     })
   }
 
-  getProps() {
+  getProps(): AppProps {
     return {
       ...this.props,
       ...this.flow.getProps(),

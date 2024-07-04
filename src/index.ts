@@ -1,5 +1,5 @@
 import { initDurableStream } from './lib/durable-stream.js'
-import { DinkyData, loadData, saveData } from './lib/database.js'
+import { type DinkyDataV2, loadData, saveData } from './lib/database.js'
 import {
   getClientId,
   getSavedStates,
@@ -8,12 +8,12 @@ import {
   saveToLocalStorage,
   setUrlId,
 } from './lib/persist.js'
-import { App, type EdgeProps, type NodeProps, type AppProps } from './components/App.js'
+import { App } from './components/App.js'
 import { debounce, randomId } from './lib/utils.js'
 
 const SAVE_DELAY = 5000
 
-async function initRealtimeSync(app: App, state: AppProps) {
+async function initRealtimeSync(app: App, state: DinkyDataV2) {
   const clientId = getClientId()
   let peers = []
 
@@ -64,13 +64,13 @@ function getLastId() {
   return savedStates?.[0]?.id
 }
 
-async function loadFromDatabase(): Promise<AppProps | undefined> {
+async function loadFromDatabase(): Promise<DinkyDataV2 | undefined> {
   const id = getUrlId() || getLastId()
   if (!id) return
 
   const localData = loadFromLocalStorage(id)
 
-  let data: DinkyData
+  let data: DinkyDataV2
   try {
     data = await loadData(id, localData?.timestamp.toString())
   } catch (e) {
@@ -80,62 +80,18 @@ async function loadFromDatabase(): Promise<AppProps | undefined> {
 
   console.log('Loaded data', data)
 
-  const nodes = Object.entries(data.nodes).map(([id, node]) => {
-    return {
-      id,
-      content: node.data.operatorData,
-      x: node.props.x,
-      y: node.props.y,
-      width: node.props.width,
-      height: node.props.height,
-      color: node.props.background,
-    }
-  })
-
-  const edges = Object.entries(data.nodes).reduce<EdgeProps[]>((acc, [id, node]) => {
-    node.connections.forEach((conn) => {
-      acc.push({ fromNode: id, toNode: conn.inputId })
-    })
-    return acc
-  }, [])
-
-  return { ...data, nodes, edges }
+  return data
 }
 
 const debouncedSaveData = debounce(saveData, SAVE_DELAY)
 
-async function saveToDatabase(
-  appData: { nodes: NodeProps[]; edges: EdgeProps[] },
-  restData: AppProps,
-  isUnload = false,
-) {
-  const nodes = appData.nodes.reduce((acc, value) => {
-    const { id } = value
-    acc[id] = {
-      data: {
-        operatorData: value.content,
-      },
-      props: {
-        x: value.x,
-        y: value.y,
-        width: value.width,
-        height: value.height,
-        background: value.color,
-      },
-      connections: appData.edges.filter((edge) => edge.fromNode === id).map((edge) => ({ inputId: edge.toNode })),
-    }
-    return acc
-  }, {} as DinkyData)
+async function saveToDatabase(state: DinkyDataV2, isUnload = false) {
+  if (!state.title) return // Don't save if there's no title
 
-  const data = {
-    ...restData,
-    nodes,
-  }
-
-  console.log('Saving data', data)
+  console.log('Saving data', state)
 
   try {
-    isUnload ? await saveData(data, isUnload) : debouncedSaveData(data)
+    isUnload ? await saveData(state, isUnload) : debouncedSaveData(state)
   } catch (e) {
     console.error('Error saving data', e)
   }
@@ -173,7 +129,7 @@ function initSpecialPages(app: App) {
   }
 }
 
-function getDefaultState(): AppProps {
+function getDefaultState(): DinkyDataV2 {
   return {
     id: randomId(),
     lastSequence: 0,
@@ -186,6 +142,7 @@ function getDefaultState(): AppProps {
       },
     ],
     edges: [],
+    version: 2,
   }
 }
 
@@ -193,7 +150,10 @@ async function initPersistence(app: App) {
   const state = (await loadFromDatabase()) || getDefaultState()
 
   const save = (isUnload = false) => {
-    saveToDatabase(app.getProps(), state, isUnload)
+    const props = app.getProps()
+    state.nodes = props.nodes
+    state.edges = props.edges
+    saveToDatabase(state, isUnload)
     saveToLocalStorage(state)
   }
 
