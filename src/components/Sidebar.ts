@@ -1,7 +1,6 @@
-import { clientId } from '../index.js'
 import { Component } from '../lib/component.js'
 import { css } from '../lib/dom.js'
-import { getSavedStates, makeUrl } from '../lib/persist.js'
+import { getClientId, getSavedStates, makeUrl } from '../lib/persist.js'
 import { sanitizeHtml } from '../lib/sanitize-html.js'
 import { randomId } from '../lib/utils.js'
 import { Button } from './Button.js'
@@ -259,7 +258,7 @@ export class Sidebar extends Component<SidebarProps, SidebarEvents> {
     }
 
     if (props.creator !== undefined) {
-      ; (this.lockButton.container as HTMLButtonElement).disabled = clientId !== props.creator
+      ; (this.lockButton.container as HTMLButtonElement).disabled = getClientId() !== props.creator
     }
   }
 

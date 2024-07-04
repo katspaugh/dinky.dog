@@ -12,7 +12,7 @@ import { App } from './components/App.js'
 import { debounce, randomId, uniqueBy } from './lib/utils.js'
 
 const SAVE_DELAY = 5000
-export const clientId = getClientId()
+const clientId = getClientId()
 
 async function initRealtimeSync(app: App, state: DinkyDataV2) {
   let peers = []
