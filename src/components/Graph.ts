@@ -40,7 +40,7 @@ export class Graph extends Component<{}, GraphEvents> {
           overflow: 'auto',
         },
       },
-      [pan.container, selectionBox.container],
+      [pan, selectionBox],
     )
 
     pan.container.append(svg.container)

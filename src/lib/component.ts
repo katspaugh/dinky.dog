@@ -9,18 +9,17 @@ type ComponentEvents = {
   destroy: {}
 }
 
+type ElementParams = Parameters<typeof el>
+
 export class Component<PropTypes extends GeneralPropTypes, EventTypes extends GeneralEventTypes> extends EventEmitter<
   EventTypes & ComponentEvents
 > {
   private _container: HTMLElement
   protected props: PropTypes = {} as PropTypes
 
-  constructor(...args: Parameters<typeof el>) {
+  constructor(tag?: ElementParams[0], props?: ElementParams[1], children?: Component<{}, {}>[]) {
     super()
 
-    const tag = args[0] ?? 'div'
-    let props = args[1]
-    const children = args[2]
     const componentName = this.constructor.name
 
     if (props && 'style' in props) {
@@ -29,8 +28,14 @@ export class Component<PropTypes extends GeneralPropTypes, EventTypes extends Ge
       props = { ...props, style: undefined }
     }
 
-    this.container = el(tag, props, children)
+    this.container = el(tag, props, children?.map((child) => child.container) as ElementParams[2])
     this.container.classList.add(componentName)
+
+    if (children?.length) {
+      this.on('destroy', () => {
+        children.forEach((item) => item.destroy())
+      })
+    }
   }
 
   public get container(): HTMLElement {

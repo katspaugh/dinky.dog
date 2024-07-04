@@ -1,14 +1,13 @@
 import { Component } from '../lib/component.js'
-import { el } from '../lib/dom.js'
 import { draggable } from '../lib/draggable.js'
 
 export type SelectionBoxEvents = {
   select: { x1: number; y1: number; x2: number; y2: number }
 }
 
-export class SelectionBox extends Component<{}, SelectionBoxEvents> {
-  constructor(container: HTMLElement) {
-    const box = el('div', {
+class Box extends Component<{}, {}> {
+  constructor() {
+    super('div', {
       style: {
         position: 'absolute',
         zIndex: '3',
@@ -17,8 +16,15 @@ export class SelectionBox extends Component<{}, SelectionBoxEvents> {
         borderRadius: '4px',
       },
     })
+  }
+}
 
-    super(container, {}, [box])
+export class SelectionBox extends Component<{}, SelectionBoxEvents> {
+  constructor(container: HTMLElement) {
+    const boxComponent = new Box()
+    const box = boxComponent.container
+
+    super(container, undefined, [boxComponent])
 
     let width = 0
     let height = 0

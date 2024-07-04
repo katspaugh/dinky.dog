@@ -52,13 +52,17 @@ input:focus::placeholder {
   color: transparent;
 }
 
-.Edge:hover {
-  stroke-width: 6px;
+button:not([disabled]):hover {
+  transform: scale(1.05);
 }
 
-.Connector:hover,
-.Button:hover {
-  transform: scale(1.05);
+input[disabled],
+button[disabled] {
+  cursor: not-allowed !important;
+}
+
+.Edge:hover {
+  stroke-width: 6px;
 }
 
 @keyframes wobble {

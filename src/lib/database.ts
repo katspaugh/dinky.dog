@@ -14,6 +14,8 @@ export type DinkyDataV2 = CommonDinkyData & {
   lastSequence: number
   title?: string
   backgroundColor?: string
+  isLocked?: boolean
+  creator?: string
   nodes: Array<{
     id: string
     x: number
@@ -35,6 +37,8 @@ export type DinkyDataV1 = CommonDinkyData & {
   lastSequence: number
   title?: string
   backgroundColor?: string
+  isLocked?: boolean
+  creator: string
   nodes: Record<
     string,
     {

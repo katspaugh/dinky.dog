@@ -9,12 +9,12 @@ import {
   setUrlId,
 } from './lib/persist.js'
 import { App } from './components/App.js'
-import { debounce, randomId } from './lib/utils.js'
+import { debounce, randomId, uniqueBy } from './lib/utils.js'
 
 const SAVE_DELAY = 5000
+export const clientId = getClientId()
 
 async function initRealtimeSync(app: App, state: DinkyDataV2) {
-  const clientId = getClientId()
   let peers = []
 
   const durableClient = await initDurableStream({
@@ -111,6 +111,7 @@ function initSpecialPages(app: App) {
     app.setProps({
       id: location.pathname,
       title: document.title,
+      isLocked: true,
       lastSequence: 0,
       nodes: [
         {
@@ -133,6 +134,7 @@ function getDefaultState(): DinkyDataV2 {
   return {
     id: randomId(),
     lastSequence: 0,
+    creator: clientId,
     nodes: [
       {
         id: '1',
@@ -151,7 +153,7 @@ async function initPersistence(app: App) {
 
   const save = (isUnload = false) => {
     const props = app.getProps()
-    state.nodes = props.nodes
+    state.nodes = uniqueBy(props.nodes, 'id')
     state.edges = props.edges
     saveToDatabase(state, isUnload)
     saveToLocalStorage(state)
@@ -180,6 +182,12 @@ async function initPersistence(app: App) {
   app.on('backgroundColorChange', ({ backgroundColor }) => {
     state.backgroundColor = backgroundColor
     app.setProps({ backgroundColor })
+    save()
+  })
+
+  app.on('lockChange', ({ isLocked }) => {
+    state.isLocked = isLocked
+    app.setProps({ isLocked })
     save()
   })
 

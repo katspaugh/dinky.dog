@@ -1,3 +1,4 @@
+import { clientId } from '../index.js'
 import { Component } from '../lib/component.js'
 import { css } from '../lib/dom.js'
 import { getSavedStates, makeUrl } from '../lib/persist.js'
@@ -11,6 +12,8 @@ import { PeerList, type PeerListProps } from './PeerList.js'
 
 type SidebarProps = {
   title: string
+  isLocked?: boolean
+  creator?: string
   backgroundColor?: string
   peers?: PeerListProps['peers']
 }
@@ -18,64 +21,107 @@ type SidebarProps = {
 export type SidebarEvents = {
   titleChange: { title: string }
   backgroundColorChange: { backgroundColor: string }
+  lockChange: { isLocked: boolean }
+}
+
+class Drawer extends Component<{}, {}> {
+  constructor(children: Component<{}, {}>[]) {
+    super(
+      'div',
+      {
+        style: {
+          width: '300px',
+          height: '100vh',
+          padding: '10px',
+          transition: 'transform 0.2s',
+          transform: 'translateX(100%)',
+          backgroundColor: '#f5f5f5',
+          pointerEvents: 'all',
+          boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)',
+          display: 'flex',
+          flexDirection: 'column',
+          position: 'absolute',
+          top: '0',
+          right: '0',
+          zIndex: '2',
+        },
+      },
+      children,
+    )
+  }
 }
 
 class Heading extends Component<{}, {}> {
-  constructor() {
-    super('h1', {
-      textContent: 'Dinky Dog',
+  constructor(level: 'h1' | 'h2', textContent: string) {
+    super(level, {
+      textContent,
       style: {
         fontSize: '22px',
-        margin: '0 0 20px',
-        padding: '10px 10px 20px',
+        margin: '10px 10px 0',
+      },
+    })
+  }
+}
+
+class Divider extends Component<{}, {}> {
+  constructor() {
+    super('hr', {
+      style: {
+        margin: '20px 0',
+        border: 'none',
         borderBottom: '1px solid #ddd',
       },
     })
   }
 }
 
-class Drawer extends Component<{}, {}> {
-  constructor() {
-    super('div', {
-      style: {
-        width: '300px',
-        height: '100vh',
-        padding: '10px',
-        transition: 'transform 0.2s',
-        transform: 'translateX(100%)',
-        backgroundColor: '#f5f5f5',
-        pointerEvents: 'all',
-        boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)',
-        display: 'flex',
-        flexDirection: 'column',
-        position: 'absolute',
-        top: '0',
-        right: '0',
-        zIndex: '2',
+class Flexbox extends Component<{}, {}> {
+  constructor(children: Component<{}, {}>[]) {
+    super(
+      'div',
+      {
+        style: {
+          display: 'flex',
+          gap: '10px',
+        },
       },
+      children,
+    )
+  }
+}
+
+class DinkyButton extends Button {
+  constructor(styles?: Partial<CSSStyleDeclaration>) {
+    super('')
+    css(this.container, {
+      width: '40px',
+      height: '40px',
+      backgroundImage: `url('/images/dinky-small.png')`,
+      backgroundRepeat: 'no-repeat',
+      backgroundPosition: 'center',
+      backgroundSize: '65%',
+      ...styles,
     })
   }
 }
 
-const makeButton = (styles?: Partial<CSSStyleDeclaration>) => {
-  const button = new Button()
-  button.container.innerHTML = '<img src="/images/dinky-small.png" alt="Dinky Dog" width="20px" height="auto" />'
-  css(button.container, {
-    padding: '9px 10px 5px',
-    ...styles,
-  })
-  return button
-}
-
 export class Sidebar extends Component<SidebarProps, SidebarEvents> {
   private input: Input
+  private lockButton: Button
   private colorpicker: Colorpicker
   private peerList: PeerList
 
   constructor() {
     const input = new Input()
+
     const menu = new Menu()
+    css(menu.container, {
+      flex: '1',
+      overflowY: 'auto',
+    })
+
     const fixedMenu = new Menu()
+
     const peerList = new PeerList()
 
     const colorpicker = new Colorpicker()
@@ -90,19 +136,34 @@ export class Sidebar extends Component<SidebarProps, SidebarEvents> {
       this.emit('backgroundColorChange', { backgroundColor: color })
     })
 
-    const heading = new Heading()
+    const heading = new Heading('h1', 'Dinky Dog')
 
-    const button = makeButton()
+    const button = new DinkyButton()
 
-    const drawerButton = makeButton({
+    const drawerButton = new DinkyButton({
       position: 'absolute',
       top: '10px',
       right: '10px',
       boxShadow: 'none',
     })
 
-    const drawer = new Drawer()
-    drawer.container.append(heading.container, menu.container, fixedMenu.container, drawerButton.container)
+    const lockButton = new Button('🔒 Lock')
+    css(lockButton.container, {
+      width: '94px',
+    })
+
+    const titleGroup = new Flexbox([lockButton])
+
+    const drawer = new Drawer([
+      heading,
+      new Divider(),
+      titleGroup,
+      new Divider(),
+      menu,
+      new Divider(),
+      fixedMenu,
+      drawerButton,
+    ])
 
     super(
       'div',
@@ -118,7 +179,7 @@ export class Sidebar extends Component<SidebarProps, SidebarEvents> {
           pointerEvents: 'none',
         },
       },
-      [input.container, button.container, drawer.container, colorpicker.container, peerList.container],
+      [input, button, drawer, colorpicker, peerList],
     )
 
     button.on('click', () => {
@@ -145,32 +206,14 @@ export class Sidebar extends Component<SidebarProps, SidebarEvents> {
       ],
     })
 
-    css(fixedMenu.container, {
-      marginTop: '20px',
-      paddingTop: '20px',
-      borderTop: '1px solid #ddd',
-    })
-
-    css(menu.container, {
-      flex: '1',
-      overflowY: 'auto',
+    lockButton.on('click', () => {
+      this.emit('lockChange', { isLocked: !this.props.isLocked })
     })
 
     this.input = input
     this.colorpicker = colorpicker
     this.peerList = peerList
-
-    this.on('destroy', () => {
-      heading.destroy()
-      colorpicker.destroy()
-      input.destroy()
-      button.destroy()
-      drawerButton.destroy()
-      drawer.destroy()
-      menu.destroy()
-      fixedMenu.destroy()
-      peerList.destroy()
-    })
+    this.lockButton = lockButton
   }
 
   private updateMenu(menu: Menu) {
@@ -208,6 +251,15 @@ export class Sidebar extends Component<SidebarProps, SidebarEvents> {
 
     if (props.peers) {
       this.peerList.setProps({ peers: props.peers })
+    }
+
+    if (props.isLocked !== undefined) {
+      this.lockButton.setProps({ text: props.isLocked ? '🔓 Unlock' : '🔒 Lock' })
+        ; (this.input.container as HTMLInputElement).disabled = props.isLocked
+    }
+
+    if (props.creator !== undefined) {
+      ; (this.lockButton.container as HTMLButtonElement).disabled = clientId !== props.creator
     }
   }
 

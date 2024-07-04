@@ -49,7 +49,7 @@ export class Flow extends Component<FlowProps, FlowEvents> {
           height: '100%',
         },
       },
-      [graph.container],
+      [graph],
     )
 
     // Drag and drop
@@ -59,7 +59,6 @@ export class Flow extends Component<FlowProps, FlowEvents> {
 
     this.on('destroy', () => {
       drop.destroy()
-      graph.destroy()
     })
 
     this.graph = graph
@@ -328,31 +327,6 @@ export class Flow extends Component<FlowProps, FlowEvents> {
     this.emit('command', { command: 'updateNode', params })
   }
 
-  private adjustEdges(node: GraphNode) {
-    const rect = this.graph.getOffset()
-    const { id } = node
-    const fromPoint = node.card.getOutPoint()
-    const toPoint = node.card.getInPoint()
-
-    this.edges.forEach((item) => {
-      if (item.fromNode === id || item.toNode === id) {
-        let point1 = fromPoint
-        let point2 = toPoint
-        if (item.fromNode === id) {
-          point2 = this.nodes.find((node) => node.id === item.toNode)?.card.getInPoint() || toPoint
-        } else {
-          point1 = this.nodes.find((node) => node.id === item.fromNode)?.card.getOutPoint() || fromPoint
-        }
-        item.edge.setProps({
-          x1: point1.x - rect.left,
-          y1: point1.y - rect.top,
-          x2: point2.x - rect.left,
-          y2: point2.y - rect.top,
-        })
-      }
-    })
-  }
-
   private onSelectBox({ x1, y1, x2, y2 }: { x1: number; y1: number; x2: number; y2: number }) {
     const matchingNodes = this.nodes.filter((node) => {
       let { x, y, width, height } = node.card.getProps()
@@ -379,6 +353,31 @@ export class Flow extends Component<FlowProps, FlowEvents> {
       node.card.setProps({ selected: false })
     })
     this.selectedNodes = []
+  }
+
+  private adjustEdges(node: GraphNode) {
+    const rect = this.graph.getOffset()
+    const { id } = node
+    const fromPoint = node.card.getOutPoint()
+    const toPoint = node.card.getInPoint()
+
+    this.edges.forEach((item) => {
+      if (item.fromNode === id || item.toNode === id) {
+        let point1 = fromPoint
+        let point2 = toPoint
+        if (item.fromNode === id) {
+          point2 = this.nodes.find((node) => node.id === item.toNode)?.card.getInPoint() || toPoint
+        } else {
+          point1 = this.nodes.find((node) => node.id === item.fromNode)?.card.getOutPoint() || fromPoint
+        }
+        item.edge.setProps({
+          x1: point1.x - rect.left,
+          y1: point1.y - rect.top,
+          x2: point2.x - rect.left,
+          y2: point2.y - rect.top,
+        })
+      }
+    })
   }
 
   /* Public methods */

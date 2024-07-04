@@ -9,7 +9,7 @@ type ButtonEvents = {
 }
 
 export class Button extends Component<ButtonProps, ButtonEvents> {
-  constructor() {
+  constructor(text: string) {
     super('button', {
       style: {
         width: 'fit-content',
@@ -27,6 +27,10 @@ export class Button extends Component<ButtonProps, ButtonEvents> {
         this.emit('click', {})
       },
     })
+
+    if (text) {
+      this.setProps({ text })
+    }
   }
 
   render() {

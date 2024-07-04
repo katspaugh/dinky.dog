@@ -40,7 +40,7 @@ export class App extends Component<AppProps, AppEvents> {
           height: '100vh',
         },
       },
-      [flow.container, sidebar.container],
+      [flow, sidebar],
     )
 
     this.flow = flow
@@ -59,9 +59,8 @@ export class App extends Component<AppProps, AppEvents> {
       this.emit('backgroundColorChange', params)
     })
 
-    this.on('destroy', () => {
-      flow.destroy()
-      sidebar.destroy()
+    sidebar.on('lockChange', (params) => {
+      this.emit('lockChange', params)
     })
   }
 
@@ -83,12 +82,13 @@ export class App extends Component<AppProps, AppEvents> {
   setProps(props: Partial<AppProps>) {
     super.setProps(props)
 
-    const { nodes, edges, title, backgroundColor } = this.props
+    const { nodes, edges, title, isLocked, creator, backgroundColor } = this.props
     this.flow.setProps({ nodes, edges, backgroundColor })
-    this.sidebar.setProps({ title, backgroundColor, peers: this.getPeerList() })
+    this.sidebar.setProps({ title, backgroundColor, creator, isLocked, peers: this.getPeerList() })
   }
 
   callCommand(command: string, params: any) {
+    if (this.props.isLocked) return
     if (command in this.flow) {
       this.flow[command](params)
     }

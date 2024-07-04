@@ -24,7 +24,7 @@ type DragCardEvents = DraggableEvents &
   }
 
 class CardWrapper extends Component<{}, {}> {
-  constructor(children: HTMLElement[]) {
+  constructor(children: Component<{}, {}>[]) {
     super('div', undefined, children)
   }
 }
@@ -46,7 +46,7 @@ export class DragCard extends Component<DragCardProps, DragCardEvents> {
     const colorpicker = new CardColorpicker()
     const editor = new Editable()
 
-    const wrapper = new CardWrapper([card.container, connector.container, resizer.container, colorpicker.container])
+    const wrapper = new CardWrapper([card, connector, resizer, colorpicker])
 
     super(
       draggable.container,
@@ -63,7 +63,7 @@ export class DragCard extends Component<DragCardProps, DragCardEvents> {
           e.stopPropagation()
         },
       },
-      [wrapper.container],
+      [wrapper],
     )
 
     card.container.append(editor.container)
@@ -113,11 +113,6 @@ export class DragCard extends Component<DragCardProps, DragCardEvents> {
 
     this.on('destroy', () => {
       draggable.destroy()
-      connector.destroy()
-      resizer.destroy()
-      colorpicker.destroy()
-      editor.destroy()
-      card.destroy()
     })
   }
 
