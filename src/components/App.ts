@@ -27,6 +27,7 @@ type AppEvents = FlowEvents & SidebarEvents & {}
 export class App extends Component<AppProps, AppEvents> {
   private flow: Flow
   private sidebar: Sidebar
+  private lastLocked: boolean = false
 
   constructor() {
     const flow = new Flow()
@@ -47,19 +48,24 @@ export class App extends Component<AppProps, AppEvents> {
     this.sidebar = sidebar
 
     flow.on('command', (params) => {
+      if (this.props.isLocked) return
       this.emit('command', params)
     })
 
     sidebar.on('titleChange', (params) => {
+      if (this.props.isLocked) return
+      this.setProps(params)
       this.emit('titleChange', params)
     })
 
     sidebar.on('backgroundColorChange', (params) => {
-      flow.setProps(params)
+      if (this.props.isLocked) return
+      this.setProps(params)
       this.emit('backgroundColorChange', params)
     })
 
     sidebar.on('lockChange', (params) => {
+      this.setProps(params)
       this.emit('lockChange', params)
     })
   }
@@ -83,14 +89,22 @@ export class App extends Component<AppProps, AppEvents> {
     super.setProps(props)
 
     const { nodes, edges, title, isLocked, creator, backgroundColor } = this.props
-    this.flow.setProps({ nodes, edges, backgroundColor })
+    this.flow.setProps({ nodes, edges, isLocked, backgroundColor })
     this.sidebar.setProps({ title, backgroundColor, creator, isLocked, peers: this.getPeerList() })
   }
 
   callCommand(command: string, params: any) {
     if (this.props.isLocked) return
+
     if (command in this.flow) {
       this.flow[command](params)
+    }
+  }
+
+  render() {
+    if (this.props.isLocked !== this.lastLocked) {
+      this.lastLocked = this.props.isLocked
+      this.container.classList.toggle('locked', this.props.isLocked)
     }
   }
 }

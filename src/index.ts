@@ -174,20 +174,17 @@ async function initPersistence(app: App) {
 
   app.on('titleChange', ({ title }) => {
     state.title = title
-    app.setProps({ title })
     save()
     updateTitle()
   })
 
   app.on('backgroundColorChange', ({ backgroundColor }) => {
     state.backgroundColor = backgroundColor
-    app.setProps({ backgroundColor })
     save()
   })
 
   app.on('lockChange', ({ isLocked }) => {
     state.isLocked = isLocked
-    app.setProps({ isLocked })
     save()
   })
 

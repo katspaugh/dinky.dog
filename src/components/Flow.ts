@@ -12,6 +12,7 @@ export type FlowProps = {
   nodes: NodeProps[]
   edges: EdgeProps[]
   backgroundColor?: string
+  isLocked?: boolean
 }
 
 export type FlowEvents = {
@@ -37,6 +38,7 @@ export class Flow extends Component<FlowProps, FlowEvents> {
   private tempEdge: Edge | null = null
   private lastNode: GraphNode | null = null
   private selectedNodes: GraphNode[] = []
+  private lastBackground: string = ''
 
   constructor() {
     const drop = new Drop()
@@ -68,11 +70,12 @@ export class Flow extends Component<FlowProps, FlowEvents> {
   render() {
     const { nodes, edges, backgroundColor } = this.props
 
-    if (backgroundColor) {
+    if (backgroundColor && backgroundColor !== this.lastBackground) {
+      this.lastBackground = backgroundColor
       this.container.style.backgroundColor = backgroundColor
     }
 
-    if (nodes.length > 0) {
+    if (this.nodes.length === 0 && nodes.length > 0) {
       nodes.forEach((item) => {
         this.createNode(item)
       })
@@ -178,6 +181,8 @@ export class Flow extends Component<FlowProps, FlowEvents> {
   }
 
   private onDelete() {
+    if (this.props.isLocked) return
+
     if (this.selectedNodes.length > 0) {
       if (confirm('Are you sure you want to delete the selected cards?')) {
         this.selectedNodes.forEach((node) => this.onRemoveNode(node))
@@ -197,11 +202,14 @@ export class Flow extends Component<FlowProps, FlowEvents> {
   }
 
   private onConnectorClick(node: GraphNode) {
+    if (this.props.isLocked) return
+
     this.tempEdge = this.createEdge(node)
     this.lastNode = node
   }
 
   private onNodeClick(node: GraphNode) {
+    if (this.props.isLocked) return
     if (this.lastNode && this.tempEdge) {
       this.tempEdge.destroy()
       this.tempEdge = null
@@ -212,6 +220,8 @@ export class Flow extends Component<FlowProps, FlowEvents> {
   }
 
   private onDrag(node: GraphNode, { dx, dy }: { dx: number; dy: number }) {
+    if (this.props.isLocked) return
+
     const updatePosition = (selectedNode: GraphNode) => {
       const { x, y } = selectedNode.card.getProps()
       const params = { id: selectedNode.id, x: Math.round(x + dx), y: Math.round(y + dy) }
@@ -226,6 +236,8 @@ export class Flow extends Component<FlowProps, FlowEvents> {
   }
 
   private onDragEnd(node: GraphNode) {
+    if (this.props.isLocked) return
+
     const savePosition = (selectedNode: GraphNode) => {
       const { x, y } = selectedNode.card.getProps()
       const params = { id: node.id, x, y }
@@ -241,6 +253,8 @@ export class Flow extends Component<FlowProps, FlowEvents> {
   }
 
   private onCreateNode({ x, y }: { x: number; y: number }) {
+    if (this.props.isLocked) return
+
     const id = randomId()
     const params = { x, y, id }
     const node = this.createNode(params)
@@ -250,6 +264,8 @@ export class Flow extends Component<FlowProps, FlowEvents> {
   }
 
   private async onFileUpload({ x, y, file }: { x: number; y: number; file: File }) {
+    if (this.props.isLocked) return
+
     const rect = this.graph.getOffset()
     const node = this.onCreateNode({ x: x - rect.left, y: y - rect.top })
     node.card.blur()
@@ -276,18 +292,24 @@ export class Flow extends Component<FlowProps, FlowEvents> {
   }
 
   private onRemoveNode(node: GraphNode) {
+    if (this.props.isLocked) return
+
     const params = { id: node.id }
     this.removeNode(params)
     this.emit('command', { command: 'removeNode', params })
   }
 
   private onConnectNodes(from: GraphNode, to: GraphNode) {
+    if (this.props.isLocked) return
+
     const params = { fromNode: from.id, toNode: to.id }
     this.connectNodes(params)
     this.emit('command', { command: 'connectNodes', params })
   }
 
   private onDisconnectEdge(from: GraphNode, edge: Edge) {
+    if (this.props.isLocked) return
+
     const toNode = this.edges.find((item) => item.fromNode === from.id && item.edge === edge)?.toNode
     if (!toNode) return
     const params = { fromNode: from.id, toNode }
@@ -296,18 +318,24 @@ export class Flow extends Component<FlowProps, FlowEvents> {
   }
 
   private onEditNode(node: GraphNode, content: string) {
+    if (this.props.isLocked) return
+
     const params = { id: node.id, content }
     this.updateNode(params)
     this.emitDebounced('command', { command: 'updateNode', params })
   }
 
   private onNodeBackgroundChange(node: GraphNode, color: string) {
+    if (this.props.isLocked) return
+
     const params = { id: node.id, color }
     this.updateNode(params)
     this.emit('command', { command: 'updateNode', params })
   }
 
   private onResize(node: GraphNode, diff?: { dx: number; dy: number }) {
+    if (this.props.isLocked) return
+
     let props = node.card.getProps()
     if (props.width == null || props.height == null) {
       const size = node.card.getSize()
@@ -322,6 +350,8 @@ export class Flow extends Component<FlowProps, FlowEvents> {
   }
 
   private onResizeEnd(node: GraphNode) {
+    if (this.props.isLocked) return
+
     const props = node.card.getProps()
     const params = { id: node.id, width: props.width, height: props.height }
     this.emit('command', { command: 'updateNode', params })
