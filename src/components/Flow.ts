@@ -147,6 +147,13 @@ export class Flow extends Component<FlowProps, FlowEvents> {
       this.onDelete()
     })
 
+    // Delete key
+    this.graph.on('delete', () => {
+      if (this.selectedNodes.length > 0 || (this.lastNode && !this.lastNode.card.getProps().content)) {
+        this.onDelete()
+      }
+    })
+
     // Selection box
     this.graph.on('select', (props) => {
       this.onSelectBox(props)
