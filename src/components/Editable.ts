@@ -15,7 +15,7 @@ type EditableProps = {
   height?: number | null
 }
 
-const ABS_MIN_WIDTH = 70
+const ABS_MIN_WIDTH = 80
 const ABS_MIN_HEIGHT = 37
 
 const INITIAL_WIDTH = 160
@@ -37,7 +37,7 @@ export class Editable extends Component<EditableProps, EditableEvents> {
         borderRadius: '4px',
         border: '1px solid #333',
         padding: '8px',
-        paddingRight: '30px',
+        paddingRight: '20px',
         minWidth: `${ABS_MIN_WIDTH}px`,
         minHeight: `${ABS_MIN_HEIGHT}px`,
         maxWidth: '260px',

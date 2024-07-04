@@ -136,29 +136,19 @@ export class Flow extends Component<FlowProps, FlowEvents> {
 
     // Escape
     this.graph.on('escape', () => {
-      console.log('Escape', this.selectedNodes.length, this.lastNode)
-
       if (this.tempEdge) {
         this.tempEdge.destroy()
         this.tempEdge = null
         return
       }
 
-      if (this.selectedNodes.length > 0) {
-        if (confirm('Are you sure you want to delete the selected cards?')) {
-          this.selectedNodes.forEach((node) => this.onRemoveNode(node))
-          this.selectedNodes = []
-          this.lastNode = null
-        }
-        return
-      }
+      this.onDelete()
+    })
 
-      if (this.lastNode) {
-        if (confirm('Are you sure you want to delete this card?')) {
-          this.onRemoveNode(this.lastNode)
-          this.lastNode = null
-        }
-        return
+    // Delete key
+    this.graph.on('delete', () => {
+      if (this.selectedNodes.length > 0 || (this.lastNode && !this.lastNode.card.getProps().content)) {
+        this.onDelete()
       }
     })
 
@@ -186,6 +176,25 @@ export class Flow extends Component<FlowProps, FlowEvents> {
     const rect = this.graph.getOffset()
     const { x, y } = node.card.getInPoint()
     edge.setProps({ x2: x - rect.left, y2: y - rect.top })
+  }
+
+  private onDelete() {
+    if (this.selectedNodes.length > 0) {
+      if (confirm('Are you sure you want to delete the selected cards?')) {
+        this.selectedNodes.forEach((node) => this.onRemoveNode(node))
+        this.selectedNodes = []
+        this.lastNode = null
+      }
+      return
+    }
+
+    if (this.lastNode) {
+      if (confirm('Are you sure you want to delete this card?')) {
+        this.onRemoveNode(this.lastNode)
+        this.lastNode = null
+      }
+      return
+    }
   }
 
   private onConnectorClick(node: GraphNode) {

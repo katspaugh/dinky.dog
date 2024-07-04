@@ -10,6 +10,7 @@ const HEIGHT = 5000
 export type GraphEvents = PanEvents &
   SelectionBoxEvents & {
     escape: {}
+    delete: {}
   }
 
 export class Graph extends Component<{}, GraphEvents> {
@@ -66,6 +67,9 @@ export class Graph extends Component<{}, GraphEvents> {
     const unsubscribeKeydown = onEvent(document, 'keydown', (event) => {
       if (event.key === 'Escape') {
         this.emit('escape', {})
+      }
+      if (event.key === 'Delete' || event.key === 'Backspace') {
+        this.emit('delete', {})
       }
     })
 
