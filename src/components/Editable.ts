@@ -167,7 +167,7 @@ export class Editable extends Component<EditableProps, EditableEvents> {
       const reset = width === null
       css(this.container, {
         width: reset ? '' : `${width}px`,
-        maxWidth: 'none',
+        maxWidth: reset ? '' : 'none',
       })
     }
 
@@ -175,7 +175,7 @@ export class Editable extends Component<EditableProps, EditableEvents> {
       const reset = height === null
       css(this.container, {
         height: reset ? '' : `${height}px`,
-        maxHeight: 'none',
+        maxHeight: reset ? '' : 'none',
       })
     }
   }

@@ -79,22 +79,26 @@ input:focus::placeholder {
   }
 }
 
-.Card:hover {
+.CardWrapper {
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.CardWrapper:hover {
   transform: scale(1.01);
   box-shadow: 2px 2px var(--shadow-color);
 }
 
-.Card:active {
+.CardWrapper:active {
   animation: wobble 0.5s infinite;
   animation-delay: 0.1s;
   box-shadow: 2px 2px var(--shadow-color);
 }
 
-.DragCard:hover .CardColorpicker {
+.CardWrapper:hover .CardColorpicker {
   opacity: 1;
 }
 
-.DragCard .Colorpicker:hover {
+.CardWrapper .Colorpicker:hover {
   background-color: var(--card-hover-color);
 }
 

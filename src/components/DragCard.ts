@@ -1,5 +1,5 @@
 import { Component } from '../lib/component.js'
-import { css } from '../lib/dom.js'
+import { css, el } from '../lib/dom.js'
 import { type NodeProps } from './App.js'
 import { Card } from './Card.js'
 import { CardColorpicker } from './CardColorpicker.js'
@@ -23,6 +23,12 @@ type DragCardEvents = DraggableEvents &
     contentChange: { content: string }
   }
 
+class CardWrapper extends Component<{}, {}> {
+  constructor(children: HTMLElement[]) {
+    super('div', undefined, children)
+  }
+}
+
 export class DragCard extends Component<DragCardProps, DragCardEvents> {
   private connector: Connector
   private draggable: Draggable
@@ -40,13 +46,14 @@ export class DragCard extends Component<DragCardProps, DragCardEvents> {
     const colorpicker = new CardColorpicker()
     const editor = new Editable()
 
+    const wrapper = new CardWrapper([card.container, connector.container, resizer.container, colorpicker.container])
+
     super(
       draggable.container,
       {
         style: {
           borderRadius: '4px',
         },
-
         onclick: (e: MouseEvent) => {
           e.preventDefault()
           this.emit('click', {})
@@ -56,7 +63,7 @@ export class DragCard extends Component<DragCardProps, DragCardEvents> {
           e.stopPropagation()
         },
       },
-      [resizer.container, connector.container, card.container, colorpicker.container],
+      [wrapper.container],
     )
 
     card.container.append(editor.container)

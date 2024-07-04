@@ -19,6 +19,7 @@ export function draggable(
 
   const onPointerDown = (e) => {
     if (e.button !== 0) return
+    if (e.shiftKey) return
     e.stopPropagation()
 
     isPointerDown = true
@@ -48,6 +49,7 @@ export function draggable(
   }
 
   const onPointerMove = (e) => {
+    if (e.shiftKey) return
     if (!isPointerDown) return
     if (isTouchDevice && Date.now() - touchStart < touchDelay) {
       touchStart = Date.now()
