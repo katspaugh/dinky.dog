@@ -1,4 +1,3 @@
-import { clientId } from '../index.js'
 import { Component } from '../lib/component.js'
 import { css } from '../lib/dom.js'
 import { getSavedStates, makeUrl } from '../lib/persist.js'
@@ -107,7 +106,6 @@ class DinkyButton extends Button {
 
 export class Sidebar extends Component<SidebarProps, SidebarEvents> {
   private input: Input
-  private lockButton: Button
   private colorpicker: Colorpicker
   private peerList: PeerList
 
@@ -147,23 +145,7 @@ export class Sidebar extends Component<SidebarProps, SidebarEvents> {
       boxShadow: 'none',
     })
 
-    const lockButton = new Button('🔒 Lock')
-    css(lockButton.container, {
-      width: '94px',
-    })
-
-    const titleGroup = new Flexbox([lockButton])
-
-    const drawer = new Drawer([
-      heading,
-      new Divider(),
-      titleGroup,
-      new Divider(),
-      menu,
-      new Divider(),
-      fixedMenu,
-      drawerButton,
-    ])
+    const drawer = new Drawer([heading, new Divider(), menu, new Divider(), fixedMenu, drawerButton])
 
     super(
       'div',
@@ -206,14 +188,9 @@ export class Sidebar extends Component<SidebarProps, SidebarEvents> {
       ],
     })
 
-    lockButton.on('click', () => {
-      this.emit('lockChange', { isLocked: !this.props.isLocked })
-    })
-
     this.input = input
     this.colorpicker = colorpicker
     this.peerList = peerList
-    this.lockButton = lockButton
   }
 
   private updateMenu(menu: Menu) {
@@ -251,15 +228,6 @@ export class Sidebar extends Component<SidebarProps, SidebarEvents> {
 
     if (props.peers) {
       this.peerList.setProps({ peers: props.peers })
-    }
-
-    if (props.isLocked !== undefined) {
-      this.lockButton.setProps({ text: props.isLocked ? '🔓 Unlock' : '🔒 Lock' })
-        ; (this.input.container as HTMLInputElement).disabled = props.isLocked
-    }
-
-    if (props.creator !== undefined) {
-      ; (this.lockButton.container as HTMLButtonElement).disabled = clientId !== props.creator
     }
   }
 
