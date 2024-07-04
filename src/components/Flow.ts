@@ -258,6 +258,7 @@ export class Flow extends Component<FlowProps, FlowEvents> {
     const id = randomId()
     const params = { x, y, id }
     const node = this.createNode(params)
+    this.lastNode = node
     node.card.focus()
     this.emit('command', { command: 'createNode', params })
     return node
@@ -433,7 +434,6 @@ export class Flow extends Component<FlowProps, FlowEvents> {
 
     const node = { id, card }
     this.nodes.push(node)
-    this.lastNode = node
 
     return node
   }
