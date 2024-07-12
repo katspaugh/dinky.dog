@@ -75,7 +75,7 @@ export class Flow extends Component<FlowProps, FlowEvents> {
       this.container.style.backgroundColor = backgroundColor
     }
 
-    if (this.nodes.length === 0 && nodes.length > 0) {
+    if (this.nodes.length === 0 && nodes?.length > 0) {
       nodes.forEach((item) => {
         this.createNode(item)
       })

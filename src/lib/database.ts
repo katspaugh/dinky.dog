@@ -72,7 +72,7 @@ function convertV1ToV2(data: DinkyDataV1): DinkyDataV2 {
   })
 
   const edges = Object.entries(data.nodes).reduce<{ fromNode: string; toNode: string }[]>((acc, [id, node]) => {
-    node.connections.forEach((conn) => {
+    node.connections?.forEach((conn) => {
       acc.push({ fromNode: id, toNode: conn.inputId })
     })
     return acc
