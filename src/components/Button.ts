@@ -23,6 +23,7 @@ export class Button extends Component<ButtonProps, ButtonEvents> {
         transition: 'box-shadow 0.2s, transform 0.1s',
         pointerEvents: 'all',
         whiteSpace: 'nowrap',
+        color: 'inherit',
       },
       onclick: () => {
         this.emit('click', {})

@@ -148,15 +148,15 @@ export class Sidebar extends Component<SidebarProps, SidebarEvents> {
 
     const lockButton = new Button('🔒 Lock')
     css(lockButton.container, {
-      width: '94px',
+      width: '100px',
     })
 
-    const titleGroup = new Flexbox([lockButton])
+    const buttonsGroup = new Flexbox([lockButton])
 
     const drawer = new Drawer([
       heading,
       new Divider(),
-      titleGroup,
+      buttonsGroup,
       new Divider(),
       menu,
       new Divider(),

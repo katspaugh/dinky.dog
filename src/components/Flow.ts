@@ -359,6 +359,8 @@ export class Flow extends Component<FlowProps, FlowEvents> {
   }
 
   private onSelectBox({ x1, y1, x2, y2 }: { x1: number; y1: number; x2: number; y2: number }) {
+    this.onUnselect()
+
     const matchingNodes = this.nodes.filter((node) => {
       let { x, y, width, height } = node.card.getProps()
       if (!width || !height) {
