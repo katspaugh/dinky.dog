@@ -135,6 +135,7 @@ function getDefaultState(): DinkyDataV2 {
     id: randomId(),
     lastSequence: 0,
     creator: clientId,
+    isLocked: false,
     nodes: [
       {
         id: '1',
