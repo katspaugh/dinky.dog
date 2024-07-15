@@ -83,19 +83,14 @@ button[disabled] {
   }
 }
 
-.CardWrapper {
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-
 .CardWrapper:hover {
   transform: scale(1.01);
-  box-shadow: 2px 2px var(--shadow-color);
+  box-shadow: 2px 2px 2px var(--shadow-color);
 }
 
 .CardWrapper:active {
   animation: wobble 0.5s infinite;
   animation-delay: 0.1s;
-  box-shadow: 2px 2px var(--shadow-color);
 }
 
 .CardWrapper:hover .CardColorpicker {

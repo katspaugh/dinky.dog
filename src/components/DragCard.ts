@@ -25,7 +25,16 @@ type DragCardEvents = DraggableEvents &
 
 class CardWrapper extends Component<{}, {}> {
   constructor(children: Component<{}, {}>[]) {
-    super('div', undefined, children)
+    super(
+      'div',
+      {
+        style: {
+          transition: 'transform 0.2s, box-shadow 0.2s',
+          borderRadius: 'inherit',
+        },
+      },
+      children,
+    )
   }
 }
 
