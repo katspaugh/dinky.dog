@@ -47,7 +47,6 @@ export class PeerList extends Component<PeerListProps, {}> {
     super('div', {
       style: {
         display: 'flex',
-        gap: '10px',
         position: 'fixed',
         left: '10px',
         top: '10px',
