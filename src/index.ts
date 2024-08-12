@@ -10,6 +10,7 @@ import {
 } from './lib/persist.js'
 import { App } from './components/App.js'
 import { debounce, randomId, uniqueBy } from './lib/utils.js'
+import { initAuth, login, getUser } from './lib/auth.js'
 
 const SAVE_DELAY = 5000
 const clientId = getClientId()
@@ -189,6 +190,13 @@ async function initPersistence(app: App) {
     save()
   })
 
+  app.on('login', () => {
+    login()
+    getUser().then((user) => {
+      alert(user.login)
+    })
+  })
+
   window.addEventListener('beforeunload', () => {
     save(true)
   })
@@ -202,9 +210,17 @@ async function init() {
 
   if (initSpecialPages(app)) return
 
+  initAuth()
+
   const state = await initPersistence(app)
 
-  initRealtimeSync(app, state)
+  getUser()
+    .then((user) => {
+      alert('Logged in as ' + user.login)
+    })
+    .catch(() => { })
+
+  //initRealtimeSync(app, state)
 }
 
 init()

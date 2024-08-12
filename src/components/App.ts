@@ -22,7 +22,11 @@ export type AppProps = DinkyDataV2 & {
   peers?: string[]
 }
 
-type AppEvents = FlowEvents & SidebarEvents & {}
+type AppEvents = FlowEvents &
+  SidebarEvents & {
+    login: {}
+    logout: {}
+  }
 
 export class App extends Component<AppProps, AppEvents> {
   private flow: Flow
@@ -65,8 +69,9 @@ export class App extends Component<AppProps, AppEvents> {
     })
 
     sidebar.on('lockChange', (params) => {
-      this.setProps(params)
-      this.emit('lockChange', params)
+      // this.setProps(params)
+      // this.emit('lockChange', params)
+      this.emit('login', {})
     })
   }
 
