@@ -1,5 +1,5 @@
 import { Component } from '../lib/component.js'
-import { css, el } from '../lib/dom.js'
+import { css } from '../lib/dom.js'
 import { type NodeProps } from './App.js'
 import { Card } from './Card.js'
 import { CardColorpicker } from './CardColorpicker.js'

@@ -15,8 +15,8 @@ type EditableProps = {
   height?: number | null
 }
 
-const ABS_MIN_WIDTH = 80
-const ABS_MIN_HEIGHT = 37
+const ABS_MIN_WIDTH = 120
+const ABS_MIN_HEIGHT = 50
 
 const INITIAL_WIDTH = 160
 const INITIAL_HEIGHT = 70

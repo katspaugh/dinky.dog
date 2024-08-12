@@ -4,6 +4,7 @@ import { getClientId, getSavedStates, makeUrl } from '../lib/persist.js'
 import { sanitizeHtml } from '../lib/sanitize-html.js'
 import { randomId } from '../lib/utils.js'
 import { Button } from './Button.js'
+import { LockButton } from './LockButton.js'
 import { Colorpicker } from './Colorpicker.js'
 import { Input } from './Input.js'
 import { Menu } from './Menu.js'
@@ -106,7 +107,7 @@ class DinkyButton extends Button {
 
 export class Sidebar extends Component<SidebarProps, SidebarEvents> {
   private input: Input
-  private lockButton: Button
+  private lockButton: LockButton
   private colorpicker: Colorpicker
   private peerList: PeerList
 
@@ -146,10 +147,7 @@ export class Sidebar extends Component<SidebarProps, SidebarEvents> {
       boxShadow: 'none',
     })
 
-    const lockButton = new Button('🔒 Lock')
-    css(lockButton.container, {
-      width: '100px',
-    })
+    const lockButton = new LockButton()
 
     const buttonsGroup = new Flexbox([lockButton])
 
@@ -205,8 +203,8 @@ export class Sidebar extends Component<SidebarProps, SidebarEvents> {
       ],
     })
 
-    lockButton.on('click', () => {
-      this.emit('lockChange', { isLocked: !this.props.isLocked })
+    lockButton.on('toggle', (params) => {
+      this.emit('lockChange', params)
     })
 
     this.input = input
@@ -253,7 +251,7 @@ export class Sidebar extends Component<SidebarProps, SidebarEvents> {
     }
 
     if (props.isLocked !== undefined) {
-      this.lockButton.setProps({ text: props.isLocked ? '🔓 Unlock' : '🔒 Lock' })
+      this.lockButton.setProps({ isLocked: props.isLocked })
         ; (this.input.container as HTMLInputElement).disabled = props.isLocked
     }
 
