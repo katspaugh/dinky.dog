@@ -35,7 +35,6 @@ export class Editable extends Component<EditableProps, EditableEvents> {
         whiteSpace: 'pre-wrap',
         overflowWrap: 'break-word',
         borderRadius: '4px',
-        border: '1px solid #333',
         padding: '8px',
         paddingRight: '20px',
         minWidth: `${ABS_MIN_WIDTH}px`,

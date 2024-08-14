@@ -15,7 +15,7 @@ export class Card extends Component<CardProps, CardEvents> {
         position: 'relative',
         borderRadius: '4px',
         width: 'fit-content',
-        boxShadow: '1px 1px #000',
+        boxShadow: '1px 1px #555',
         backgroundColor: 'var(--card-color)',
         transition: 'all 0.2s',
       },
