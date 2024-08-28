@@ -95,10 +95,10 @@ export async function loadData(id: string, cacheBust?: string): Promise<DinkyDat
   return convertV1ToV2(data)
 }
 
-async function postData(id: string, data: any) {
+async function postData(id: string, data: any, password?: string) {
   const res = await fetch(API_URL, {
     method: 'POST',
-    body: JSON.stringify({ id, data }),
+    body: JSON.stringify({ id, data, password }),
   })
   if (!res.ok) {
     throw new Error(`HTTP error! Status: ${res.status}`)
@@ -107,18 +107,18 @@ async function postData(id: string, data: any) {
   return json
 }
 
-function sendBeacon(id: string, data: any) {
-  const res = navigator.sendBeacon(API_URL, JSON.stringify({ id, data }))
+function sendBeacon(id: string, data: any, password?: string) {
+  const res = navigator.sendBeacon(API_URL, JSON.stringify({ id, data, password }))
   if (!res) {
     throw new Error('Beacon failed')
   }
 }
 
-export async function saveData(data: any, useBeacon = false) {
+export async function saveData(data: any, password?: string, useBeacon = false) {
   const encData = await compressObjectToString(data)
   if (useBeacon && navigator.sendBeacon) {
-    return sendBeacon(data.id, encData)
+    return sendBeacon(data.id, encData, password)
   } else {
-    return postData(data.id, encData)
+    return postData(data.id, encData, password)
   }
 }

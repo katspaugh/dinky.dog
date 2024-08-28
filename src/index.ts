@@ -85,15 +85,16 @@ async function loadFromDatabase(): Promise<DinkyDataV2 | undefined> {
 
 const debouncedSaveData = debounce(saveData, SAVE_DELAY)
 
-async function saveToDatabase(state: DinkyDataV2, isUnload = false) {
-  if (!state.title) return // Don't save if there's no title
+async function saveToDatabase(state: DinkyDataV2, password: string, isUnload = false, isImmediate = false) {
+  if (!isImmediate && !state.title) return // Don't save if there's no title
 
   console.log('Saving data', state)
 
   try {
-    isUnload ? await saveData(state, isUnload) : debouncedSaveData(state)
+    isUnload || isImmediate ? await saveData(state, password, isUnload) : debouncedSaveData(state, password)
   } catch (e) {
     console.error('Error saving data', e)
+    if (isImmediate) throw e
   }
 }
 
@@ -152,12 +153,18 @@ function getDefaultState(): DinkyDataV2 {
 async function initPersistence(app: App) {
   const state = (await loadFromDatabase()) || getDefaultState()
 
-  const save = (isUnload = false) => {
+  const save = async (password?: string, isUnload = false) => {
+    const isImmediate = !!password
+    if (!password) {
+      const localData = loadFromLocalStorage(state.id)
+      password = localData?.password
+    }
     const props = app.getProps()
     state.nodes = uniqueBy(props.nodes, 'id')
     state.edges = props.edges
-    saveToDatabase(state, isUnload)
-    saveToLocalStorage(state)
+    saveToLocalStorage(state, password)
+
+    return await saveToDatabase(state, password, isUnload, isImmediate)
   }
 
   const updateTitle = () => {
@@ -184,13 +191,25 @@ async function initPersistence(app: App) {
     save()
   })
 
-  app.on('lockChange', ({ isLocked }) => {
+  app.on('lockChange', async ({ isLocked }) => {
+    const password = prompt('Enter password')
+    if (!password) return
+
     state.isLocked = isLocked
-    save()
+    try {
+      await save(password)
+    } catch (e) {
+      state.isLocked = !isLocked
+      if (/401/.test(e.message)) {
+        alert('Incorrect password')
+      }
+      return
+    }
+    app.setProps(state)
   })
 
   window.addEventListener('beforeunload', () => {
-    save(true)
+    save(undefined, true)
   })
 
   return state
@@ -204,7 +223,7 @@ async function init() {
 
   const state = await initPersistence(app)
 
-  initRealtimeSync(app, state)
+  //initRealtimeSync(app, state)
 }
 
 init()

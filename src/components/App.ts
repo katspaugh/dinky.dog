@@ -65,7 +65,6 @@ export class App extends Component<AppProps, AppEvents> {
     })
 
     sidebar.on('lockChange', (params) => {
-      this.setProps(params)
       this.emit('lockChange', params)
     })
   }

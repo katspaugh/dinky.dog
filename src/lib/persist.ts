@@ -5,6 +5,7 @@ type StateMetaData = {
   id: string
   title?: string
   timestamp: number
+  password?: string
 }
 
 const STATE_STORAGE_PREFIX = 'state-'
@@ -39,7 +40,7 @@ export function slugify(text: string) {
     .replace(/[^a-z0-9-]/gi, '')
 }
 
-export function saveToLocalStorage(state: Omit<StateMetaData, 'timestamp'>) {
+export function saveToLocalStorage(state: Omit<StateMetaData, 'timestamp'>, password?: string) {
   // Save meta data to localStorage if it has a title
   if (state.title) {
     const key = `${STATE_STORAGE_PREFIX}${state.id}`
@@ -48,6 +49,7 @@ export function saveToLocalStorage(state: Omit<StateMetaData, 'timestamp'>) {
       id: state.id,
       title: state.title,
       timestamp: Date.now(),
+      password,
     }
     if (!oldData || JSON.stringify(oldData) !== JSON.stringify(newData)) {
       try {
