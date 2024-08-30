@@ -85,10 +85,9 @@ button[disabled] {
 
 .CardWrapper:hover {
   transform: scale(1.01);
-  box-shadow: 2px 2px 2px var(--shadow-color);
 }
 
-.CardWrapper:active {
+.App:not(.locked) .CardWrapper:active {
   animation: wobble 0.5s infinite;
   animation-delay: 0.1s;
 }
@@ -139,7 +138,6 @@ button[disabled] {
 .Editable h5 {
   margin: 0.5em 0;
   font-optical-sizing: auto;
-  font-family: 'Lucida Grande', Arial, sans-serif;
 }
 
 .Editable *:first-child {
@@ -174,4 +172,8 @@ button[disabled] {
 .locked .Colorpicker {
   visibility: hidden !important;
   pointer-events: none !important;
+}
+
+.locked .Editable {
+  pointer-events: none;
 }

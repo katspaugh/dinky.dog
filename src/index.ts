@@ -116,14 +116,7 @@ function getDefaultState(): DinkyDataV2 {
     lastSequence: 0,
     creator: clientId,
     isLocked: false,
-    nodes: [
-      {
-        id: '1',
-        x: window.innerWidth / 2 - 80,
-        y: 100,
-        content: 'Hello, dinky!',
-      },
-    ],
+    nodes: [],
     edges: [],
     version: 2,
   }

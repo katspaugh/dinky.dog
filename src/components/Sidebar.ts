@@ -1,5 +1,5 @@
 import { Component } from '../lib/component.js'
-import { css } from '../lib/dom.js'
+import { css, onEvent } from '../lib/dom.js'
 import { getClientId, getSavedStates } from '../lib/persist.js'
 import { sanitizeHtml } from '../lib/sanitize-html.js'
 import { randomId } from '../lib/utils.js'
@@ -26,7 +26,7 @@ export type SidebarEvents = {
 }
 
 class Drawer extends Component<{}, {}> {
-  constructor(children: Component<{}, {}>[]) {
+  constructor(children: Component<{}, {}>[], openerButton: Component<{}, {}>) {
     super(
       'div',
       {
@@ -49,6 +49,26 @@ class Drawer extends Component<{}, {}> {
       },
       children,
     )
+
+    const unsubscribe = onEvent(document.body, 'click', (event) => {
+      if (
+        event.target !== this.container &&
+        event.target !== openerButton.container &&
+        !this.container.contains(event.target as Node)
+      ) {
+        this.close()
+      }
+    })
+
+    this.on('destroy', unsubscribe)
+  }
+
+  open() {
+    this.container.style.transform = 'translateX(0)'
+  }
+
+  close() {
+    this.container.style.transform = ''
   }
 }
 
@@ -152,16 +172,10 @@ export class Sidebar extends Component<SidebarProps, SidebarEvents> {
 
     const buttonsGroup = new Flexbox([lockButton])
 
-    const drawer = new Drawer([
-      heading,
-      new Divider(),
-      buttonsGroup,
-      new Divider(),
-      menu,
-      new Divider(),
-      fixedMenu,
-      drawerButton,
-    ])
+    const drawer = new Drawer(
+      [heading, new Divider(), buttonsGroup, new Divider(), menu, new Divider(), fixedMenu, drawerButton],
+      button,
+    )
 
     super(
       'div',
@@ -181,12 +195,12 @@ export class Sidebar extends Component<SidebarProps, SidebarEvents> {
     )
 
     button.on('click', () => {
-      drawer.container.style.transform = 'translateX(0)'
       this.updateMenu(menu)
+      drawer.open()
     })
 
     drawerButton.on('click', () => {
-      drawer.container.style.transform = ''
+      drawer.close()
     })
 
     input.on('change', ({ value }) => {

@@ -15,11 +15,11 @@ type EditableProps = {
   height?: number | null
 }
 
-const ABS_MIN_WIDTH = 120
-const ABS_MIN_HEIGHT = 50
+const ABS_MIN_WIDTH = 100
+const ABS_MIN_HEIGHT = 35
 
-const INITIAL_WIDTH = 160
-const INITIAL_HEIGHT = 70
+const INITIAL_WIDTH = 170
+const INITIAL_HEIGHT = 73
 
 export class Editable extends Component<EditableProps, EditableEvents> {
   private lastContent = ''
@@ -33,7 +33,8 @@ export class Editable extends Component<EditableProps, EditableEvents> {
 
       style: {
         whiteSpace: 'pre-wrap',
-        overflowWrap: 'break-word',
+        overflowWrap: 'normal',
+        hyphens: 'auto',
         borderRadius: '4px',
         padding: '8px',
         paddingRight: '20px',
@@ -42,7 +43,7 @@ export class Editable extends Component<EditableProps, EditableEvents> {
         maxWidth: '260px',
         maxHeight: '260px',
         overflowY: 'auto',
-        fontFamily: 'sans-serif',
+        fontFamily: `'Lucida Grande', Helvetica, Arial, sans-serif`,
       },
 
       oninput: () => {
@@ -99,7 +100,7 @@ export class Editable extends Component<EditableProps, EditableEvents> {
     })
 
     css(this.container, {
-      minWidth: `${INITIAL_WIDTH}px`,
+      width: `${INITIAL_WIDTH}px`,
       minHeight: `${INITIAL_HEIGHT}px`,
     })
   }
@@ -144,7 +145,6 @@ export class Editable extends Component<EditableProps, EditableEvents> {
     if (this.firstContent) {
       this.firstContent = false
       css(this.container, {
-        minWidth: '',
         minHeight: '',
       })
     }
@@ -166,6 +166,7 @@ export class Editable extends Component<EditableProps, EditableEvents> {
       const reset = width === null
       css(this.container, {
         width: reset ? '' : `${width}px`,
+        minWidth: '',
         maxWidth: reset ? '' : 'none',
       })
     }
@@ -174,6 +175,7 @@ export class Editable extends Component<EditableProps, EditableEvents> {
       const reset = height === null
       css(this.container, {
         height: reset ? '' : `${height}px`,
+        minHeight: '',
         maxHeight: reset ? '' : 'none',
       })
     }
