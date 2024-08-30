@@ -5,7 +5,7 @@ import { App } from './components/App.js'
 import { debounce, randomId, uniqueBy } from './lib/utils.js'
 import { getUrlId, setUrlId } from './lib/url.js'
 
-const SAVE_DELAY = 5000
+const SAVE_DELAY = 3000
 const clientId = getClientId()
 
 /*
@@ -71,11 +71,14 @@ async function loadFromDatabase(): Promise<DinkyDataV2 | undefined> {
 }
 
 const debouncedSaveData = debounce(saveData, SAVE_DELAY)
+let isSaving = false
 
 async function saveToDatabase(state: DinkyDataV2, password: string, isImmediate = false) {
   if (!isImmediate && !state.title) return // Don't save if there's no title
+  isSaving = true
   try {
-    isImmediate ? await saveData(state, password) : debouncedSaveData(state, password)
+    isImmediate ? await saveData(state, password) : await debouncedSaveData(state, password)
+    isSaving = false
   } catch (e) {
     console.error('Error saving data', e)
     if (isImmediate) throw e
@@ -125,7 +128,7 @@ function getDefaultState(): DinkyDataV2 {
 async function initPersistence(app: App) {
   const state = (await loadFromDatabase()) || getDefaultState()
 
-  const save = async (password?: string, isUnload = false) => {
+  const save = async (password?: string) => {
     const isImmediate = !!password
     if (!password) {
       const localData = loadFromLocalStorage(state.id)
@@ -154,8 +157,8 @@ async function initPersistence(app: App) {
 
   app.on('titleChange', ({ title }) => {
     state.title = title
-    save()
     updateTitle()
+    save()
   })
 
   app.on('backgroundColorChange', ({ backgroundColor }) => {
@@ -178,6 +181,11 @@ async function initPersistence(app: App) {
       return
     }
     app.setProps(state)
+  })
+
+  window.addEventListener('beforeunload', (e) => {
+    if (state.isLocked || !isSaving) return
+    e.preventDefault()
   })
 
   return state

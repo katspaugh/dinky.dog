@@ -1,8 +1,12 @@
-export function debounce(fn: (...args: any[]) => void, ms: number) {
+export function debounce(fn: (...args: any[]) => any, ms: number) {
   let timer: number
   return function(...args: any[]) {
     clearTimeout(timer)
-    timer = setTimeout(() => fn(...args), ms)
+    return new Promise((resolve) => {
+      timer = setTimeout(async () => {
+        resolve(await fn(...args))
+      }, ms)
+    })
   }
 }
 
