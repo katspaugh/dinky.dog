@@ -1,19 +1,14 @@
-import { initDurableStream } from './lib/durable-stream.js'
+//import { initDurableStream } from './lib/durable-stream.js'
 import { type DinkyDataV2, loadData, saveData } from './lib/database.js'
-import {
-  getClientId,
-  getSavedStates,
-  getUrlId,
-  loadFromLocalStorage,
-  saveToLocalStorage,
-  setUrlId,
-} from './lib/persist.js'
+import { getClientId, getSavedStates, loadFromLocalStorage, saveToLocalStorage } from './lib/persist.js'
 import { App } from './components/App.js'
 import { debounce, randomId, uniqueBy } from './lib/utils.js'
+import { getUrlId, setUrlId } from './lib/url.js'
 
 const SAVE_DELAY = 5000
 const clientId = getClientId()
 
+/*
 async function initRealtimeSync(app: App, state: DinkyDataV2) {
   let peers = []
 
@@ -58,6 +53,7 @@ async function initRealtimeSync(app: App, state: DinkyDataV2) {
     message: 'ping',
   })
 }
+*/
 
 function getLastId() {
   const savedStates = getSavedStates()
@@ -67,29 +63,19 @@ function getLastId() {
 async function loadFromDatabase(): Promise<DinkyDataV2 | undefined> {
   const id = getUrlId() || getLastId()
   if (!id) return
-
-  let data: DinkyDataV2
   try {
-    data = await loadData(id)
+    return await loadData(id)
   } catch (e) {
     console.error('Error loading data', e)
-    return
   }
-
-  console.log('Loaded data', data)
-
-  return data
 }
 
 const debouncedSaveData = debounce(saveData, SAVE_DELAY)
 
-async function saveToDatabase(state: DinkyDataV2, password: string, isUnload = false, isImmediate = false) {
+async function saveToDatabase(state: DinkyDataV2, password: string, isImmediate = false) {
   if (!isImmediate && !state.title) return // Don't save if there's no title
-
-  console.log('Saving data', state)
-
   try {
-    isUnload || isImmediate ? await saveData(state, password, isUnload) : debouncedSaveData(state, password)
+    isImmediate ? await saveData(state, password) : debouncedSaveData(state, password)
   } catch (e) {
     console.error('Error saving data', e)
     if (isImmediate) throw e
@@ -97,11 +83,6 @@ async function saveToDatabase(state: DinkyDataV2, password: string, isUnload = f
 }
 
 function initSpecialPages(app: App) {
-  if (getUrlId()?.startsWith('about')) {
-    loadFromDatabase().then((state) => app.setProps(state))
-    return true
-  }
-
   if (location.pathname.startsWith('/privacy') || location.pathname.startsWith('/terms')) {
     const textEl = document.getElementById('text')
     const content = textEl.innerHTML
@@ -150,11 +131,8 @@ function getDefaultState(): DinkyDataV2 {
 
 async function initPersistence(app: App) {
   const state = (await loadFromDatabase()) || getDefaultState()
-  let changes = 0
 
   const save = async (password?: string, isUnload = false) => {
-    changes++
-
     const isImmediate = !!password
     if (!password) {
       const localData = loadFromLocalStorage(state.id)
@@ -165,11 +143,7 @@ async function initPersistence(app: App) {
     state.edges = props.edges
     saveToLocalStorage(state, password)
 
-    const data = await saveToDatabase(state, password, isUnload, isImmediate)
-
-    changes = 0
-
-    return data
+    return await saveToDatabase(state, password, isImmediate)
   }
 
   const updateTitle = () => {
@@ -213,12 +187,6 @@ async function initPersistence(app: App) {
     app.setProps(state)
   })
 
-  window.addEventListener('beforeunload', () => {
-    if (changes > 0) {
-      save(undefined, true)
-    }
-  })
-
   return state
 }
 
@@ -229,6 +197,8 @@ async function init() {
   if (initSpecialPages(app)) return
 
   const state = await initPersistence(app)
+
+  console.log('Loaded data', state)
 
   //initRealtimeSync(app, state)
 }

@@ -1,6 +1,6 @@
 import { Component } from '../lib/component.js'
 import { css } from '../lib/dom.js'
-import { getClientId, getSavedStates, makeUrl } from '../lib/persist.js'
+import { getClientId, getSavedStates } from '../lib/persist.js'
 import { sanitizeHtml } from '../lib/sanitize-html.js'
 import { randomId } from '../lib/utils.js'
 import { Button } from './Button.js'
@@ -9,6 +9,7 @@ import { Colorpicker } from './Colorpicker.js'
 import { Input } from './Input.js'
 import { Menu } from './Menu.js'
 import { PeerList, type PeerListProps } from './PeerList.js'
+import { makeUrl } from '../lib/url.js'
 
 type SidebarProps = {
   title: string

@@ -102,7 +102,6 @@ export class DragCard extends Component<DragCardProps, DragCardEvents> {
 
     draggable.on('dragend', (params) => {
       this.emit('dragend', params)
-      this.editor.focus()
     })
 
     resizer.on('resize', ({ dx, dy }) => {

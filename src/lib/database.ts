@@ -81,21 +81,11 @@ function convertV1ToV2(data: DinkyDataV1): DinkyDataV2 {
   return { ...data, nodes, edges, version: 2 }
 }
 
-let previousEtags = {}
 export async function loadData(id: string): Promise<DinkyDataV2> {
-  const previousEtag = previousEtags[id]
-  const options = previousEtag
-    ? {
-      headers: {
-        'If-None-Match': previousEtag,
-      },
-    }
-    : undefined
-  const res = await fetch(API_URL + `?id=${encodeURIComponent(id)}&timestamp=${Date.now()}`, options)
+  const res = await fetch(API_URL + `?id=${encodeURIComponent(id)}&timestamp=${Date.now()}`)
   if (!res.ok) {
     throw new Error(`HTTP error! Status: ${res.status}`)
   }
-  previousEtags[id] = res.headers.get('ETag')
   const json = await res.json()
   const data = await decompressStringToObject(json.data)
 
@@ -117,18 +107,7 @@ async function postData(id: string, data: any, password?: string) {
   return json
 }
 
-function sendBeacon(id: string, data: any, password?: string) {
-  const res = navigator.sendBeacon(API_URL, JSON.stringify({ id, data, password }))
-  if (!res) {
-    throw new Error('Beacon failed')
-  }
-}
-
-export async function saveData(data: any, password?: string, useBeacon = false) {
+export async function saveData(data: any, password?: string) {
   const encData = await compressObjectToString(data)
-  if (useBeacon && navigator.sendBeacon) {
-    return sendBeacon(data.id, encData, password)
-  } else {
-    return postData(data.id, encData, password)
-  }
+  return postData(data.id, encData, password)
 }

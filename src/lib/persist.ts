@@ -11,53 +11,18 @@ type StateMetaData = {
 const STATE_STORAGE_PREFIX = 'state-'
 const CLIENT_ID_KEY = 'stream-clientId'
 
-export function getUrlId() {
-  const url = new URL(window.location.href)
-  const q = url.searchParams.get('q')
-  return q ? q.replace(/(.+?_)?(.+)$/gi, '$2') : '' // ignore any prefix like 'state_'
-}
-
-function addPrefix(id: string, title?: string) {
-  const prefix = title ? slugify(title.slice(0, 50)) : ''
-  return prefix ? `${prefix}_${id}` : id
-}
-
-export function setUrlId(id: string, title?: string) {
-  const url = new URL(window.location.href)
-  url.searchParams.set('q', encodeURIComponent(addPrefix(id, title)))
-  window.history.replaceState({}, '', url.toString())
-}
-
-export function makeUrl(id: string, title?: string) {
-  return `${window.location.origin}/?q=${encodeURIComponent(addPrefix(id, title))}`
-}
-
-export function slugify(text: string) {
-  return text
-    .trim()
-    .toLowerCase()
-    .replace(/\s+/g, '-')
-    .replace(/[^a-z0-9-]/gi, '')
-}
-
 export function saveToLocalStorage(state: Omit<StateMetaData, 'timestamp'>, password?: string) {
-  // Save meta data to localStorage if it has a title
-  if (state.title) {
-    const key = `${STATE_STORAGE_PREFIX}${state.id}`
-    const oldData = storage.getItem(key)
-    const newData = {
-      id: state.id,
-      title: state.title,
-      timestamp: Date.now(),
-      password,
-    }
-    if (!oldData || JSON.stringify(oldData) !== JSON.stringify(newData)) {
-      try {
-        storage.setItem(key, newData)
-      } catch (e) {
-        console.error('Error saving to localStorage', e)
-      }
-    }
+  const key = `${STATE_STORAGE_PREFIX}${state.id}`
+  const newData = {
+    id: state.id,
+    title: state.title,
+    timestamp: Date.now(),
+    password,
+  }
+  try {
+    storage.setItem(key, newData)
+  } catch (e) {
+    console.error('Error saving to localStorage', e)
   }
 }
 
@@ -67,7 +32,9 @@ export function loadFromLocalStorage(id: string) {
 
 export function getSavedStates(): StateMetaData[] {
   const states = storage.getMatchingItems<StateMetaData>(`${STATE_STORAGE_PREFIX}`)
-  return Object.values(states).sort((a, b) => b.timestamp - a.timestamp)
+  return Object.values(states)
+    .filter((item) => !!item.title)
+    .sort((a, b) => b.timestamp - a.timestamp)
 }
 
 function getBrowserName() {
