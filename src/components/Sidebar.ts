@@ -1,9 +1,10 @@
 import { Component } from '../lib/component.js'
-import { css, onEvent } from '../lib/dom.js'
+import { css } from '../lib/dom.js'
 import { getClientId, getSavedStates } from '../lib/persist.js'
 import { sanitizeHtml } from '../lib/sanitize-html.js'
 import { randomId } from '../lib/utils.js'
 import { Button } from './Button.js'
+import { Drawer } from './Drawer.js'
 import { LockButton } from './LockButton.js'
 import { Colorpicker } from './Colorpicker.js'
 import { Input } from './Input.js'
@@ -23,53 +24,6 @@ export type SidebarEvents = {
   titleChange: { title: string }
   backgroundColorChange: { backgroundColor: string }
   lockChange: { isLocked: boolean }
-}
-
-class Drawer extends Component<{}, {}> {
-  constructor(children: Component<{}, {}>[], openerButton: Component<{}, {}>) {
-    super(
-      'div',
-      {
-        style: {
-          width: '300px',
-          height: '100vh',
-          padding: '10px',
-          transition: 'transform 0.2s',
-          transform: 'translateX(100%)',
-          backgroundColor: '#f5f5f5',
-          pointerEvents: 'all',
-          boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)',
-          display: 'flex',
-          flexDirection: 'column',
-          position: 'absolute',
-          top: '0',
-          right: '0',
-          zIndex: '2',
-        },
-      },
-      children,
-    )
-
-    const unsubscribe = onEvent(document.body, 'click', (event) => {
-      if (
-        event.target !== this.container &&
-        event.target !== openerButton.container &&
-        !this.container.contains(event.target as Node)
-      ) {
-        this.close()
-      }
-    })
-
-    this.on('destroy', unsubscribe)
-  }
-
-  open() {
-    this.container.style.transform = 'translateX(0)'
-  }
-
-  close() {
-    this.container.style.transform = ''
-  }
 }
 
 class Heading extends Component<{}, {}> {
