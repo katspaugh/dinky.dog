@@ -150,8 +150,11 @@ function getDefaultState(): DinkyDataV2 {
 
 async function initPersistence(app: App) {
   const state = (await loadFromDatabase()) || getDefaultState()
+  let changes = 0
 
   const save = async (password?: string, isUnload = false) => {
+    changes++
+
     const isImmediate = !!password
     if (!password) {
       const localData = loadFromLocalStorage(state.id)
@@ -162,7 +165,11 @@ async function initPersistence(app: App) {
     state.edges = props.edges
     saveToLocalStorage(state, password)
 
-    return await saveToDatabase(state, password, isUnload, isImmediate)
+    const data = await saveToDatabase(state, password, isUnload, isImmediate)
+
+    changes = 0
+
+    return data
   }
 
   const updateTitle = () => {
@@ -207,7 +214,9 @@ async function initPersistence(app: App) {
   })
 
   window.addEventListener('beforeunload', () => {
-    save(undefined, true)
+    if (changes > 0) {
+      save(undefined, true)
+    }
   })
 
   return state
