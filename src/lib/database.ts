@@ -81,11 +81,21 @@ function convertV1ToV2(data: DinkyDataV1): DinkyDataV2 {
   return { ...data, nodes, edges, version: 2 }
 }
 
+let previousEtags = {}
 export async function loadData(id: string): Promise<DinkyDataV2> {
-  const res = await fetch(API_URL + `?id=${encodeURIComponent(id)}&timestamp=${Date.now()}`)
+  const previousEtag = previousEtags[id]
+  const options = previousEtag
+    ? {
+      headers: {
+        'If-None-Match': previousEtag,
+      },
+    }
+    : undefined
+  const res = await fetch(API_URL + `?id=${encodeURIComponent(id)}&timestamp=${Date.now()}`, options)
   if (!res.ok) {
     throw new Error(`HTTP error! Status: ${res.status}`)
   }
+  previousEtags[id] = res.headers.get('ETag')
   const json = await res.json()
   const data = await decompressStringToObject(json.data)
 
