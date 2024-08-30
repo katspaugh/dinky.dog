@@ -68,11 +68,9 @@ async function loadFromDatabase(): Promise<DinkyDataV2 | undefined> {
   const id = getUrlId() || getLastId()
   if (!id) return
 
-  const localData = loadFromLocalStorage(id)
-
   let data: DinkyDataV2
   try {
-    data = await loadData(id, localData?.timestamp.toString())
+    data = await loadData(id)
   } catch (e) {
     console.error('Error loading data', e)
     return

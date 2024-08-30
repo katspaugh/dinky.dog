@@ -81,8 +81,8 @@ function convertV1ToV2(data: DinkyDataV1): DinkyDataV2 {
   return { ...data, nodes, edges, version: 2 }
 }
 
-export async function loadData(id: string, cacheBust?: string): Promise<DinkyDataV2> {
-  const res = await fetch(API_URL + `?id=${encodeURIComponent(id)}&timestamp=${cacheBust ?? ''}`)
+export async function loadData(id: string): Promise<DinkyDataV2> {
+  const res = await fetch(API_URL + `?id=${encodeURIComponent(id)}&timestamp=${Date.now()}`)
   if (!res.ok) {
     throw new Error(`HTTP error! Status: ${res.status}`)
   }
