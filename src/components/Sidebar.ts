@@ -166,8 +166,8 @@ export class Sidebar extends Component<SidebarProps, SidebarEvents> {
     fixedMenu.setProps({
       items: [
         { text: 'About', href: makeUrl('about-9315ba924c9d16e632145116d69ae72a') },
-        { text: 'Terms of service', href: '/terms.html' },
-        { text: 'Privacy policy', href: '/privacy.html' },
+        { text: 'Terms of service', href: makeUrl('terms-of-service_43a7a9fa13bb3d0c') },
+        { text: 'Privacy policy', href: makeUrl('privacy-policy_074505b43d5c0b97') },
         { text: 'GitHub', href: 'https://github.com/katspaugh/dinky.dog' },
       ],
     })
