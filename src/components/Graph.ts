@@ -19,12 +19,8 @@ export class Graph extends Component<{}, GraphEvents> {
 
   constructor() {
     const size = { width: WIDTH, height: HEIGHT }
-
-    const svg = new Svg()
-    svg.setProps(size)
-
-    const pan = new Pan()
-    pan.setProps(size)
+    const svg = new Svg(size)
+    const pan = new Pan(size)
 
     const selectionBox = new SelectionBox(pan.container)
 

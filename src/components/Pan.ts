@@ -13,7 +13,7 @@ type PanProps = {
 }
 
 export class Pan extends Component<PanProps, PanEvents> {
-  constructor() {
+  constructor({ width, height }: { width: number; height: number }) {
     super('div', {
       style: {
         position: 'absolute',
@@ -21,6 +21,8 @@ export class Pan extends Component<PanProps, PanEvents> {
         backgroundColor: 'var(--overlay-color)',
         backgroundSize: '30px 30px',
         cursor: 'crosshair',
+        width: `${width}px`,
+        height: `${height}px`,
       },
 
       onclick: (e: MouseEvent) => {
@@ -35,11 +37,5 @@ export class Pan extends Component<PanProps, PanEvents> {
         this.emit('pointermove', getRelativeCoords(e))
       },
     })
-  }
-
-  render() {
-    const { width, height } = this.props
-    this.container.style.width = `${width}px`
-    this.container.style.height = `${height}px`
   }
 }

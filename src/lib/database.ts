@@ -107,7 +107,14 @@ async function postData(id: string, data: any, password?: string) {
   return json
 }
 
-export async function saveData(data: any, password?: string) {
+function sendBeacon(id: string, data: any, password?: string) {
+  const res = navigator.sendBeacon(API_URL, JSON.stringify({ id, data, password }))
+  if (!res) {
+    throw new Error('Beacon failed')
+  }
+}
+export async function saveData(data: any, password?: string, isUnload = false) {
   const encData = await compressObjectToString(data)
-  return postData(data.id, encData, password)
+  const sendFn = isUnload ? sendBeacon : postData
+  return sendFn(data.id, encData, password)
 }

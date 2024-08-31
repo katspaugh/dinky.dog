@@ -1,10 +1,14 @@
-export function debounce(fn: (...args: any[]) => any, ms: number) {
+export function debounce<T extends (...args: any[]) => any>(
+  fn: T,
+  ms: number,
+): (...args: Parameters<T>) => Promise<ReturnType<T>> {
   let timer: number
-  return function(...args: any[]) {
+  return (...args) => {
     clearTimeout(timer)
     return new Promise((resolve) => {
-      timer = setTimeout(async () => {
-        resolve(await fn(...args))
+      timer = setTimeout(() => {
+        const result = fn(...args)
+        result instanceof Promise ? result.then(resolve) : resolve(result)
       }, ms)
     })
   }

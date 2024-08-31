@@ -72,7 +72,8 @@ export class Flow extends Component<FlowProps, FlowEvents> {
 
     if (backgroundColor && backgroundColor !== this.lastBackground) {
       this.lastBackground = backgroundColor
-      this.container.style.backgroundColor = backgroundColor
+      //this.container.style.backgroundColor = backgroundColor
+      document.body.style.backgroundColor = backgroundColor
     }
 
     if (this.nodes.length === 0 && nodes?.length > 0) {

@@ -13,9 +13,7 @@ export type DropProps = {}
 
 export class Drop extends Component<DropProps, DropEvents> {
   constructor() {
-    super('div', {
-      style: {},
-    })
+    super('div')
 
     makeDroppable({
       container: this.container,
@@ -25,6 +23,4 @@ export class Drop extends Component<DropProps, DropEvents> {
       },
     })
   }
-
-  render() { }
 }

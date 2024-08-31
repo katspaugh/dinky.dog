@@ -7,21 +7,18 @@ type SvgProps = {
 }
 
 export class Svg extends Component<SvgProps, {}> {
-  constructor() {
+  constructor({ width, height }: { width: number; height: number }) {
     const svg = svgEl('svg')
 
     super(svg as unknown as HTMLElement, {
       style: {
         position: 'absolute',
         pointerEvents: 'none',
+        width: `${width}px`,
+        height: `${height}px`,
       },
     })
-  }
 
-  render() {
-    const { width, height } = this.props
     this.container.setAttribute('viewBox', `0 0 ${width} ${height}`)
-    this.container.style.width = `${width}px`
-    this.container.style.height = `${height}px`
   }
 }

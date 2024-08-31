@@ -1,5 +1,4 @@
 import { Component } from '../lib/component.js'
-import { css } from '../lib/dom.js'
 import { draggable } from '../lib/draggable.js'
 
 export type DraggableEvents = {
@@ -33,9 +32,7 @@ export class Draggable extends Component<DraggableProps, DraggableEvents> {
 
       onpointerup: () => {
         this.setCursor('')
-        css(this.container, {
-          cursor: '',
-        })
+        this.container.style.cursor = ''
       },
     })
 

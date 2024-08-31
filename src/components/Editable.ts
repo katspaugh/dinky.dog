@@ -15,9 +15,6 @@ type EditableProps = {
   height?: number | null
 }
 
-const ABS_MIN_WIDTH = 100
-const ABS_MIN_HEIGHT = 35
-
 const INITIAL_WIDTH = 170
 const INITIAL_HEIGHT = 73
 
@@ -38,10 +35,8 @@ export class Editable extends Component<EditableProps, EditableEvents> {
         borderRadius: '4px',
         padding: '8px',
         paddingRight: '20px',
-        minWidth: `${ABS_MIN_WIDTH}px`,
-        minHeight: `${ABS_MIN_HEIGHT}px`,
-        maxWidth: '260px',
-        maxHeight: '260px',
+        minWidth: '100px',
+        minHeight: '35px',
         overflowY: 'auto',
         fontFamily: `'Lucida Grande', Helvetica, Arial, sans-serif`,
       },
@@ -144,9 +139,7 @@ export class Editable extends Component<EditableProps, EditableEvents> {
   private resetMinSize() {
     if (this.firstContent) {
       this.firstContent = false
-      css(this.container, {
-        minHeight: '',
-      })
+      this.container.style.minHeight = ''
     }
   }
 
@@ -163,21 +156,11 @@ export class Editable extends Component<EditableProps, EditableEvents> {
     }
 
     if (width !== undefined) {
-      const reset = width === null
-      css(this.container, {
-        width: reset ? '' : `${width}px`,
-        minWidth: '',
-        maxWidth: reset ? '' : 'none',
-      })
+      this.container.style.width = width === null ? '' : `${width}px`
     }
 
     if (height !== undefined) {
-      const reset = height === null
-      css(this.container, {
-        height: reset ? '' : `${height}px`,
-        minHeight: '',
-        maxHeight: reset ? '' : 'none',
-      })
+      this.container.style.height = height === null ? '' : `${height}px`
     }
   }
 

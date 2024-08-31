@@ -5,7 +5,7 @@ import { App } from './components/App.js'
 import { debounce, randomId, uniqueBy } from './lib/utils.js'
 import { getUrlId, setUrlId } from './lib/url.js'
 
-const SAVE_DELAY = 3000
+const SAVE_DELAY = 5000
 const clientId = getClientId()
 
 /*
@@ -70,21 +70,6 @@ async function loadFromDatabase(): Promise<DinkyDataV2 | undefined> {
   }
 }
 
-const debouncedSaveData = debounce(saveData, SAVE_DELAY)
-let isSaving = false
-
-async function saveToDatabase(state: DinkyDataV2, password: string, isImmediate = false) {
-  if (!isImmediate && !state.title) return // Don't save if there's no title
-  isSaving = true
-  try {
-    isImmediate ? await saveData(state, password) : await debouncedSaveData(state, password)
-    isSaving = false
-  } catch (e) {
-    console.error('Error saving data', e)
-    if (isImmediate) throw e
-  }
-}
-
 function initSpecialPages(app: App) {
   if (location.pathname.startsWith('/privacy') || location.pathname.startsWith('/terms')) {
     const textEl = document.getElementById('text')
@@ -125,21 +110,47 @@ function getDefaultState(): DinkyDataV2 {
   }
 }
 
-async function initPersistence(app: App) {
-  const state = (await loadFromDatabase()) || getDefaultState()
+function toggleChangesIndicator(changes: number) {
+  if (changes <= 1) {
+    document.title = changes === 0 ? document.title.replace(/^✱ /, '') : '✱ ' + document.title
+  }
+}
 
-  const save = async (password?: string) => {
-    const isImmediate = !!password
+async function initPersistence(app: App) {
+  const debouncedSaveData = debounce(saveData, SAVE_DELAY)
+  const state = (await loadFromDatabase()) || getDefaultState()
+  let changes = 0
+
+  const save = async (password?: string, isUnload = false) => {
+    const isSettingPassword = !!password
+
+    // Indicate changes
+    changes++
+    toggleChangesIndicator(changes)
+
+    // Don't save if there's no title
+    if (!state.title && !isSettingPassword) return
+
     if (!password) {
       const localData = loadFromLocalStorage(state.id)
       password = localData?.password
     }
+
     const props = app.getProps()
     state.nodes = uniqueBy(props.nodes, 'id')
     state.edges = props.edges
     saveToLocalStorage(state, password)
 
-    return await saveToDatabase(state, password, isImmediate)
+    try {
+      const saveFn = isSettingPassword || isUnload ? saveData : debouncedSaveData
+      await saveFn(state, password, isUnload)
+    } catch (e) {
+      console.error('Error saving data', e)
+      if (isSettingPassword) throw e
+    }
+
+    changes = 0
+    toggleChangesIndicator(changes)
   }
 
   const updateTitle = () => {
@@ -184,8 +195,13 @@ async function initPersistence(app: App) {
   })
 
   window.addEventListener('beforeunload', (e) => {
-    if (state.isLocked || !isSaving) return
-    e.preventDefault()
+    if (state.isLocked || !changes) return
+
+    if (state.title) {
+      save(undefined, true)
+    } else {
+      e.preventDefault()
+    }
   })
 
   return state
