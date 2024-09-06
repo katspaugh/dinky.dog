@@ -16,8 +16,7 @@
   },
   "keywords": [
     "flowchart",
-    "mindmap",
-    "realtime"
+    "mindmap"
   ],
   "author": "katspaugh",
   "license": "MIT",
@@ -26,6 +25,6 @@
   },
   "homepage": "https://github.com/katspaugh/dinky.dog#readme",
   "devDependencies": {
-    "typescript": "^5.4.3"
+    "typescript": "^5.5.4"
   }
 }
