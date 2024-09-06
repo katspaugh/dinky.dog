@@ -38,7 +38,6 @@ export class Flow extends Component<FlowProps, FlowEvents> {
   private tempEdge: Edge | null = null
   private lastNode: GraphNode | null = null
   private selectedNodes: GraphNode[] = []
-  private lastBackground: string = ''
 
   constructor() {
     const drop = new Drop()
@@ -67,25 +66,22 @@ export class Flow extends Component<FlowProps, FlowEvents> {
     this.subscribeUiEvents()
   }
 
-  render() {
-    const { nodes, edges, backgroundColor } = this.props
-
-    if (backgroundColor && backgroundColor !== this.lastBackground) {
-      this.lastBackground = backgroundColor
+  render({ nodes, edges, backgroundColor }: Partial<FlowProps>) {
+    if (backgroundColor) {
       //this.container.style.backgroundColor = backgroundColor
       document.body.style.backgroundColor = backgroundColor
     }
 
-    if (this.nodes.length === 0 && nodes?.length > 0) {
+    if (nodes) {
       nodes.forEach((item) => {
         this.createNode(item)
       })
+    }
 
-      if (edges.length > 0) {
-        requestAnimationFrame(() => {
-          edges.forEach((item) => this.connectNodes(item))
-        })
-      }
+    if (edges) {
+      requestAnimationFrame(() => {
+        edges.forEach((item) => this.connectNodes(item))
+      })
     }
   }
 

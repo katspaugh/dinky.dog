@@ -45,11 +45,14 @@ export class Input extends Component<InputProps, InputEvents> {
     })
   }
 
-  render() {
-    const { value } = this.props
+  private getInput() {
+    return this.container as HTMLInputElement
+  }
+
+  render({ value }: Partial<InputProps>) {
     if (value !== this.lastInput) {
       this.lastInput = value
-        ; (this.container as HTMLInputElement).value = value
+      this.getInput().value = value
     }
   }
 }

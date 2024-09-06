@@ -19,10 +19,10 @@ export class Menu extends Component<MenuProps, {}> {
     })
   }
 
-  render() {
+  render({ items }: Partial<MenuProps>) {
     this.container.innerHTML = ''
 
-    this.props.items.forEach((item) => {
+    items?.forEach((item) => {
       const a = el('a', {
         href: item.href,
         target: item.href.startsWith('http') && !item.href.startsWith(window.location.origin) ? '_blank' : '',

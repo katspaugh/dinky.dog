@@ -45,7 +45,6 @@ export class DragCard extends Component<DragCardProps, DragCardEvents> {
   private colorpicker: CardColorpicker
   private editor: Editable
   private lastBackgroundCheck: boolean
-  private lastSelected: boolean
 
   constructor() {
     const draggable = new Draggable()
@@ -160,7 +159,7 @@ export class DragCard extends Component<DragCardProps, DragCardEvents> {
     }
   }
 
-  render() {
+  render(newProps: Partial<DragCardProps>) {
     const isBackgroundCard = this.props.color && this.props.width * this.props.height >= BG_THRESHOLD
     if (isBackgroundCard !== this.lastBackgroundCheck) {
       this.lastBackgroundCheck = isBackgroundCard
@@ -170,10 +169,9 @@ export class DragCard extends Component<DragCardProps, DragCardEvents> {
       })
     }
 
-    if (this.props.selected !== this.lastSelected) {
-      this.lastSelected = this.props.selected
+    if (newProps.selected !== undefined) {
       css(this.container, {
-        outline: this.props.selected ? '2px solid rgba(100, 0, 100, 0.7)' : '',
+        outline: newProps.selected ? '2px solid rgba(100, 0, 100, 0.7)' : '',
       })
     }
   }

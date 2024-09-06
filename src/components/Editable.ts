@@ -143,10 +143,8 @@ export class Editable extends Component<EditableProps, EditableEvents> {
     }
   }
 
-  render() {
-    const { content, width, height } = this.props
-
-    if (content !== this.lastContent) {
+  render({ content, width, height }: Partial<EditableProps>) {
+    if (content !== undefined && content !== this.lastContent) {
       this.lastContent = content
       this.container.innerHTML = sanitizeHtml(content ?? '')
 

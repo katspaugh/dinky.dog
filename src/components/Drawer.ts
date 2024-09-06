@@ -51,7 +51,7 @@ export class Drawer extends Component<DrawerProps, {}> {
     this.setProps({ isOpen: false })
   }
 
-  render() {
-    this.container.style.transform = this.props.isOpen ? 'translateX(0)' : ''
+  render({ isOpen }) {
+    this.container.style.transform = isOpen ? 'translateX(0)' : ''
   }
 }

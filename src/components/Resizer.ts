@@ -41,6 +41,4 @@ export class Resizer extends Component<ResizerProps, ResizerEvents> {
       },
     )
   }
-
-  render() { }
 }

@@ -7,8 +7,6 @@ type CardProps = {
 type CardEvents = {}
 
 export class Card extends Component<CardProps, CardEvents> {
-  private lastBackground: string = ''
-
   constructor() {
     super('div', {
       style: {
@@ -22,11 +20,7 @@ export class Card extends Component<CardProps, CardEvents> {
     })
   }
 
-  render() {
-    const { color } = this.props
-    if (color !== this.lastBackground) {
-      this.lastBackground = color
-      this.container.style.backgroundColor = color
-    }
+  render({ color }: Partial<CardProps>) {
+    this.container.style.backgroundColor = color
   }
 }

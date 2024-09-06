@@ -57,7 +57,11 @@ export class Colorpicker extends Component<ColorpickerProps, ColorpickerEvents> 
     this.container.setAttribute('list', datalist.id)
   }
 
-  render() {
-    ; (this.container as HTMLInputElement).value = this.props.color
+  private getInput() {
+    return this.container as HTMLInputElement
+  }
+
+  render({ color }: Partial<ColorpickerProps>) {
+    this.getInput().value = color
   }
 }
