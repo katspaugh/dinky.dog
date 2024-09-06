@@ -280,7 +280,9 @@ export class Flow extends Component<FlowProps, FlowEvents> {
         src: await uploadImage(file),
         alt: file.name,
         onload: () => {
-          this.updateNode({ id: node.id, content: img.outerHTML })
+          const params = { id: node.id, content: img.outerHTML }
+          this.updateNode(params)
+          this.emit('command', { command: 'updateNode', params })
           tempUrl && URL.revokeObjectURL(tempUrl)
         },
       })
