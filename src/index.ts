@@ -1,4 +1,4 @@
-//import { initDurableStream } from './lib/durable-stream.js'
+import { initDurableStream } from './lib/durable-stream.js'
 import { type DinkyDataV2, loadData, saveData } from './lib/database.js'
 import { getClientId, getSavedStates, loadFromLocalStorage, saveToLocalStorage } from './lib/persist.js'
 import { App } from './components/App.js'
@@ -8,7 +8,6 @@ import { getUrlId, setUrlId } from './lib/url.js'
 const SAVE_DELAY = 5000
 const clientId = getClientId()
 
-/*
 async function initRealtimeSync(app: App, state: DinkyDataV2) {
   let peers = []
 
@@ -53,7 +52,6 @@ async function initRealtimeSync(app: App, state: DinkyDataV2) {
     message: 'ping',
   })
 }
-*/
 
 function getLastId() {
   const savedStates = getSavedStates()
@@ -217,7 +215,7 @@ async function init() {
 
   console.log('Loaded data', state)
 
-  //initRealtimeSync(app, state)
+  initRealtimeSync(app, state)
 }
 
 init()
