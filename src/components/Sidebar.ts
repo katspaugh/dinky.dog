@@ -223,11 +223,11 @@ export class Sidebar extends Component<SidebarProps, SidebarEvents> {
       this.lockButton.setProps({ isLocked: props.isLocked })
         ; (this.input.container as HTMLInputElement).disabled = props.isLocked
     }
-  }
 
-  render({ creator }) {
-    if (creator !== undefined) {
-      ; (this.lockButton.container as HTMLButtonElement).disabled = getClientId() !== creator
+    if (props.creator !== undefined) {
+      ; (this.lockButton.container as HTMLButtonElement).disabled = getClientId() !== props.creator
     }
   }
+
+  render() { }
 }

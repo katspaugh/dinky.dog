@@ -51,19 +51,15 @@ export class Component<PropTypes extends GeneralPropTypes, EventTypes extends Ge
   }
 
   public setProps(props: Partial<PropTypes>) {
-    const changedProps = Object.keys(props)
-      .filter((key) => this.props[key] !== props[key])
-      .reduce((acc, key) => {
-        acc[key] = props[key]
-        return acc
-      }, {})
-    const newProps = { ...this.props, ...changedProps }
+    const newProps = { ...this.props, ...props }
+    if (Object.keys(newProps).every((key) => newProps[key] === this.props[key])) return
     this.props = newProps
-    this.render(changedProps)
+
+    this.render()
   }
 
-  protected render(_: Partial<PropTypes>) {
-    // override this method in subclasses
+  protected render() {
+    // render the component
   }
 
   public destroy() {
