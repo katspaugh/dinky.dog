@@ -1,0 +1,33 @@
+{
+  "name": "dinky-dog",
+  "version": "1.0.0",
+  "description": "Shareable flow charts",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "build:dev": "tsc -w --target ESNext",
+    "server": "npx live-server --no-browser --watch=dist",
+    "start": "npm run build:dev & npm run server",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/katspaugh/dinky.dog.git"
+  },
+  "keywords": [
+    "flowchart",
+    "mindmap"
+  ],
+  "author": "katspaugh",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/katspaugh/dinky.dog/issues"
+  },
+  "homepage": "https://github.com/katspaugh/dinky.dog#readme",
+  "devDependencies": {
+    "@preact/signals": "^1.3.0",
+    "htm": "^3.1.1",
+    "preact": "^10.23.2",
+    "typescript": "^5.5.4"
+  }
+}
