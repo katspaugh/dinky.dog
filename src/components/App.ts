@@ -1,15 +1,38 @@
 import { useCallback, useEffect, useState } from 'https://esm.sh/preact/hooks'
 import { html } from '../lib/html.js'
-import { loadData } from '../lib/dinky-api.js'
+import { type DinkyDataV2, loadData, saveData } from '../lib/dinky-api.js'
 import { Board } from './Board.js'
 
 export function App() {
-  const [doc, setDoc] = useState(null)
+  const [doc, setDoc] = useState<DinkyDataV2>(null)
 
   useEffect(() => {
-    loadData('fdf03a4f4f572e8c')
-      .then(setDoc)
+    const id = new URLSearchParams(window.location.search).get('q')
+    if (!id) return
+    let originalDoc = ''
+
+    loadData(id)
+      .then((doc) => {
+        originalDoc = JSON.stringify(doc)
+        setDoc(doc)
+      })
       .catch((err) => console.error(err))
+
+    const onUnload = () => {
+      const lastDoc = JSON.stringify(doc)
+      if (lastDoc === originalDoc) return
+      console.log('Saving...')
+      setDoc((doc) => {
+        saveData(doc, undefined, true)
+        return doc
+      })
+    }
+
+    window.addEventListener('beforeunload', onUnload)
+
+    return () => {
+      window.removeEventListener('beforeunload', onUnload)
+    }
   }, [])
 
   const onNodeUpdate = useCallback((id, props) => {

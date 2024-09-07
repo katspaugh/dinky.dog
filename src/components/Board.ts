@@ -22,8 +22,8 @@ export function Board(props: BoardProps) {
   )
 
   return html`
-    <div class="board">
-      <div style="width: ${WIDTH}px; height: ${HEIGHT}px;" class="board_grid">
+    <div class="Board">
+      <div style="width: ${WIDTH}px; height: ${HEIGHT}px;">
         ${props.nodes?.map(renderNode)}
 
         <svg viewBox="0 0 ${WIDTH} ${HEIGHT}">

@@ -1,7 +1,14 @@
 import { useMemo } from 'https://esm.sh/preact/hooks'
 import { html } from '../lib/html.js'
+import type { CanvasNode } from '../types/canvas.js'
 
-export const Edge = ({ fromNode, toNode, nodes }) => {
+type EdgeProps = {
+  fromNode: string
+  toNode: string
+  nodes: CanvasNode[]
+}
+
+export const Edge = ({ fromNode, toNode, nodes }: EdgeProps) => {
   const from = useMemo(() => nodes.find((node) => node.id === fromNode), [fromNode, nodes])
   const to = useMemo(() => nodes.find((node) => node.id === toNode), [toNode, nodes])
 

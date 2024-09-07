@@ -27,7 +27,7 @@ export const Editable = ({ content, onChange, width, height }: EditableProps) =>
   const htmlContent = useMemo(() => ({ __html: content }), [content])
 
   return html`<div
-    class="editable"
+    class="Editable"
     contenteditable
     dangerouslySetInnerHTML=${htmlContent}
     onInput=${onInput}

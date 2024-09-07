@@ -19,21 +19,21 @@ html {
   box-sizing: border-box;
 }
 
-.board {
+.Board {
   position: relative;
   width: 100vw;
   height: 100vh;
   overflow: auto;
 }
 
-.board_grid {
+.Board > div {
   position: relative;
   z-index: 1;
   background-image: radial-gradient(circle, #999 1px, transparent 1px);
   background-size: 20px 20px;
 }
 
-.board_grid > svg {
+.Board > div > svg {
   position: absolute;
   z-index: 1;
   left: 0;
@@ -43,28 +43,37 @@ html {
   pointer-events: none;
 }
 
-.draggable-node {
+.DraggableNode {
   position: absolute;
   z-index: 2;
 }
 
-.card {
+.Card {
   border: 1px solid #ddd;
   border-radius: 4px;
   background-color: #fafafa;
   overflow: auto;
 }
 
-.card img {
-  display: block;
-  width: 100%;
-  height: auto;
-  pointer-events: none;
-}
-
-.editable {
+.Editable {
   padding: 10px;
   width: 170px;
   min-height: 70px;
   border-radius: inherit;
+}
+
+.Editable h1,
+.Editable h2,
+.Editable h3,
+.Editable h4,
+.Editable h5 {
+  margin: 0.5em 0;
+  font-optical-sizing: auto;
+}
+
+.Editable img {
+  display: block;
+  width: 100%;
+  height: auto;
+  pointer-events: none;
 }

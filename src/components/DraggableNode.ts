@@ -24,6 +24,13 @@ export function DraggableNode(props: DraggableNodeProps) {
     [props.onNodeUpdate],
   )
 
+  const onContentChange = useCallback(
+    (content: string) => {
+      props.onNodeUpdate(props.id, { content })
+    },
+    [props.id, props.onNodeUpdate],
+  )
+
   useEffect(() => {
     setPosition({ x: props.x, y: props.y })
   }, [props.x, props.y])
@@ -34,12 +41,18 @@ export function DraggableNode(props: DraggableNodeProps) {
   }, [ref, onDrag])
 
   return html`<div
-    class="draggable-node"
+    class="DraggableNode"
     style="transform: translate(${position.x}px, ${position.y}px);
       z-index: ${isBackgroundCard ? 1 : undefined};
       opacity: ${isBackgroundCard ? 0.75 : undefined};"
     ref=${ref}
   >
-    <${Card} content=${props.content} color=${props.color} width=${props.width} height=${props.height} />
+    <${Card}
+      content=${props.content}
+      color=${props.color}
+      width=${props.width}
+      height=${props.height}
+      onChange=${onContentChange}
+    />
   </div>`
 }
