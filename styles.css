@@ -1,6 +1,7 @@
 :root {
   --overlay-color: rgba(255, 255, 255, 0.2);
-  --accent-color: #F3AEAC;
+  --accent-color: #844790;
+  --connector-color: #F3AEAC;
   --edge-color: #A9ACF9;
   --button-color: #F1F1F1;
   --menu-text-color: #333;

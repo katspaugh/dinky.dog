@@ -174,7 +174,7 @@ export class DragCard extends Component<DragCardProps, DragCardEvents> {
     if (this.props.selected !== this.lastSelected) {
       this.lastSelected = this.props.selected
       css(this.container, {
-        outline: this.props.selected ? '2px solid rgba(100, 0, 100, 0.7)' : '',
+        outline: this.props.selected ? '2px solid var(--accent-color)' : '',
       })
     }
   }
