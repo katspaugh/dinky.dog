@@ -6,9 +6,12 @@ import { Card } from './Card.js'
 
 type DraggableNodeProps = CanvasNode & { onNodeUpdate: (id: string, props: Partial<CanvasNode>) => void }
 
+const BG_THRESHOLD = 110e3
+
 export function DraggableNode(props: DraggableNodeProps) {
   const ref = useRef<HTMLDivElement>(null)
   const [position, setPosition] = useState({ x: props.x, y: props.y })
+  const isBackgroundCard = props.color && props.width * props.height > BG_THRESHOLD
 
   const onDrag = useCallback(
     (dx: number, dy: number) => {
@@ -30,7 +33,13 @@ export function DraggableNode(props: DraggableNodeProps) {
     return draggable(ref.current, onDrag)
   }, [ref, onDrag])
 
-  return html`<div style="transform: translate(${position.x}px, ${position.y}px" ref=${ref}>
+  return html`<div
+    class="draggable-node"
+    style="transform: translate(${position.x}px, ${position.y}px);
+      z-index: ${isBackgroundCard ? 1 : undefined};
+      opacity: ${isBackgroundCard ? 0.75 : undefined};"
+    ref=${ref}
+  >
     <${Card} content=${props.content} color=${props.color} width=${props.width} height=${props.height} />
   </div>`
 }
