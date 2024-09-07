@@ -1,5 +1,5 @@
-import { useMemo } from 'https://esm.sh/preact/hooks'
 import { html } from '../lib/html.js'
+import { Editable } from './Editable.js'
 
 type CardProps = {
   width: number
@@ -9,16 +9,7 @@ type CardProps = {
 }
 
 export function Card(props: CardProps) {
-  const style = useMemo(
-    () => ({
-      width: `${props.width}px`,
-      height: `${props.height}px`,
-      backgroundColor: props.color,
-    }),
-    [props.width, props.height, props.color],
-  )
-
-  const htmlContent = useMemo(() => ({ __html: props.content }), [props.content])
-
-  return html`<div class="card" style="${style}" dangerouslySetInnerHTML=${htmlContent}></div>`
+  return html`<div class="card" style="background-color: ${props.color}">
+    <${Editable} content=${props.content} width=${props.width} height=${props.height} />
+  </div>`
 }
