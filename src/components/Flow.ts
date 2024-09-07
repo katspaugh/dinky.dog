@@ -391,9 +391,10 @@ export class Flow extends Component<FlowProps, FlowEvents> {
     this.selectedNodes = []
   }
 
-  private adjustEdges(node: GraphNode) {
+  private adjustEdges(id: string) {
+    const node = this.nodes.find((item) => item.id === id)
+    if (!node) return
     const rect = this.graph.getOffset()
-    const { id } = node
     const fromPoint = node.card.getOutPoint()
     const toPoint = node.card.getInPoint()
 
@@ -500,6 +501,6 @@ export class Flow extends Component<FlowProps, FlowEvents> {
     const node = this.nodes.find((item) => item.id === id)
     if (!node) return
     node.card.setProps(params)
-    this.adjustEdges(node)
+    setTimeout(() => this.adjustEdges(id), 100)
   }
 }

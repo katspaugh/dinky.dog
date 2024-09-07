@@ -31,6 +31,7 @@ class CardWrapper extends Component<{}, {}> {
         style: {
           transition: 'transform 0.2s, box-shadow 0.2s',
           borderRadius: 'inherit',
+          boxShadow: '1px 1px 2px #ddd',
         },
       },
       children,
