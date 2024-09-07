@@ -31,7 +31,6 @@ export class Editable extends Component<EditableProps, EditableEvents> {
       style: {
         whiteSpace: 'pre-wrap',
         overflowWrap: 'normal',
-        hyphens: 'auto',
         borderRadius: '4px',
         padding: '8px',
         paddingRight: '20px',
