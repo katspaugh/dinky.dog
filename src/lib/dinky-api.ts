@@ -26,6 +26,7 @@ export type DinkyDataV2 = CommonDinkyData & {
     color?: string
   }>
   edges: Array<{
+    id: string
     fromNode: string
     toNode: string
   }>

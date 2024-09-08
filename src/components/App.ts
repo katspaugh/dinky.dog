@@ -2,6 +2,9 @@ import { useCallback, useEffect, useState } from 'https://esm.sh/preact/hooks'
 import { html } from '../lib/html.js'
 import { type DinkyDataV2, loadData, saveData } from '../lib/dinky-api.js'
 import { Board } from './Board.js'
+import type { CanvasNode } from '../types/canvas.js'
+
+const TITLE = 'Dinky Dog'
 
 export function App() {
   const [doc, setDoc] = useState<DinkyDataV2>(null)
@@ -35,7 +38,11 @@ export function App() {
     }
   }, [])
 
-  const onNodeUpdate = useCallback((id, props) => {
+  useEffect(() => {
+    document.title = doc?.title ? `${TITLE} — ${doc.title}` : TITLE
+  }, [doc?.title])
+
+  const onNodeUpdate = useCallback((id: string, props: Partial<CanvasNode>) => {
     setDoc((doc) => {
       const node = doc.nodes.find((node) => node.id === id)
       if (!node) return doc
@@ -44,5 +51,19 @@ export function App() {
     })
   }, [])
 
-  return html`<${Board} ...${doc} onNodeUpdate=${onNodeUpdate} />`
+  const onConnect = useCallback((from: string, to: string) => {
+    setDoc((doc) => {
+      doc.edges.push({ id: Math.random().toString(), fromNode: from, toNode: to })
+      return { ...doc }
+    })
+  }, [])
+
+  const onDisconnect = useCallback((from: string, to: string) => {
+    setDoc((doc) => {
+      doc.edges = doc.edges.filter((edge) => edge.fromNode !== from || edge.toNode !== to)
+      return { ...doc }
+    })
+  }, [])
+
+  return html`<${Board} ...${doc} onNodeUpdate=${onNodeUpdate} onConnect=${onConnect} onDisconnect=${onDisconnect} />`
 }

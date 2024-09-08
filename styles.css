@@ -3,7 +3,6 @@ body {
   margin: 0;
   padding: 0;
   font-family: Helvetica, Arial, sans-serif;
-  overflow: hidden;
   overscroll-behavior: none;
   color: #111;
   user-select: none;
@@ -13,6 +12,11 @@ body {
 
 html {
   background-color: transparent;
+  overflow: hidden;
+}
+
+body {
+  overflow: auto;
 }
 
 * {
@@ -21,19 +25,16 @@ html {
 
 .Board {
   position: relative;
-  width: 100vw;
-  height: 100vh;
-  overflow: auto;
 }
 
-.Board > div {
+.Board {
   position: relative;
   z-index: 1;
   background-image: radial-gradient(circle, #999 1px, transparent 1px);
   background-size: 20px 20px;
 }
 
-.Board > div > svg {
+.Board > svg {
   position: absolute;
   z-index: 1;
   left: 0;
@@ -56,10 +57,9 @@ html {
 }
 
 .Editable {
-  padding: 10px;
   width: 170px;
-  min-height: 70px;
   border-radius: inherit;
+  padding: 10px;
 }
 
 .Editable h1,
@@ -71,9 +71,63 @@ html {
   font-optical-sizing: auto;
 }
 
+.Editable *:first-child {
+  margin-top: 0;
+}
+
+.Editable *:last-child {
+  margin-bottom: 0;
+}
+
+.Editable ol,
+.Editable ul {
+  padding-left: 1.2em;
+}
+
 .Editable img {
   display: block;
   width: 100%;
   height: auto;
   pointer-events: none;
+}
+
+.Edge line {
+  stroke: #2176cc;
+  stroke-width: 4;
+  pointer-events: all;
+  cursor: pointer;
+}
+
+.Edge line:hover {
+  stroke: #fca6ac;
+  stroke-width: 6;
+}
+
+.Edge circle {
+  fill: #fca6ac;
+}
+
+.Connector {
+  position: absolute;
+  z-index: 3;
+  left: 50%;
+  bottom: -8px;
+  margin-left: -8px;
+  border-radius: 50%;
+  border: none;
+  background-color: #fca6ac;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  cursor: pointer;
+  transition: transform 0.2s, opacity 0.2s;
+  opacity: 0;
+}
+
+.Connector:hover {
+  transform: scale(1.2);
+}
+
+.DraggableNode:hover .Connector {
+  opacity: 1;
 }

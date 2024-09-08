@@ -3,8 +3,13 @@ import type { CanvasNode } from '../types/canvas'
 import { html } from '../lib/html.js'
 import { draggable } from '../lib/draggable.js'
 import { Card } from './Card.js'
+import { Connector } from './Connector.js'
 
-type DraggableNodeProps = CanvasNode & { onNodeUpdate: (id: string, props: Partial<CanvasNode>) => void }
+type DraggableNodeProps = CanvasNode & {
+  onNodeUpdate: (id: string, props: Partial<CanvasNode>) => void
+  onConnectStart: (fromNode: string) => void
+  onClick: (id: string) => void
+}
 
 const BG_THRESHOLD = 110e3
 
@@ -25,11 +30,19 @@ export function DraggableNode(props: DraggableNodeProps) {
   )
 
   const onContentChange = useCallback(
-    (content: string) => {
-      props.onNodeUpdate(props.id, { content })
+    (content: string, height?: number) => {
+      props.onNodeUpdate(props.id, { content, height })
     },
     [props.id, props.onNodeUpdate],
   )
+
+  const onConnectStart = useCallback(() => {
+    props.onConnectStart(props.id)
+  }, [props.id, props.onNodeUpdate])
+
+  const onClick = useCallback(() => {
+    props.onClick(props.id)
+  }, [props.id, props.onClick])
 
   useEffect(() => {
     setPosition({ x: props.x, y: props.y })
@@ -46,13 +59,16 @@ export function DraggableNode(props: DraggableNodeProps) {
       z-index: ${isBackgroundCard ? 1 : undefined};
       opacity: ${isBackgroundCard ? 0.75 : undefined};"
     ref=${ref}
+    onClick=${onClick}
   >
     <${Card}
       content=${props.content}
       color=${props.color}
       width=${props.width}
       height=${props.height}
-      onChange=${onContentChange}
+      onContentChange=${onContentChange}
     />
+
+    <${Connector} onClick=${onConnectStart} />
   </div>`
 }
