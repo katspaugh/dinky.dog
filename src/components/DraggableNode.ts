@@ -5,6 +5,7 @@ import { draggable } from '../lib/draggable.js'
 import { Card } from './Card.js'
 import { Connector } from './Connector.js'
 import { Resizer } from './Resizer.js'
+import { INITIAL_HEIGHT, INITIAL_WIDTH } from './Editable.js'
 
 type DraggableNodeProps = CanvasNode & {
   onNodeUpdate: (id: string, props: Partial<CanvasNode>) => void
@@ -49,7 +50,10 @@ export function DraggableNode(props: DraggableNodeProps) {
   const onResize = useCallback(
     (dx: number, dy: number) => {
       setSize((oldSize) => {
-        const newSize = { width: Math.round(oldSize.width + dx), height: Math.round(oldSize.height + dy) }
+        const newSize = {
+          width: Math.round((oldSize.width || INITIAL_WIDTH) + dx),
+          height: Math.round((oldSize.height || INITIAL_HEIGHT) + dy),
+        }
         props.onNodeUpdate(props.id, newSize)
         return newSize
       })

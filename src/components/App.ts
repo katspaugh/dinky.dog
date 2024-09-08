@@ -3,6 +3,9 @@ import { html } from '../lib/html.js'
 import { type DinkyDataV2, loadData, saveData } from '../lib/dinky-api.js'
 import { Board } from './Board.js'
 import type { CanvasNode } from '../types/canvas.js'
+import { Sidebar } from './Sidebar.js'
+import { Fragment } from 'https://esm.sh/preact'
+import { saveToLocalStorage } from '../lib/persist.js'
 
 const TITLE = 'Dinky Dog'
 
@@ -41,6 +44,10 @@ export function App() {
   useEffect(() => {
     document.title = doc?.title ? `${TITLE} — ${doc.title}` : TITLE
   }, [doc?.title])
+
+  useEffect(() => {
+    document.body.style.backgroundColor = doc?.backgroundColor ?? ''
+  }, [doc?.backgroundColor])
 
   const onNodeCreate = useCallback((props: Partial<CanvasNode>) => {
     const id = Math.random().toString(36).slice(2)
@@ -98,12 +105,22 @@ export function App() {
     })
   }, [])
 
-  return html`<${Board}
+  useEffect(() => {
+    if (!doc) return
+    saveToLocalStorage(doc)
+  }, [doc])
+
+  return html`<${Fragment}>
+<${Board}
     ...${doc}
     onNodeCreate=${onNodeCreate}
     onNodeDelete=${onNodeDelete}
     onNodeUpdate=${onNodeUpdate}
     onConnect=${onConnect}
     onDisconnect=${onDisconnect}
-  />`
+  />
+
+  <${Sidebar} />
+</${Fragment}>
+`
 }

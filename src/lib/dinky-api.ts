@@ -1,3 +1,4 @@
+import type { CanvasProps } from '../types/canvas.js'
 import { compressObjectToString, decompressStringToObject } from './compress.js'
 
 const API_URL = 'https://state.dinky.dog'
@@ -9,29 +10,16 @@ type CommonDinkyData = {
   backgroundColor?: string
 }
 
-export type DinkyDataV2 = CommonDinkyData & {
-  id: string
-  lastSequence: number
-  title?: string
-  backgroundColor?: string
-  isLocked?: boolean
-  creator?: string
-  nodes: Array<{
+export type DinkyDataV2 = CommonDinkyData &
+  CanvasProps & {
     id: string
-    x: number
-    y: number
-    content?: string
-    width?: number
-    height?: number
-    color?: string
-  }>
-  edges: Array<{
-    id: string
-    fromNode: string
-    toNode: string
-  }>
-  version: 2
-}
+    lastSequence: number
+    title?: string
+    backgroundColor?: string
+    isLocked?: boolean
+    creator?: string
+    version: 2
+  }
 
 export type DinkyDataV1 = CommonDinkyData & {
   id: string
@@ -63,6 +51,7 @@ function convertV1ToV2(data: DinkyDataV1): DinkyDataV2 {
   const nodes = Object.entries(data.nodes).map(([id, node]) => {
     return {
       id,
+      type: 'text',
       content: node.data.operatorData,
       x: node.props.x,
       y: node.props.y,
@@ -72,12 +61,15 @@ function convertV1ToV2(data: DinkyDataV1): DinkyDataV2 {
     }
   })
 
-  const edges = Object.entries(data.nodes).reduce<{ fromNode: string; toNode: string }[]>((acc, [id, node]) => {
-    node.connections?.forEach((conn) => {
-      acc.push({ fromNode: id, toNode: conn.inputId })
-    })
-    return acc
-  }, [])
+  const edges = Object.entries(data.nodes).reduce<{ id: string; fromNode: string; toNode: string }[]>(
+    (acc, [id, node]) => {
+      node.connections?.forEach((conn) => {
+        acc.push({ id: Math.random().toString(), fromNode: id, toNode: conn.inputId })
+      })
+      return acc
+    },
+    [],
+  )
 
   return { ...data, nodes, edges, version: 2 }
 }

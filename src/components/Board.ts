@@ -43,8 +43,17 @@ export function Board(props: BoardProps) {
   )
 
   const onBoardClick = useCallback(() => {
-    setTempFrom(null)
-  }, [])
+    setTempFrom((oldFrom) => {
+      if (oldFrom) {
+        const node = props.onNodeCreate({
+          x: mousePosition.x - 10,
+          y: mousePosition.y - 10,
+        })
+        props.onConnect(oldFrom, node.id)
+      }
+      return null
+    })
+  }, [props.onNodeCreate, props.onConnect, mousePosition.x, mousePosition.y])
 
   const onBoardDblClick = useCallback(() => {
     const node = props.onNodeCreate({

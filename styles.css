@@ -1,3 +1,25 @@
+:root {
+  --overlay-color: rgba(255, 255, 255, 0.2);
+  --accent-color: #844790;
+  --connector-color: #F3AEAC;
+  --edge-color: #A9ACF9;
+  --button-color: #F1F1F1;
+  --menu-text-color: #333;
+  --menu-hover-color: #ECECEC;
+  --menu-hover-text-color: #000;
+  --card-color: #f5f5f5;
+  --card-hover-color: #f0f0f0;
+  --shadow-color: #555;
+  --border-color: #ddd;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --overlay-color: rgba(0, 0, 0, 0.1);
+    --card-color: #f1f1f1;
+  }
+}
+
 html,
 body {
   margin: 0;
@@ -25,13 +47,10 @@ body {
 
 .Board {
   position: relative;
-}
-
-.Board {
-  position: relative;
   z-index: 1;
   background-image: radial-gradient(circle, #999 1px, transparent 1px);
   background-size: 20px 20px;
+  background-color: var(--overlay-color);
 }
 
 .Board > svg {
@@ -50,9 +69,9 @@ body {
 }
 
 .Card {
-  border: 1px solid #ddd;
+  border: 1px solid var(--border-color);
   border-radius: 4px;
-  background-color: #fafafa;
+  background-color: var(--card-color);
 }
 
 .Editable {
@@ -93,19 +112,19 @@ body {
 }
 
 .Edge line {
-  stroke: #2176cc;
+  stroke: var(--edge-color);
   stroke-width: 4;
   pointer-events: all;
   cursor: pointer;
 }
 
 .Edge line:hover {
-  stroke: #fca6ac;
+  stroke: var(--accent-color);
   stroke-width: 6;
 }
 
 .Edge circle {
-  fill: #fca6ac;
+  fill: var(--connector-color);
 }
 
 .Connector {
@@ -116,7 +135,7 @@ body {
   margin-left: -8px;
   border-radius: 50%;
   border: none;
-  background-color: #fca6ac;
+  background-color: var(--connector-color);
   width: 16px;
   height: 16px;
   padding: 0;
@@ -156,4 +175,86 @@ body {
   right: 2px;
   cursor: nwse-resize;
   border-radius: 0 0 2px 0;
+}
+
+.Sidebar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 100;
+  height: 100vh;
+}
+
+.Sidebar_button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1;
+  width: 40px;
+  height: 40px;
+  background: #fafafa;
+  border: 1px solid #333;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.2s;
+  font-size: 24px;
+}
+
+.Sidebar_drawer {
+  background: #fafafa;
+  width: 300px;
+  height: 100vh;
+  position: absolute;
+  right: 0;
+  top: 0;
+  z-index: 1;
+  transition: transform 0.2s;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-bottom: 10px;
+}
+
+.Sidebar h1 {
+  margin: 18px 20px 10px;
+}
+
+.Sidebar hr {
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-top: 1px solid #ddd;
+}
+
+.Sidebar ul {
+  padding: 0 10px;
+  margin: 0;
+  list-style: none;
+}
+
+.Sidebar li {
+  margin: 0;
+  padding: 0;
+}
+
+.Sidebar li a {
+  display: block;
+  padding: 10px;
+  color: var(--menu-text-color);
+  text-decoration: none;
+  border-radius: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.Sidebar li a:hover {
+  background: var(--menu-hover-color);
+  color: var(--menu-hover-text-color);
+}
+
+.Sidebar_links {
+  flex: 1;
+  overflow: auto;
+  padding: 0;
 }
