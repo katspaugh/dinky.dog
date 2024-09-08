@@ -53,13 +53,14 @@ body {
   border: 1px solid #ddd;
   border-radius: 4px;
   background-color: #fafafa;
-  overflow: auto;
 }
 
 .Editable {
-  width: 170px;
+  min-width: 70px;
+  min-height: 32px;
   border-radius: inherit;
   padding: 10px;
+  overflow: auto;
 }
 
 .Editable h1,
@@ -130,4 +131,29 @@ body {
 
 .DraggableNode:hover .Connector {
   opacity: 1;
+}
+
+.Resizer {
+  position: absolute;
+  z-index: 1;
+  bottom: 0;
+  right: 0;
+  user-select: none;
+  width: 100%;
+  height: 4px;
+  cursor: ns-resize;
+}
+
+.Resizer:after {
+  content: '';
+  display: block;
+  background: linear-gradient(135deg, transparent 0%, transparent 50%, #999 50%, #999 100%);
+  width: 10px;
+  height: 10px;
+  position: absolute;
+  z-index: 1;
+  bottom: 2px;
+  right: 2px;
+  cursor: nwse-resize;
+  border-radius: 0 0 2px 0;
 }

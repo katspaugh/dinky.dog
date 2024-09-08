@@ -9,23 +9,27 @@ type EditableProps = {
   onChange: (content: string, height?: number) => void
 }
 
-const INITIAL_HEIGHT = 70
+const INITIAL_WIDTH = 170
+const INITIAL_HEIGHT = 70.01
 
 export const Editable = ({ id, content, onChange, width, height }: EditableProps) => {
   const ref = useRef<HTMLDivElement>(null)
+  const isManualHeight = height && height === Math.round(height)
+  const [hasMinHeight, setHasMinHeight] = useState(!content && !isManualHeight)
+  const minHeight = hasMinHeight ? height || INITIAL_HEIGHT : undefined
 
   const onInput = useCallback(
     (e) => {
-      onChange(e.target.innerHTML, Math.min(ref.current.offsetHeight, INITIAL_HEIGHT))
+      onChange(e.target.innerHTML, isManualHeight ? undefined : ref.current.offsetHeight + 0.01)
     },
-    [onChange],
+    [onChange, isManualHeight],
   )
 
   const onBlur = useCallback(() => {
     if (content) {
-      onChange(content, ref.current.offsetHeight)
+      setHasMinHeight(false)
     }
-  }, [onChange, content])
+  }, [content])
 
   const htmlContent = useMemo(() => ({ __html: content }), [content])
 
@@ -37,6 +41,8 @@ export const Editable = ({ id, content, onChange, width, height }: EditableProps
     dangerouslySetInnerHTML=${htmlContent}
     onInput=${onInput}
     onBlur=${onBlur}
-    style="width: ${width}px; min-height: ${height || INITIAL_HEIGHT}px;"
+    style="width: ${width || INITIAL_WIDTH}px; height: ${isManualHeight
+      ? height
+      : undefined}px; min-height: ${minHeight}px"
   />`
 }

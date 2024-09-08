@@ -4,6 +4,7 @@ import { html } from '../lib/html.js'
 import { draggable } from '../lib/draggable.js'
 import { Card } from './Card.js'
 import { Connector } from './Connector.js'
+import { Resizer } from './Resizer.js'
 
 type DraggableNodeProps = CanvasNode & {
   onNodeUpdate: (id: string, props: Partial<CanvasNode>) => void
@@ -16,6 +17,7 @@ const BG_THRESHOLD = 110e3
 export function DraggableNode(props: DraggableNodeProps) {
   const ref = useRef<HTMLDivElement>(null)
   const [position, setPosition] = useState({ x: props.x, y: props.y })
+  const [size, setSize] = useState({ width: props.width ?? 0, height: props.height ?? 0 })
   const isBackgroundCard = props.color && props.width * props.height > BG_THRESHOLD
 
   const onDrag = useCallback(
@@ -44,6 +46,17 @@ export function DraggableNode(props: DraggableNodeProps) {
     props.onClick(props.id)
   }, [props.id, props.onClick])
 
+  const onResize = useCallback(
+    (dx: number, dy: number) => {
+      setSize((oldSize) => {
+        const newSize = { width: Math.round(oldSize.width + dx), height: Math.round(oldSize.height + dy) }
+        props.onNodeUpdate(props.id, newSize)
+        return newSize
+      })
+    },
+    [props.id, props.onNodeUpdate],
+  )
+
   useEffect(() => {
     setPosition({ x: props.x, y: props.y })
   }, [props.x, props.y])
@@ -65,11 +78,13 @@ export function DraggableNode(props: DraggableNodeProps) {
       id=${props.id}
       content=${props.content}
       color=${props.color}
-      width=${props.width}
-      height=${props.height}
+      width=${size.width}
+      height=${size.height}
       onContentChange=${onContentChange}
     />
 
     <${Connector} onClick=${onConnectStart} />
+
+    <${Resizer} onResize=${onResize} />
   </div>`
 }
