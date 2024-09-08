@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'https://esm.sh/preact/hooks'
+import { useCallback, useMemo } from 'https://esm.sh/preact/hooks'
 import { html } from '../lib/html.js'
 import type { CanvasNode } from '../types/canvas.js'
 
@@ -7,43 +7,20 @@ type EdgeProps = {
   toNode: string
   nodes: CanvasNode[]
   onDisconnect: (from: string, to: string) => void
+  toPosition?: { x: number; y: number }
 }
 
 const WIDTH = 170
 const HEIGHT = 70
 
-const useMousePosition = (isListening: boolean, initialPosition: { x: number; y: number }) => {
-  const [mousePos, setMousePos] = useState<{ x: number; y: number }>()
-
-  useEffect(() => {
-    if (!isListening) return
-
-    const onMouseMove = (e) => {
-      const scrollX = document.body.scrollLeft
-      const scrollY = document.body.scrollTop
-      setMousePos({ x: e.clientX + scrollX, y: e.clientY + scrollY })
-    }
-
-    window.addEventListener('mousemove', onMouseMove)
-
-    return () => {
-      window.removeEventListener('mousemove', onMouseMove)
-    }
-  }, [isListening, initialPosition])
-
-  return mousePos ?? initialPosition
-}
-
-export const Edge = ({ fromNode, toNode, nodes, onDisconnect }: EdgeProps) => {
+export const Edge = ({ fromNode, toNode, nodes, onDisconnect, toPosition }: EdgeProps) => {
   const from = useMemo(() => nodes.find((node) => node.id === fromNode), [fromNode, nodes])
   const to = useMemo(() => nodes.find((node) => node.id === toNode), [toNode, nodes])
-  const isSameNode = fromNode === toNode
 
   const x1 = from.x + (from.width || WIDTH) / 2
   const y1 = from.y + (from.height || HEIGHT)
-  const mousePos = useMousePosition(isSameNode, { x: x1, y: y1 })
-  const x2 = isSameNode ? mousePos.x : to.x + (to.width || WIDTH) / 2
-  const y2 = isSameNode ? mousePos.y : to.y
+  const x2 = toPosition ? toPosition.x : to.x + (to.width || WIDTH) / 2
+  const y2 = toPosition ? toPosition.y : to.y
 
   /*
   // Bezier curve

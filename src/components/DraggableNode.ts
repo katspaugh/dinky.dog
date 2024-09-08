@@ -62,6 +62,7 @@ export function DraggableNode(props: DraggableNodeProps) {
     onClick=${onClick}
   >
     <${Card}
+      id=${props.id}
       content=${props.content}
       color=${props.color}
       width=${props.width}

@@ -42,6 +42,39 @@ export function App() {
     document.title = doc?.title ? `${TITLE} — ${doc.title}` : TITLE
   }, [doc?.title])
 
+  const onNodeCreate = useCallback((props: Partial<CanvasNode>) => {
+    const id = Math.random().toString(36).slice(2)
+    const node = {
+      id,
+      type: 'text',
+      width: undefined,
+      height: undefined,
+      x: 0,
+      y: 0,
+      content: '',
+      ...props,
+    }
+
+    setDoc((doc) => {
+      doc.nodes.push(node)
+      return { ...doc }
+    })
+
+    setTimeout(() => {
+      document.getElementById(id)?.focus()
+    }, 100)
+
+    return node
+  }, [])
+
+  const onNodeDelete = useCallback((id: string) => {
+    setDoc((doc) => {
+      doc.nodes = doc.nodes.filter((node) => node.id !== id)
+      doc.edges = doc.edges.filter((edge) => edge.fromNode !== id && edge.toNode !== id)
+      return { ...doc }
+    })
+  }, [])
+
   const onNodeUpdate = useCallback((id: string, props: Partial<CanvasNode>) => {
     setDoc((doc) => {
       const node = doc.nodes.find((node) => node.id === id)
@@ -65,5 +98,12 @@ export function App() {
     })
   }, [])
 
-  return html`<${Board} ...${doc} onNodeUpdate=${onNodeUpdate} onConnect=${onConnect} onDisconnect=${onDisconnect} />`
+  return html`<${Board}
+    ...${doc}
+    onNodeCreate=${onNodeCreate}
+    onNodeDelete=${onNodeDelete}
+    onNodeUpdate=${onNodeUpdate}
+    onConnect=${onConnect}
+    onDisconnect=${onDisconnect}
+  />`
 }
