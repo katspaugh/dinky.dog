@@ -15,6 +15,8 @@ type DraggableNodeProps = CanvasNode & {
 
 const BG_THRESHOLD = 110e3
 
+const stopPropagation = (e) => e.stopPropagation()
+
 export function DraggableNode(props: DraggableNodeProps) {
   const ref = useRef<HTMLDivElement>(null)
   const [position, setPosition] = useState({ x: props.x, y: props.y })
@@ -32,12 +34,13 @@ export function DraggableNode(props: DraggableNodeProps) {
     [props.onNodeUpdate],
   )
 
-  const onContentChange = useCallback(
-    (content: string, height?: number) => {
-      props.onNodeUpdate(props.id, { content, height })
-    },
-    [props.id, props.onNodeUpdate],
-  )
+  const onContentChange = useCallback((content: string) => {
+    props.onNodeUpdate(props.id, { content })
+  }, [props.id, props.onNodeUpdate])
+
+  const onHeightChange = useCallback((height: number) => {
+    props.onNodeUpdate(props.id, { height })
+  }, [props.id, props.onNodeUpdate])
 
   const onConnectStart = useCallback(() => {
     props.onConnectStart(props.id)
@@ -77,6 +80,7 @@ export function DraggableNode(props: DraggableNodeProps) {
       opacity: ${isBackgroundCard ? 0.75 : undefined};"
     ref=${ref}
     onClick=${onClick}
+    onDblClick=${stopPropagation}
   >
     <${Card}
       id=${props.id}
@@ -85,6 +89,7 @@ export function DraggableNode(props: DraggableNodeProps) {
       width=${size.width}
       height=${size.height}
       onContentChange=${onContentChange}
+      onHeightChange=${onHeightChange}
     />
 
     <${Connector} onClick=${onConnectStart} />

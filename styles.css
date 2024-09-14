@@ -91,6 +91,14 @@ body {
   font-optical-sizing: auto;
 }
 
+.Editable h1 + br,
+.Editable h2 + br,
+.Editable h3 + br,
+.Editable h4 + br,
+.Editable h5 + br {
+  display: none;
+}
+
 .Editable *:first-child {
   margin-top: 0;
 }

@@ -7,7 +7,8 @@ type CardProps = {
   height: number
   color: string
   content: string
-  onContentChange: (content: string, height: number) => void
+  onContentChange: (content: string) => void
+  onHeightChange: (height: number) => void
 }
 
 export function Card(props: CardProps) {
@@ -18,6 +19,7 @@ export function Card(props: CardProps) {
       width=${props.width}
       height=${props.height}
       onChange=${props.onContentChange}
+      onHeightChange=${props.onHeightChange}
     />
   </div>`
 }
