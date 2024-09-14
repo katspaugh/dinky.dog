@@ -78,7 +78,7 @@ export function DraggableNode(props: DraggableNodeProps) {
     class=${`DraggableNode${props.selected ? ' DraggableNode_selected' : ''}`}
     style="transform: translate(${position.x}px, ${position.y}px);
       z-index: ${isBackgroundCard ? 2 : undefined};
-      opacity: ${isBackgroundCard ? 0.75 : undefined};"
+      opacity: ${isBackgroundCard ? 0.5 : undefined};"
     ref=${ref}
     onClick=${onClick}
     onDblClick=${stopPropagation}
