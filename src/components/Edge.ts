@@ -15,22 +15,27 @@ export const Edge = ({ fromNode, toNode, nodes, onDisconnect, toPosition }: Edge
   const from = useMemo(() => nodes.find((node) => node.id === fromNode), [fromNode, nodes])
   const to = useMemo(() => nodes.find((node) => node.id === toNode), [toNode, nodes])
 
-  const x1 = from.x + (from.width || INITIAL_WIDTH) / 2
-  const y1 = from.y + (from.height || INITIAL_HEIGHT)
-  const x2 = toPosition ? toPosition.x : to.x + (to.width || INITIAL_WIDTH) / 2
-  const y2 = toPosition ? toPosition.y : to.y
+  const x1 = from.x + from.width || INITIAL_WIDTH
+  const y1 = from.y + (from.height || INITIAL_HEIGHT) / 2
+  let x2 = toPosition ? toPosition.x : to.x
+  let y2 = toPosition ? toPosition.y : to.y + (to.height || INITIAL_HEIGHT) / 2
+  const minYDistance = (from.height || INITIAL_HEIGHT)
 
-  /*
-  // Bezier curve
-  d=${`M ${x1} ${y1} C ${x1 + 100} ${y1} ${x2 - 100} ${y2} ${x2} ${y2}`}
-   */
+  // If the nodes are more one under the other than one next to each other, we want to draw the edge vertically
+  // from the bottom of the from node to the top of the to node
+  let isVertical = (y2 - y1 > minYDistance) && (x2 < x1)
+  if (isVertical && !toPosition) {
+    x2 = to.x + (to.width || INITIAL_WIDTH) / 2
+    y2 = to.y
+  }
 
   const onClick = useCallback(() => {
     onDisconnect(fromNode, toNode)
   }, [fromNode, toNode, onDisconnect])
 
-  // Straight line
   return html`<g class="Edge">
-    <line x1=${x1} y1=${y1 + 2} x2=${x2} y2=${y2} onClick=${onClick} />
+    <path d=${`M ${x1} ${y1} C ${x1 + 100} ${y1} ${x2 - (isVertical ? 30 : 100)} ${y2} ${x2} ${y2}`} onClick=${onClick} />
+    <circle cx=${x1} cy=${y1} r="4" />
+    <circle cx=${x2} cy=${y2} r="4" />
   </g>`
 }

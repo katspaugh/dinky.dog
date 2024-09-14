@@ -70,7 +70,7 @@ body {
 
 .Card {
   border: 1px solid var(--border-color);
-  border-radius: 4px;
+  border-radius: 6px;
   background-color: var(--card-color);
 }
 
@@ -111,14 +111,17 @@ body {
   pointer-events: none;
 }
 
-.Edge line {
+.Edge line,
+.Edge path {
   stroke: var(--edge-color);
   stroke-width: 4;
+  fill: none;
   pointer-events: all;
   cursor: pointer;
 }
 
-.Edge line:hover {
+.Edge line:hover,
+.Edge path:hover {
   stroke: var(--accent-color);
   stroke-width: 6;
 }
@@ -130,8 +133,9 @@ body {
 .Connector {
   position: absolute;
   z-index: 3;
-  left: 50%;
-  bottom: -8px;
+  left: 100%;
+  top: 50%;
+  margin-top: -8px;
   margin-left: -8px;
   border-radius: 50%;
   border: none;
