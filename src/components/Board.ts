@@ -7,15 +7,18 @@ import { useMousePosition } from '../hooks/useMousePosition.js'
 import { useOnKey } from '../hooks/useOnKey.js'
 import { SelectionBox } from './SelectionBox.js'
 import { INITIAL_HEIGHT, INITIAL_WIDTH } from './Editable.js'
+import { ColorPicker } from './ColorPicker.js'
 
 type BoardProps = {
   nodes: CanvasNode[]
   edges: CanvasEdge[]
+  backgroundColor: string
   onNodeCreate: (node: Partial<CanvasNode>) => CanvasNode
   onNodeDelete: (id: string) => void
   onNodeUpdate: (id: string, props: Partial<CanvasNode>) => void
   onConnect: (from: string, to: string) => void
   onDisconnect: (from: string, to: string) => void
+  onBackgroundColorChange: (color: string) => void
 }
 
 const WIDTH = 5000
@@ -31,13 +34,17 @@ export function Board(props: BoardProps) {
     [tempFrom],
   )
 
+  const onBackgroundColorChange = useCallback((color: string) => {
+    props.onBackgroundColorChange(color)
+  }, [props.onBackgroundColorChange])
+
   const onNodeClick = useCallback(
     (id: string) => {
       setTempFrom((oldFrom) => {
         if (oldFrom && oldFrom !== id) {
           props.onConnect(oldFrom, id)
         } else {
-          setTimeout(() => setSelectedNodes([id]), 0)
+          setSelectedNodes([id])
         }
         return null
       })
@@ -69,19 +76,18 @@ export function Board(props: BoardProps) {
   }, [mousePosition.x, mousePosition.y, props.onNodeCreate])
 
   const onNodeUpdate = useCallback((id: string, item: Partial<CanvasNode>) => {
-    if (item.x !== undefined || item.y !== undefined) {
+    if ((item.x !== undefined || item.y !== undefined) && selectedNodes.length > 1) {
       const node = props.nodes.find((node) => node.id === id)
       const dx = item.x - node.x
       const dy = item.y - node.y
-      props.onNodeUpdate(id, item)
 
-      if (selectedNodes.length > 1) {
-        selectedNodes.filter((nodeId) => nodeId !== id).forEach((nodeId) => {
-          const node = props.nodes.find((node) => node.id === nodeId)
-          props.onNodeUpdate(nodeId, { x: node.x + dx, y: node.y + dy })
-        })
-      }
+      selectedNodes.forEach((nodeId) => {
+        const node = props.nodes.find((node) => node.id === nodeId)
+        props.onNodeUpdate(nodeId, { x: Math.round(node.x + dx), y: Math.round(node.y + dy) })
+      })
+      return
     }
+    props.onNodeUpdate(id, item)
   }, [props.nodes, props.onNodeUpdate, selectedNodes])
 
   const renderNode = useCallback(
@@ -153,6 +159,8 @@ export function Board(props: BoardProps) {
       </svg>
 
       <${SelectionBox} onChange=${onSelectionChange} />
+
+      <${ColorPicker} color=${props.backgroundColor} onColorChange=${onBackgroundColorChange} />
     </div>
   `
 }

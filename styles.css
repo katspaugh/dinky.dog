@@ -297,3 +297,35 @@ body {
   user-select: none;
   border-radius: 4px;
 }
+
+.ColorPicker {
+  cursor: pointer;
+  width: 50px;
+  height: 20px;
+  padding: 0;
+  border: none;
+}
+
+.DraggableNode .ColorPicker {
+  position: absolute;
+  top: -2px;
+  right: 0;
+  transform: translate(0, -100%);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.DraggableNode:hover .ColorPicker {
+  opacity: 1;
+}
+
+.Board > .ColorPicker {
+  z-index: 10;
+  position: fixed;
+  top: auto;
+  left: auto;
+  bottom: 10px;
+  right: 10px;
+  width: 70px;
+  height: 30px;
+}

@@ -76,9 +76,9 @@ export function App() {
 
   const onNodeDelete = useCallback((id: string) => {
     setDoc((doc) => {
-      doc.nodes = doc.nodes.filter((node) => node.id !== id)
-      doc.edges = doc.edges.filter((edge) => edge.fromNode !== id && edge.toNode !== id)
-      return { ...doc }
+      const nodes = doc.nodes.filter((node) => node.id !== id)
+      const edges = doc.edges.filter((edge) => edge.fromNode !== id && edge.toNode !== id)
+      return { ...doc, nodes, edges }
     })
   }, [])
 
@@ -93,15 +93,19 @@ export function App() {
 
   const onConnect = useCallback((from: string, to: string) => {
     setDoc((doc) => {
-      doc.edges.push({ id: Math.random().toString(), fromNode: from, toNode: to })
-      return { ...doc }
+      return { ...doc, edges: doc.edges.concat({ id: Math.random().toString(), fromNode: from, toNode: to }) }
     })
   }, [])
 
   const onDisconnect = useCallback((from: string, to: string) => {
     setDoc((doc) => {
-      doc.edges = doc.edges.filter((edge) => edge.fromNode !== from || edge.toNode !== to)
-      return { ...doc }
+      return { ...doc, edges: doc.edges.filter((edge) => edge.fromNode !== from || edge.toNode !== to) }
+    })
+  }, [])
+
+  const onBackgroundColorChange = useCallback((color: string) => {
+    setDoc((doc) => {
+      return { ...doc, backgroundColor: color }
     })
   }, [])
 
@@ -118,6 +122,7 @@ export function App() {
     onNodeUpdate=${onNodeUpdate}
     onConnect=${onConnect}
     onDisconnect=${onDisconnect}
+    onBackgroundColorChange=${onBackgroundColorChange}
   />
 
   <${Sidebar} />

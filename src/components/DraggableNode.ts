@@ -6,6 +6,7 @@ import { Card } from './Card.js'
 import { Connector } from './Connector.js'
 import { Resizer } from './Resizer.js'
 import { INITIAL_HEIGHT, INITIAL_WIDTH } from './Editable.js'
+import { ColorPicker } from './ColorPicker.js'
 
 type DraggableNodeProps = CanvasNode & {
   onNodeUpdate: (id: string, props: Partial<CanvasNode>) => void
@@ -47,7 +48,8 @@ export function DraggableNode(props: DraggableNodeProps) {
     props.onConnectStart(props.id)
   }, [props.id, props.onNodeUpdate])
 
-  const onClick = useCallback(() => {
+  const onClick = useCallback((e) => {
+    e.stopPropagation()
     props.onClick(props.id)
   }, [props.id, props.onClick])
 
@@ -64,6 +66,10 @@ export function DraggableNode(props: DraggableNodeProps) {
     },
     [props.id, props.onNodeUpdate],
   )
+
+  const onColorChange = useCallback((color: string) => {
+    props.onNodeUpdate(props.id, { color })
+  }, [props.id, props.onNodeUpdate])
 
   useEffect(() => {
     setPosition({ x: props.x, y: props.y })
@@ -96,5 +102,7 @@ export function DraggableNode(props: DraggableNodeProps) {
     <${Connector} onClick=${onConnectStart} />
 
     <${Resizer} onResize=${onResize} />
+
+    <${ColorPicker} color=${props.color} onColorChange=${onColorChange} />
   </div>`
 }

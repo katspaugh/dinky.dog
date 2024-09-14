@@ -25,7 +25,7 @@ export function Sidebar() {
   const renderLink = useCallback(
     (doc) =>
       html`<li key=${doc.url}>
-        <a href=${doc.url} target=${doc.url.startsWith('http') ? '_blank' : '_self'}>
+        <a href=${doc.url}>
           ${doc.title}
         </a>
       </li>`,
