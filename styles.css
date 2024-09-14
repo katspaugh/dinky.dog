@@ -68,6 +68,10 @@ body {
   z-index: 2;
 }
 
+.DraggableNode_selected .Card {
+  outline: 2px solid var(--accent-color);
+}
+
 .Card {
   border: 1px solid var(--border-color);
   border-radius: 6px;
@@ -80,6 +84,11 @@ body {
   border-radius: inherit;
   padding: 10px;
   overflow: auto;
+  outline: none;
+}
+
+.Editable:focus {
+  outline: none;
 }
 
 .Editable h1,
@@ -269,4 +278,22 @@ body {
   flex: 1;
   overflow: auto;
   padding: 0;
+}
+
+.SelectionBox {
+  position: absolute;
+  z-index: 3;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.SelectionBox div {
+  position: absolute;
+  z-index: 3;
+  background-color: rgba(100, 0, 100, 0.1);
+  user-select: none;
+  border-radius: 4px;
 }

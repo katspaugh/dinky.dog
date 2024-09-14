@@ -11,6 +11,7 @@ type DraggableNodeProps = CanvasNode & {
   onNodeUpdate: (id: string, props: Partial<CanvasNode>) => void
   onConnectStart: (fromNode: string) => void
   onClick: (id: string) => void
+  selected: boolean
 }
 
 const BG_THRESHOLD = 110e3
@@ -74,7 +75,7 @@ export function DraggableNode(props: DraggableNodeProps) {
   }, [ref, onDrag])
 
   return html`<div
-    class="DraggableNode"
+    class=${`DraggableNode${props.selected ? ' DraggableNode_selected' : ''}`}
     style="transform: translate(${position.x}px, ${position.y}px);
       z-index: ${isBackgroundCard ? 1 : undefined};
       opacity: ${isBackgroundCard ? 0.75 : undefined};"

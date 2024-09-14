@@ -18,7 +18,6 @@ function markdown(html: string) {
 }
 
 export function sanitizeHtml(html = '') {
-  console.log('input', html)
   return purify.sanitize(markdown(html), {
     ALLOWED_TAGS: [
       'a',
