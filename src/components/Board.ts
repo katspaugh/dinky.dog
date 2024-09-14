@@ -36,10 +36,11 @@ export function Board(props: BoardProps) {
       setTempFrom((oldFrom) => {
         if (oldFrom && oldFrom !== id) {
           props.onConnect(oldFrom, id)
+        } else {
+          setTimeout(() => setSelectedNodes([id]), 0)
         }
         return null
       })
-      setTimeout(() => setSelectedNodes([id]), 0)
     },
     [props.onConnect],
   )

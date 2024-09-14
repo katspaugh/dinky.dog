@@ -15,7 +15,7 @@ export const Edge = ({ fromNode, toNode, nodes, onDisconnect, toPosition }: Edge
   const from = useMemo(() => nodes.find((node) => node.id === fromNode), [fromNode, nodes])
   const to = useMemo(() => nodes.find((node) => node.id === toNode), [toNode, nodes])
 
-  const x1 = from.x + from.width || INITIAL_WIDTH
+  const x1 = from.x + (from.width || INITIAL_WIDTH)
   const y1 = from.y + (from.height || INITIAL_HEIGHT) / 2
   let x2 = toPosition ? toPosition.x : to.x
   let y2 = toPosition ? toPosition.y : to.y + (to.height || INITIAL_HEIGHT) / 2

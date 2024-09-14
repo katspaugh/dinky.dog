@@ -20,25 +20,25 @@ export const Editable = ({ id, content, width, height, onChange, onHeightChange 
   const [hasMinHeight, setHasMinHeight] = useState(!content && !isManualHeight)
 
   const updateHeight = useCallback(() => {
-    if (isManualHeight) return
-    onHeightChange(ref.current.offsetHeight + 0.01)
+    if (!isManualHeight && ref.current) {
+      onHeightChange(ref.current.offsetHeight + 0.01)
+    }
   }, [onHeightChange, isManualHeight])
 
   const onBlur = useCallback((e) => {
     const { innerHTML = '' } = e.target
-    setHasMinHeight(false)
-    onChange(sanitizeHtml(innerHTML))
+    const newContent = sanitizeHtml(innerHTML)
+    onChange(newContent)
+    if (newContent) {
+      setHasMinHeight(false)
+    }
     const timeout = setTimeout(updateHeight, 100)
     return () => clearTimeout(timeout)
   }, [ref, onChange, updateHeight])
 
   const htmlContent = useMemo(() => ({ __html: sanitizeHtml(content) }), [content])
 
-  useEffect(() => {
-    if (!isManualHeight && ref.current) {
-      onHeightChange(ref.current.offsetHeight + 0.01)
-    }
-  }, [ref, isManualHeight, onHeightChange])
+  useEffect(updateHeight, [updateHeight])
 
   return html`<div
     ref=${ref}
@@ -48,7 +48,6 @@ export const Editable = ({ id, content, width, height, onChange, onHeightChange 
     dangerouslySetInnerHTML=${htmlContent}
     onInput=${updateHeight}
     onBlur=${onBlur}
-    title=${height}
     style="
       width: ${width || INITIAL_WIDTH}px;
       height: ${isManualHeight ? height + 'px' : undefined};

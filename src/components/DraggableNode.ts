@@ -77,7 +77,7 @@ export function DraggableNode(props: DraggableNodeProps) {
   return html`<div
     class=${`DraggableNode${props.selected ? ' DraggableNode_selected' : ''}`}
     style="transform: translate(${position.x}px, ${position.y}px);
-      z-index: ${isBackgroundCard ? 1 : undefined};
+      z-index: ${isBackgroundCard ? 2 : undefined};
       opacity: ${isBackgroundCard ? 0.75 : undefined};"
     ref=${ref}
     onClick=${onClick}
