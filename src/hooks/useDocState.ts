@@ -25,12 +25,6 @@ export function useDocState() {
       return { ...doc }
     })
 
-    if (!node.content) {
-      setTimeout(() => {
-        document.getElementById(id)?.focus()
-      }, 100)
-    }
-
     return node
   }, [])
 

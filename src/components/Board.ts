@@ -52,15 +52,26 @@ export function Board(props: BoardProps) {
     [props.onConnect],
   )
 
+  const onNodeCreate = useCallback((nodeProps?: Partial<CanvasNode>) => {
+    const node = props.onNodeCreate({
+      x: mousePosition.x - 10,
+      y: mousePosition.y - 10,
+      ...nodeProps,
+    })
+    if (!node.content) {
+      setTimeout(() => {
+        document.getElementById(node.id)?.focus()
+      }, 100)
+    }
+    return node
+  }, [props.onNodeCreate, mousePosition.x, mousePosition.y])
+
   const onBoardClick = useCallback(() => {
     setSelectedNodes([])
 
     setTempFrom((oldFrom) => {
       if (oldFrom) {
-        const node = props.onNodeCreate({
-          x: mousePosition.x - 10,
-          y: mousePosition.y - 10,
-        })
+        const node = onNodeCreate()
         props.onConnect(oldFrom, node.id)
       }
       return null
@@ -68,10 +79,7 @@ export function Board(props: BoardProps) {
   }, [props.onNodeCreate, props.onConnect, mousePosition.x, mousePosition.y])
 
   const onBoardDblClick = useCallback(() => {
-    const node = props.onNodeCreate({
-      x: mousePosition.x - 10,
-      y: mousePosition.y - 10,
-    })
+    const node = onNodeCreate()
     setSelectedNodes([node.id])
   }, [mousePosition.x, mousePosition.y, props.onNodeCreate])
 

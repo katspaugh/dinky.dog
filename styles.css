@@ -20,7 +20,7 @@
     --overlay-color: rgba(0, 0, 0, 0.2);
     --accent-color: #844790;
     --connector-color: #F3AEAC;
-    --edge-color: #A9ACF9;
+    --edge-color: #797ded;
     --button-color: #333;
     --menu-background-color: #333;
     --menu-text-color: #eee;
@@ -94,7 +94,12 @@ body {
   transition: transform 0.2s;
 }
 
-.DraggableNode_content:hover {
+.DraggableNode_background {
+  opacity: 0.5;
+  z-index: 2;
+}
+
+.DraggableNode:not(.DraggableNode_background) .DraggableNode_content:hover {
   transform: scale(1.02);
 }
 
@@ -113,7 +118,7 @@ body {
   }
 }
 
-.DraggableNode_content:active {
+.DraggableNode:not(.DraggableNode_background) .DraggableNode_content:active {
   animation: wobble 0.5s 0.2s infinite;
 }
 
