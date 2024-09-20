@@ -12,6 +12,7 @@ const STATE_STORAGE_PREFIX = 'state-'
 const CLIENT_ID_KEY = 'stream-clientId'
 
 export function saveToLocalStorage(state: Omit<StateMetaData, 'timestamp'>, password?: string) {
+  if (!state.id || !state.title) return
   const key = `${STATE_STORAGE_PREFIX}${state.id}`
   const newData = {
     id: state.id,

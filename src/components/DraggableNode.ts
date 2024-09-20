@@ -21,19 +21,18 @@ const stopPropagation = (e) => e.stopPropagation()
 
 export function DraggableNode(props: DraggableNodeProps) {
   const ref = useRef<HTMLDivElement>(null)
-  const [position, setPosition] = useState({ x: props.x, y: props.y })
-  const [size, setSize] = useState({ width: props.width ?? 0, height: props.height ?? 0 })
+  const position = useRef({ x: props.x, y: props.y })
+  const size = useRef({ width: props.width ?? 0, height: props.height ?? 0 })
   const isBackgroundCard = props.color && props.width * props.height > BG_THRESHOLD
 
   const onDrag = useCallback(
     (dx: number, dy: number) => {
-      setPosition((pos) => {
-        const newPosition = { x: Math.round(pos.x + dx), y: Math.round(pos.y + dy) }
-        props.onNodeUpdate(props.id, newPosition)
-        return newPosition
-      })
+      const pos = position.current
+      const newPosition = { x: Math.round(pos.x + dx), y: Math.round(pos.y + dy) }
+      props.onNodeUpdate(props.id, newPosition)
+      return newPosition
     },
-    [props.onNodeUpdate],
+    [props.onNodeUpdate, position],
   )
 
   const onContentChange = useCallback((content: string) => {
@@ -55,16 +54,15 @@ export function DraggableNode(props: DraggableNodeProps) {
 
   const onResize = useCallback(
     (dx: number, dy: number) => {
-      setSize((oldSize) => {
-        const newSize = {
-          width: Math.round((oldSize.width || INITIAL_WIDTH) + dx),
+      const oldSize = size.current
+      const newSize = {
+        width: Math.round((oldSize.width || INITIAL_WIDTH) + dx),
           height: Math.round((oldSize.height || INITIAL_HEIGHT) + dy),
         }
-        props.onNodeUpdate(props.id, newSize)
-        return newSize
-      })
+      props.onNodeUpdate(props.id, newSize)
+      return newSize
     },
-    [props.id, props.onNodeUpdate],
+    [props.id, props.onNodeUpdate, size],
   )
 
   const onColorChange = useCallback((color: string) => {
@@ -72,8 +70,14 @@ export function DraggableNode(props: DraggableNodeProps) {
   }, [props.id, props.onNodeUpdate])
 
   useEffect(() => {
-    setPosition({ x: props.x, y: props.y })
+    position.current.x = props.x
+    position.current.y = props.y
   }, [props.x, props.y])
+
+  useEffect(() => {
+    size.current.width = props.width
+    size.current.height = props.height
+  }, [props.width, props.height])
 
   useEffect(() => {
     if (!ref.current) return
@@ -82,27 +86,29 @@ export function DraggableNode(props: DraggableNodeProps) {
 
   return html`<div
     class=${`DraggableNode${props.selected ? ' DraggableNode_selected' : ''}`}
-    style="transform: translate(${position.x}px, ${position.y}px);
+    style="transform: translate(${props.x}px, ${props.y}px);
       z-index: ${isBackgroundCard ? 2 : undefined};
       opacity: ${isBackgroundCard ? 0.5 : undefined};"
     ref=${ref}
     onClick=${onClick}
     onDblClick=${stopPropagation}
   >
-    <${Card}
-      id=${props.id}
-      content=${props.content}
-      color=${props.color}
-      width=${size.width}
-      height=${size.height}
-      onContentChange=${onContentChange}
-      onHeightChange=${onHeightChange}
-    />
+    <div class="DraggableNode_content">
+      <${Card}
+        id=${props.id}
+        content=${props.content}
+        color=${props.color}
+        width=${props.width}
+        height=${props.height}
+        onContentChange=${onContentChange}
+        onHeightChange=${onHeightChange}
+      />
 
-    <${Connector} onClick=${onConnectStart} />
+      <${Connector} onClick=${onConnectStart} />
 
-    <${Resizer} onResize=${onResize} />
+      <${Resizer} onResize=${onResize} />
 
-    <${ColorPicker} color=${props.color} onColorChange=${onColorChange} />
+      <${ColorPicker} color=${props.color} onColorChange=${onColorChange} />
+    </div>
   </div>`
 }

@@ -74,7 +74,7 @@ function convertV1ToV2(data: DinkyDataV1): DinkyDataV2 {
   return { ...data, nodes, edges, version: 2 }
 }
 
-export async function loadData(id: string): Promise<DinkyDataV2> {
+export async function loadDoc(id: string): Promise<DinkyDataV2> {
   const res = await fetch(API_URL + `?id=${encodeURIComponent(id)}&timestamp=${Date.now()}`)
   if (!res.ok) {
     throw new Error(`HTTP error! Status: ${res.status}`)
@@ -106,7 +106,7 @@ function sendBeacon(id: string, data: any, password?: string) {
     throw new Error('Beacon failed')
   }
 }
-export async function saveData(data: any, password?: string, isUnload = false) {
+export async function saveDoc(data: any, password?: string, isUnload = false) {
   const encData = await compressObjectToString(data)
   const sendFn = isUnload ? sendBeacon : postData
   return sendFn(data.id, encData, password)

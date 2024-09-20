@@ -27,8 +27,8 @@ PRESET_COLORS.forEach((color) => {
 })
 document.body.appendChild(datalist)
 
-export const ColorPicker = ({ color = PRESET_COLORS[0], onColorChange }: ColorPickerProps) => {
+export const ColorPicker = ({ color, onColorChange }: ColorPickerProps) => {
   return html`
-    <input class="ColorPicker" type="color" value=${color} onInput=${(e) => onColorChange(e.target.value)} list="colors" />
+    <input class="ColorPicker" type="color" value=${color || PRESET_COLORS[0]} onInput=${(e) => onColorChange(e.target.value)} list="colors" />
 `
 }

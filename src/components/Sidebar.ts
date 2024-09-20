@@ -5,8 +5,8 @@ import { makeUrl } from '../lib/url.js'
 
 const fixedLinks = [
   { title: 'About', url: makeUrl('about-9315ba924c9d16e632145116d69ae72a') },
-  { title: 'Privacy', url: makeUrl('074505b43d5c0b97') },
-  { title: 'Terms', url: makeUrl('43a7a9fa13bb3d0c') },
+  { title: 'Privacy', url: makeUrl('074505b43d5c0b97', 'privacy') },
+  { title: 'Terms', url: makeUrl('43a7a9fa13bb3d0c', 'terms') },
   { title: 'GitHub', url: 'https://github.com/katspaugh/dinky.dog' },
 ]
 
@@ -32,7 +32,9 @@ export function Sidebar() {
     [],
   )
 
-  const toggleButton = html`<button class="Sidebar_button" onClick=${toggleDrawer}>🐾</button>`
+  const toggleButton = html`<button class="Sidebar_button" onClick=${toggleDrawer}>
+    <img src="/images/dinky-small.png" alt="Dinky Dog" />
+  </button>`
 
   const divider = html`<hr />`
 
@@ -59,7 +61,7 @@ export function Sidebar() {
       </ul>
 
       <ul class="Sidebar_links">
-        ${docs.map((doc) => renderLink({ url: makeUrl(doc.id), title: doc.title }))}
+        ${docs.map((doc) => renderLink({ url: makeUrl(doc.id, doc.title), title: doc.title }))}
       </ul>
 
       ${divider}
