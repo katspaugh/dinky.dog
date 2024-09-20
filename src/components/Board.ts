@@ -13,6 +13,7 @@ type BoardProps = {
   nodes: CanvasNode[]
   edges: CanvasEdge[]
   backgroundColor: string
+  isLocked: boolean
   onNodeCreate: (node: Partial<CanvasNode>) => CanvasNode
   onNodeDelete: (id: string) => void
   onNodeUpdate: (id: string, props: Partial<CanvasNode>) => void
@@ -155,7 +156,7 @@ export function Board(props: BoardProps) {
 
   return html`
     <div
-      class="Board"
+      class="Board${props.isLocked ? ' Board_locked' : ''}"
       style="width: ${WIDTH}px; height: ${HEIGHT}px;"
       onClick=${onBoardClick}
       onDblClick=${onBoardDblClick}
