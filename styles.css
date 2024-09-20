@@ -329,3 +329,7 @@ body {
   width: 70px;
   height: 30px;
 }
+
+.Drop__dragover {
+  background: rgba(100, 0, 100, 0.1);
+}

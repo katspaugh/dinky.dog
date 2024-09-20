@@ -4,13 +4,15 @@ import { type DinkyDataV2, loadData, saveData } from '../lib/dinky-api.js'
 import { Board } from './Board.js'
 import type { CanvasNode } from '../types/canvas.js'
 import { Sidebar } from './Sidebar.js'
-import { Fragment } from 'https://esm.sh/preact'
 import { saveToLocalStorage } from '../lib/persist.js'
+import { Drop } from './Drop.js'
+import { uploadImage } from '../lib/upload-image.js'
 
 const TITLE = 'Dinky Dog'
+const FILE_TYPES = /image\/.*/
 
 export function App() {
-  const [doc, setDoc] = useState<DinkyDataV2>(null)
+  const [doc, setDoc] = useState<DinkyDataV2>({ nodes: [], edges: [], id: '', lastSequence: 0, version: 2 })
 
   useEffect(() => {
     const id = new URLSearchParams(window.location.search).get('q')
@@ -25,6 +27,7 @@ export function App() {
       .catch((err) => console.error(err))
 
     const onUnload = () => {
+      if (!doc.id) return
       const lastDoc = JSON.stringify(doc)
       if (lastDoc === originalDoc) return
       console.log('Saving...')
@@ -67,9 +70,11 @@ export function App() {
       return { ...doc }
     })
 
-    setTimeout(() => {
-      document.getElementById(id)?.focus()
-    }, 100)
+    if (!node.content) {
+      setTimeout(() => {
+        document.getElementById(id)?.focus()
+      }, 100)
+    }
 
     return node
   }, [])
@@ -109,23 +114,48 @@ export function App() {
     })
   }, [])
 
+  const onFileDrop = useCallback(({ x, y, file }) => {
+    const src = URL.createObjectURL(file)
+    const node = onNodeCreate({ x, y, content: `<img src=${src} />` })
+
+    setDoc((doc) => {
+      return { ...doc, nodes: [...doc.nodes, node] }
+    })
+
+    uploadImage(file)
+      .then((newSrc) => {
+        URL.revokeObjectURL(src)
+        onNodeUpdate(node.id, { content: `<img src=${newSrc} />` })
+      })
+      .catch((err) => {
+        console.error('Error uploading image', err)
+        URL.revokeObjectURL(src)
+        onNodeDelete(node.id)
+      })
+  }, [onNodeCreate, onNodeUpdate])
+
   useEffect(() => {
-    if (!doc) return
-    saveToLocalStorage(doc)
+    if (doc.id) {
+      saveToLocalStorage(doc)
+    }
   }, [doc])
 
-  return html`<${Fragment}>
-<${Board}
-    ...${doc}
-    onNodeCreate=${onNodeCreate}
-    onNodeDelete=${onNodeDelete}
-    onNodeUpdate=${onNodeUpdate}
-    onConnect=${onConnect}
-    onDisconnect=${onDisconnect}
-    onBackgroundColorChange=${onBackgroundColorChange}
-  />
+  return html`
+    <${Drop}
+      fileTypes=${FILE_TYPES}
+      onFileDrop=${onFileDrop}
+    >
+      <${Board}
+        ...${doc}
+      onNodeCreate=${onNodeCreate}
+      onNodeDelete=${onNodeDelete}
+      onNodeUpdate=${onNodeUpdate}
+      onConnect=${onConnect}
+      onDisconnect=${onDisconnect}
+      onBackgroundColorChange=${onBackgroundColorChange}
+    />
 
-  <${Sidebar} />
-</${Fragment}>
+    <${Sidebar} />
+  </${Drop}>
 `
 }

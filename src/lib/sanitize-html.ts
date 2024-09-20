@@ -1,4 +1,3 @@
-// @ts-ignore
 import purify from 'https://unpkg.com/dompurify/dist/purify.es.mjs'
 
 function markdown(html: string) {
@@ -52,5 +51,6 @@ export function sanitizeHtml(html = '') {
       'audio',
     ],
     ALLOWED_ATTR: ['href', 'src', 'width', 'height', 'alt', 'title', 'crossorigin', 'controls', 'target'],
+    ALLOWED_URI_REGEXP: /^(blob:|https?:\/\/)/,
   })
 }

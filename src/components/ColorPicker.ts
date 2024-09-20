@@ -18,7 +18,6 @@ const PRESET_COLORS = [
   '#fff2d9',
 ]
 
-
 const datalist = document.createElement('datalist')
 datalist.id = 'colors'
 PRESET_COLORS.forEach((color) => {

@@ -14,3 +14,8 @@ declare module 'https://esm.sh/htm' {
   const htm: (strings: TemplateStringsArray, ...values: any[]) => any
   export default htm
 }
+
+declare module 'https://unpkg.com/dompurify/dist/purify.es.mjs' {
+  export * from 'dompurify'
+  export default purify
+}
