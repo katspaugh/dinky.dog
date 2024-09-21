@@ -20,7 +20,6 @@ export function useDocState() {
     }
 
     setDoc((doc) => {
-      if (doc.isLocked) return doc
       doc.nodes.push(node)
       return { ...doc }
     })
@@ -30,7 +29,6 @@ export function useDocState() {
 
   const onNodeDelete = useCallback((id: string) => {
     setDoc((doc) => {
-      if (doc.isLocked) return doc
       const nodes = doc.nodes.filter((node) => node.id !== id)
       const edges = doc.edges.filter((edge) => edge.fromNode !== id && edge.toNode !== id)
       return { ...doc, nodes, edges }
@@ -39,7 +37,6 @@ export function useDocState() {
 
   const onNodeUpdate = useCallback((id: string, props: Partial<CanvasNode>) => {
     setDoc((doc) => {
-      if (doc.isLocked) return doc
       const node = doc.nodes.find((node) => node.id === id)
       if (!node) return doc
       Object.assign(node, props)
@@ -49,21 +46,18 @@ export function useDocState() {
 
   const onConnect = useCallback((from: string, to: string) => {
     setDoc((doc) => {
-      if (doc.isLocked) return doc
       return { ...doc, edges: doc.edges.concat({ id: randomId(), fromNode: from, toNode: to }) }
     })
   }, [])
 
   const onDisconnect = useCallback((from: string, to: string) => {
     setDoc((doc) => {
-      if (doc.isLocked) return doc
       return { ...doc, edges: doc.edges.filter((edge) => edge.fromNode !== from || edge.toNode !== to) }
     })
   }, [])
 
   const onBackgroundColorChange = useCallback((color: string) => {
     setDoc((doc) => {
-      if (doc.isLocked) return doc
       return { ...doc, backgroundColor: color }
     })
   }, [])

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef } from 'preact/hooks'
 import { loadDoc, saveDoc } from '../lib/dinky-api.js'
 import { Board } from './Board.js'
 import { Sidebar } from './Sidebar.js'
-import { saveToLocalStorage } from '../lib/persist.js'
+import { loadFromLocalStorage, saveToLocalStorage } from '../lib/persist.js'
 import { Drop } from './Drop.js'
 import { uploadImage } from '../lib/upload-image.js'
 import { randomId } from '../lib/utils.js'
@@ -14,8 +14,9 @@ const TITLE = 'Dinky Dog'
 const FILE_TYPES = /image\/.*/
 
 export function App() {
-  const { doc, setDoc,onNodeCreate, onNodeDelete, onNodeUpdate, onConnect, onDisconnect, onBackgroundColorChange } = useDocState()
+  const { doc, setDoc, onNodeCreate, onNodeDelete, onNodeUpdate, onConnect, onDisconnect, onBackgroundColorChange } = useDocState()
   const originalDoc = useRef(JSON.stringify(doc))
+  const passwordRef = useRef('')
 
   // Upload image
   const onFileDrop = useCallback(({ x, y, file }) => {
@@ -34,11 +35,28 @@ export function App() {
       })
   }, [onNodeCreate, onNodeUpdate, onNodeDelete])
 
+  const onLockChange = useCallback((isLocked: boolean) => {
+    setDoc((doc) => {
+      const newDoc = { ...doc, isLocked }
+      saveDoc(newDoc, passwordRef.current).catch(() => {
+        if (!passwordRef.current) {
+          passwordRef.current = prompt('Enter password')
+          saveDoc(newDoc, passwordRef.current).catch((err) => {
+            console.error('Error saving doc', err)
+          })
+        }
+      })
+      return newDoc
+    })
+  }, [setDoc, passwordRef])
+
   // Load doc from URL
   useEffect(() => {
     const id = getUrlId()
 
     if (id) {
+      passwordRef.current = loadFromLocalStorage(id)?.password
+
       loadDoc(id)
         .then((doc) => {
           console.log('Loaded doc', doc)
@@ -58,11 +76,11 @@ export function App() {
   useBeforeUnload(useCallback(() => {
     setDoc((doc) => {
       if (doc.id && doc.title && JSON.stringify(doc) !== originalDoc.current) {
-        saveDoc(doc, undefined, true)
+        saveDoc(doc, passwordRef.current, true)
       }
       return doc
     })
-  }, [setDoc, originalDoc.current]))
+  }, [setDoc, originalDoc.current, passwordRef]))
 
   // Update title
   useEffect(() => {
@@ -76,8 +94,8 @@ export function App() {
 
   // Save doc to local storage
   useEffect(() => {
-    saveToLocalStorage(doc)
-  }, [doc])
+    saveToLocalStorage(doc, passwordRef.current)
+  }, [doc, passwordRef])
 
   return (
     <Drop
@@ -94,7 +112,7 @@ export function App() {
         onBackgroundColorChange={onBackgroundColorChange}
       />
 
-      <Sidebar />
+      <Sidebar onLockChange={onLockChange} isLocked={doc.isLocked} />
     </Drop>
   )
 }

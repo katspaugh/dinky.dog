@@ -159,14 +159,14 @@ export function Board(props: BoardProps) {
 
   return (
     <div
-      className={`Board${props.isLocked ? ' Board_locked' : ''}`}
+      className={`Board ${props.isLocked ? 'Board_locked' : ''}`}
       style={sx}
       onClick={onBoardClick}
       onDblClick={onBoardDblClick}
     >
       {props.nodes?.map(renderNode)}
 
-      <svg viewBox="0 0 ${WIDTH} ${HEIGHT}">
+      <svg viewBox={`0 0 ${WIDTH} ${HEIGHT}`}>
         {props.edges?.map(renderEdge)} {tempEdge && renderEdge(tempEdge, undefined, undefined, mousePosition)}
       </svg>
 
