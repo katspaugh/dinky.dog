@@ -54,7 +54,7 @@ export function Sidebar({ isLocked, onLockChange }: SidebarProps) {
   }, [])
 
   return (
-    <aside className="Sidebar">
+    <aside className={`Sidebar${isLocked ? ' Sidebar_locked' : ''}`}>
       {toggleButton}
 
       <div
