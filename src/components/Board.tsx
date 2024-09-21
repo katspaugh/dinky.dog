@@ -1,5 +1,4 @@
-import { useCallback, useMemo, useState } from 'https://esm.sh/preact/hooks'
-import { html } from 'https://esm.sh/htm/preact'
+import { useCallback, useMemo, useState } from 'preact/hooks'
 import type { CanvasEdge, CanvasNode } from '../types/canvas'
 import { DraggableNode } from './DraggableNode.js'
 import { Edge } from './Edge.js'
@@ -12,8 +11,8 @@ import { ColorPicker } from './ColorPicker.js'
 type BoardProps = {
   nodes: CanvasNode[]
   edges: CanvasEdge[]
-  backgroundColor: string
-  isLocked: boolean
+  backgroundColor?: string
+  isLocked?: boolean
   onNodeCreate: (node: Partial<CanvasNode>) => CanvasNode
   onNodeDelete: (id: string) => void
   onNodeUpdate: (id: string, props: Partial<CanvasNode>) => void
@@ -101,29 +100,31 @@ export function Board(props: BoardProps) {
 
   const renderNode = useCallback(
     (node: CanvasNode) => {
-      return html`
-        <${DraggableNode}
-          ...${node}
-          key=${node.id}
-          onNodeUpdate=${onNodeUpdate}
-          onConnectStart=${setTempFrom}
-          onClick=${onNodeClick}
-          selected=${selectedNodes.includes(node.id)}
+      return (
+        <DraggableNode
+          {...node}
+          key={node.id}
+          onNodeUpdate={onNodeUpdate}
+          onConnectStart={setTempFrom}
+          onClick={onNodeClick}
+          selected={selectedNodes.includes(node.id)}
         />
-      `
+      )
     },
     [onNodeUpdate, selectedNodes],
   )
 
   const renderEdge = useCallback(
     (edge: CanvasEdge, _, __, toPosition?: { x: number; y: number }) => {
-      return html`<${Edge}
-        key=${edge.id || edge.fromNode + edge.toNode}
-        ...${edge}
-        nodes=${props.nodes}
-        onDisconnect=${props.onDisconnect}
-        toPosition=${toPosition}
-      /> `
+      return (
+        <Edge
+          key={edge.id || edge.fromNode + edge.toNode}
+          {...edge}
+          nodes={props.nodes}
+          onDisconnect={props.onDisconnect}
+          toPosition={toPosition}
+        />
+      )
     },
     [props.nodes, props.onDisconnect],
   )
@@ -154,22 +155,24 @@ export function Board(props: BoardProps) {
     [],
   )
 
-  return html`
+  const sx = useMemo(() => ({ width: `${WIDTH}px`, height: `${HEIGHT}px` }), [])
+
+  return (
     <div
-      class="Board${props.isLocked ? ' Board_locked' : ''}"
-      style="width: ${WIDTH}px; height: ${HEIGHT}px;"
-      onClick=${onBoardClick}
-      onDblClick=${onBoardDblClick}
+      className={`Board${props.isLocked ? ' Board_locked' : ''}`}
+      style={sx}
+      onClick={onBoardClick}
+      onDblClick={onBoardDblClick}
     >
-      ${props.nodes?.map(renderNode)}
+      {props.nodes?.map(renderNode)}
 
       <svg viewBox="0 0 ${WIDTH} ${HEIGHT}">
-        ${props.edges?.map(renderEdge)} ${tempEdge && renderEdge(tempEdge, undefined, undefined, mousePosition)}
+        {props.edges?.map(renderEdge)} {tempEdge && renderEdge(tempEdge, undefined, undefined, mousePosition)}
       </svg>
 
-      <${SelectionBox} onChange=${onSelectionChange} />
+      <SelectionBox onChange={onSelectionChange} />
 
-      <${ColorPicker} color=${props.backgroundColor} onColorChange=${onBackgroundColorChange} />
+      <ColorPicker color={props.backgroundColor} onColorChange={onBackgroundColorChange} />
     </div>
-  `
+  )
 }

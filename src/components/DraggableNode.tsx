@@ -1,6 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from 'https://esm.sh/preact/hooks'
+import { useCallback, useEffect, useMemo, useRef } from 'preact/hooks'
 import type { CanvasNode } from '../types/canvas'
-import { html } from 'https://esm.sh/htm/preact'
 import { draggable } from '../lib/draggable.js'
 import { Card } from './Card.js'
 import { Connector } from './Connector.js'
@@ -84,29 +83,35 @@ export function DraggableNode(props: DraggableNodeProps) {
     return draggable(ref.current, onDrag)
   }, [ref, onDrag])
 
-  return html`<div
-    class=${`DraggableNode${props.selected ? ' DraggableNode_selected' : ''}${isBackgroundCard ? ' DraggableNode_background' : ''}`}
-    style="transform: translate(${props.x}px, ${props.y}px);"
-    ref=${ref}
-    onClick=${onClick}
-    onDblClick=${stopPropagation}
-  >
-    <div class="DraggableNode_content">
-      <${Card}
-        id=${props.id}
-        content=${props.content}
-        color=${props.color}
-        width=${props.width}
-        height=${props.height}
-        onContentChange=${onContentChange}
-        onHeightChange=${onHeightChange}
-      />
+  const sx = useMemo(() => ({
+    transform: `translate(${props.x}px, ${props.y}px)`,
+  }), [props.x, props.y])
 
-      <${Connector} onClick=${onConnectStart} />
+  return (
+    <div
+      className={`DraggableNode${props.selected ? ' DraggableNode_selected' : ''}${isBackgroundCard ? ' DraggableNode_background' : ''}`}
+      style={sx}
+      ref={ref}
+      onClick={onClick}
+      onDblClick={stopPropagation}
+    >
+      <div className="DraggableNode_content">
+        <Card
+          id={props.id}
+          content={props.content}
+          color={props.color}
+          width={props.width}
+          height={props.height}
+          onContentChange={onContentChange}
+          onHeightChange={onHeightChange}
+        />
 
-      <${Resizer} onResize=${onResize} />
+        <Connector onClick={onConnectStart} />
 
-      <${ColorPicker} color=${props.color} onColorChange=${onColorChange} />
+        <Resizer onResize={onResize} />
+
+        <ColorPicker color={props.color} onColorChange={onColorChange} />
+      </div>
     </div>
-  </div>`
+  )
 }

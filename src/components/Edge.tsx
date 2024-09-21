@@ -1,5 +1,4 @@
-import { useCallback, useMemo } from 'https://esm.sh/preact/hooks'
-import { html } from 'https://esm.sh/htm/preact'
+import { useCallback, useMemo } from 'preact/hooks'
 import type { CanvasNode } from '../types/canvas.js'
 import { INITIAL_HEIGHT, INITIAL_WIDTH } from './Editable.js'
 
@@ -33,9 +32,11 @@ export const Edge = ({ fromNode, toNode, nodes, onDisconnect, toPosition }: Edge
     onDisconnect(fromNode, toNode)
   }, [fromNode, toNode, onDisconnect])
 
-  return html`<g class="Edge">
-    <path d=${`M ${x1} ${y1} C ${x1 + 100} ${y1} ${x2 - (isVertical ? 30 : 100)} ${y2} ${x2} ${y2}`} onClick=${onClick} />
-    <circle cx=${x1} cy=${y1} r="4" />
-    <circle cx=${x2} cy=${y2} r="4" />
-  </g>`
+  return (
+    <g className="Edge">
+      <path d={`M ${x1} ${y1} C ${x1 + 100} ${y1} ${x2 - (isVertical ? 30 : 100)} ${y2} ${x2} ${y2}`} onClick={onClick} />
+      <circle cx={x1} cy={y1} r="4" />
+      <circle cx={x2} cy={y2} r="4" />
+    </g>
+  )
 }

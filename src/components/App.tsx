@@ -1,5 +1,4 @@
-import { useCallback, useEffect, useRef } from 'https://esm.sh/preact/hooks'
-import { html } from 'https://esm.sh/htm/preact'
+import { useCallback, useEffect, useRef } from 'preact/hooks'
 import { loadDoc, saveDoc } from '../lib/dinky-api.js'
 import { Board } from './Board.js'
 import { Sidebar } from './Sidebar.js'
@@ -80,22 +79,22 @@ export function App() {
     saveToLocalStorage(doc)
   }, [doc])
 
-  return html`
-    <${Drop}
-      fileTypes=${FILE_TYPES}
-      onFileDrop=${onFileDrop}
+  return (
+    <Drop
+      fileTypes={FILE_TYPES}
+      onFileDrop={onFileDrop}
     >
-    <${Board}
-      ...${doc}
-      onNodeCreate=${onNodeCreate}
-      onNodeDelete=${onNodeDelete}
-      onNodeUpdate=${onNodeUpdate}
-      onConnect=${onConnect}
-      onDisconnect=${onDisconnect}
-      onBackgroundColorChange=${onBackgroundColorChange}
-    />
+      <Board
+        {...doc}
+        onNodeCreate={onNodeCreate}
+        onNodeDelete={onNodeDelete}
+        onNodeUpdate={onNodeUpdate}
+        onConnect={onConnect}
+        onDisconnect={onDisconnect}
+        onBackgroundColorChange={onBackgroundColorChange}
+      />
 
-    <${Sidebar} />
-  </${Drop}>
-`
+      <Sidebar />
+    </Drop>
+  )
 }

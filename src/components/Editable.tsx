@@ -1,5 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'https://esm.sh/preact/hooks'
-import { html } from 'https://esm.sh/htm/preact'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'preact/hooks'
 import { sanitizeHtml } from '../lib/sanitize-html.js'
 import { parseUrl } from '../lib/utils.js'
 import { fetchPreview, type LinkPreview } from '../lib/link-preview.js'
@@ -71,19 +70,23 @@ export const Editable = ({ id, content, width, height, onChange, onHeightChange 
 
   useEffect(updateHeight, [updateHeight])
 
-  return html`<div
-    ref=${ref}
-    id=${id}
-    class="Editable"
-    contenteditable
-    dangerouslySetInnerHTML=${htmlContent}
-    onInput=${updateHeight}
-    onBlur=${onBlur}
-    onClick=${allowLinkClick}
-    style="
-      width: ${width || INITIAL_WIDTH}px;
-      height: ${isManualHeight ? height + 'px' : undefined};
-      min-height: ${!isManualHeight && hasMinHeight ? INITIAL_HEIGHT + 'px' : undefined};
-    "
-  />`
+  const style = useMemo(() => ({
+    width: width || INITIAL_WIDTH,
+    height: isManualHeight ? height + 'px' : undefined,
+    minHeight: !isManualHeight && hasMinHeight ? INITIAL_HEIGHT + 'px' : undefined,
+  }), [width, height, isManualHeight, hasMinHeight])
+
+  return (
+    <div
+      ref={ref}
+      id={id}
+      className="Editable"
+      contenteditable
+      dangerouslySetInnerHTML={htmlContent}
+      onInput={updateHeight}
+      onBlur={onBlur}
+      onClick={allowLinkClick}
+      style={style}
+    />
+  )
 }

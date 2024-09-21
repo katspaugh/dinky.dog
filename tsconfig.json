@@ -18,8 +18,10 @@
     "skipLibCheck": true,
     "sourceMap": true,
     "outDir": "./dist",
-    "types": ["./types.d.ts"]
+    "types": ["./types.d.ts", "preact"],
+    "jsx": "react-jsx",
+    "jsxImportSource": "preact"
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "src/components/Card.tsx"],
   "exclude": ["node_modules", "dist"]
 }

@@ -1,5 +1,4 @@
-import { useCallback, useEffect, useState } from 'https://esm.sh/preact/hooks'
-import { html } from 'https://esm.sh/htm/preact'
+import { useCallback, useEffect, useState } from 'preact/hooks'
 import { getSavedStates } from '../lib/persist.js'
 import { makeUrl } from '../lib/url.js'
 
@@ -23,20 +22,21 @@ export function Sidebar() {
   const stopPropagation = useCallback((e) => e.stopPropagation(), [])
 
   const renderLink = useCallback(
-    (doc) =>
-      html`<li key=${doc.url}>
-        <a href=${doc.url}>
-          ${doc.title}
+    (doc) => (
+      <li key={doc.url}>
+        <a href={doc.url}>
+          {doc.title}
         </a>
-      </li>`,
+      </li>
+    ),
     [],
   )
 
-  const toggleButton = html`<button class="Sidebar_button" onClick=${toggleDrawer}>
+  const toggleButton = <button className="Sidebar_button" onClick={toggleDrawer}>
     <img src="/images/dinky-small.png" alt="Dinky Dog" />
-  </button>`
+  </button>
 
-  const divider = html`<hr />`
+  const divider = <hr />
 
   useEffect(() => {
     const onClickOutside = () => {
@@ -48,27 +48,29 @@ export function Sidebar() {
     }
   }, [])
 
-  return html`<aside class="Sidebar">
-    ${toggleButton}
+  return (
+    <aside className="Sidebar">
+      {toggleButton}
 
-    <div class="Sidebar_drawer" style=${`transform: translateX(${isOpen ? 0 : '100%'})`} onClick=${stopPropagation}>
-      <h1>Dinky Dog</h1>
+      <div className="Sidebar_drawer" style={{ transform: `translateX(${isOpen ? 0 : '100%'})` }} onClick={stopPropagation}>
+        <h1>Dinky Dog</h1>
 
-      ${toggleButton} ${divider}
+        {toggleButton} {divider}
 
-      <ul>
-        ${renderLink({ url: makeUrl(Math.random().toString(36).slice(2)), title: '＋New' })}
-      </ul>
+        <ul>
+          {renderLink({ url: makeUrl(Math.random().toString(36).slice(2)), title: '＋New' })}
+        </ul>
 
-      <ul class="Sidebar_links">
-        ${docs.map((doc) => renderLink({ url: makeUrl(doc.id, doc.title), title: doc.title }))}
-      </ul>
+        <ul className="Sidebar_links">
+          {docs.map((doc) => renderLink({ url: makeUrl(doc.id, doc.title), title: doc.title }))}
+        </ul>
 
-      ${divider}
+        {divider}
 
-      <ul>
-        ${fixedLinks.map(renderLink)}
-      </ul>
-    </div>
-  </aside>`
+        <ul>
+          {fixedLinks.map(renderLink)}
+        </ul>
+      </div>
+    </aside>
+  )
 }

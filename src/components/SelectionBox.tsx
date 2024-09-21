@@ -1,5 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'https://esm.sh/preact/hooks'
-import { html } from 'https://esm.sh/htm/preact'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'preact/hooks'
 import { draggable } from '../lib/draggable.js'
 
 type SelectionBoxProps = {
@@ -61,7 +60,14 @@ export function SelectionBox({ onChange }: SelectionBoxProps) {
     height = -height
   }
 
-  return html`<div class="SelectionBox" ref=${ref}>
-    <div style="left: ${left}px; top: ${top}px; width: ${width}px; height: ${height}px;" />
-  </div>`
+  const style = useMemo(() => ({
+    left: `${left}px`,
+    top: `${top}px`,
+    width: `${width}px`,
+    height: `${height}px`,
+  }), [left, top, width, height])
+
+  return <div className="SelectionBox" ref={ref}>
+    <div style={style} />
+  </div>
 }

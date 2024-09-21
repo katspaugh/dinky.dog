@@ -1,5 +1,3 @@
-import { html } from 'https://esm.sh/htm/preact'
-
 type ColorPickerProps ={
   color?: string;
   onColorChange: (color: string) => void;
@@ -28,7 +26,13 @@ PRESET_COLORS.forEach((color) => {
 document.body.appendChild(datalist)
 
 export const ColorPicker = ({ color, onColorChange }: ColorPickerProps) => {
-  return html`
-    <input class="ColorPicker" type="color" value=${color || PRESET_COLORS[0]} onInput=${(e) => onColorChange(e.target.value)} list="colors" />
-`
+  return (
+    <input
+      className="ColorPicker"
+      type="color"
+      value={color || PRESET_COLORS[0]}
+      onInput={(e) => onColorChange((e.target as HTMLInputElement).value)}
+      list="colors"
+    />
+  )
 }

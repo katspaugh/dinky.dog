@@ -1,5 +1,4 @@
-import { useCallback } from 'https://esm.sh/preact/hooks'
-import { html } from 'https://esm.sh/htm/preact'
+import { useCallback } from 'preact/hooks'
 
 type ConnectorProps = {
   onClick: () => void
@@ -14,5 +13,5 @@ export const Connector = ({ onClick }: ConnectorProps) => {
     },
     [onClick],
   )
-  return html`<button class="Connector" onClick=${onButtonClick} />`
+  return <button className="Connector" onClick={onButtonClick} />
 }
