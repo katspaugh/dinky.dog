@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'https://esm.sh/preact/hooks'
-import { html } from '../lib/html.js'
+import { html } from 'https://esm.sh/htm/preact'
 import { getSavedStates } from '../lib/persist.js'
 import { makeUrl } from '../lib/url.js'
 

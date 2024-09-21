@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'https://esm.sh/preact/hooks'
 import type { CanvasNode } from '../types/canvas'
-import { html } from '../lib/html.js'
+import { html } from 'https://esm.sh/htm/preact'
 import { draggable } from '../lib/draggable.js'
 import { Card } from './Card.js'
 import { Connector } from './Connector.js'

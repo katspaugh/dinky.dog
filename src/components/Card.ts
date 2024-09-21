@@ -1,4 +1,4 @@
-import { html } from '../lib/html.js'
+import { html } from 'https://esm.sh/htm/preact'
 import { Editable } from './Editable.js'
 
 type CardProps = {

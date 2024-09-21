@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from 'https://esm.sh/preact/hooks'
+import { html } from 'https://esm.sh/htm/preact'
 import type { CanvasEdge, CanvasNode } from '../types/canvas'
-import { html } from '../lib/html.js'
 import { DraggableNode } from './DraggableNode.js'
 import { Edge } from './Edge.js'
 import { useMousePosition } from '../hooks/useMousePosition.js'

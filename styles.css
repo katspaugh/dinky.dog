@@ -79,6 +79,10 @@ body {
   pointer-events: none;
 }
 
+.Board_locked a {
+  pointer-events: auto;
+}
+
 .DraggableNode {
   position: absolute;
   z-index: 3;
@@ -130,7 +134,7 @@ body {
   min-width: 70px;
   min-height: 32px;
   border-radius: inherit;
-  padding: 10px;
+  padding: 8px;
   overflow: auto;
   outline: none;
 }
@@ -174,6 +178,12 @@ body {
   width: 100%;
   height: auto;
   pointer-events: none;
+  border-radius: inherit;
+}
+
+.Editable a {
+  color: var(--edge-color);
+  text-decoration: underline;
 }
 
 .Edge line,

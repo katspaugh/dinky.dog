@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from 'https://esm.sh/preact/hooks'
-import { html } from '../lib/html.js'
+import { html } from 'https://esm.sh/htm/preact'
 import type { CanvasNode } from '../types/canvas.js'
 import { INITIAL_HEIGHT, INITIAL_WIDTH } from './Editable.js'
 

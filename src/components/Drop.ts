@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'https://esm.sh/preact/hooks'
 import { ComponentChildren } from 'https://esm.sh/preact'
-import { html } from '../lib/html.js'
+import { html } from 'https://esm.sh/htm/preact'
 
 type DropProps = {
 fileTypes: RegExp

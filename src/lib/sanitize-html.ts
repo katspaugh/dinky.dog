@@ -50,7 +50,7 @@ export function sanitizeHtml(html = '') {
       'span',
       'audio',
     ],
-    ALLOWED_ATTR: ['href', 'src', 'width', 'height', 'alt', 'title', 'crossorigin', 'controls', 'target'],
+    ALLOWED_ATTR: ['href', 'src', 'width', 'height', 'alt', 'title', 'crossorigin', 'controls', 'target', 'nofollow', 'noopener'],
     ALLOWED_URI_REGEXP: /^(blob:|https?:\/\/)/,
   })
 }

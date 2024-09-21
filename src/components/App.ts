@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef } from 'https://esm.sh/preact/hooks'
-import { html } from '../lib/html.js'
+import { html } from 'https://esm.sh/htm/preact'
 import { loadDoc, saveDoc } from '../lib/dinky-api.js'
 import { Board } from './Board.js'
 import { Sidebar } from './Sidebar.js'

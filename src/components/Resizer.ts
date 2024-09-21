@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'https://esm.sh/preact/hooks'
-import { html } from '../lib/html.js'
+import { html } from 'https://esm.sh/htm/preact'
 import { draggable } from '../lib/draggable.js'
 
 type ResizerProps = {
