@@ -50,6 +50,10 @@ export function App() {
     })
   }, [setDoc, passwordRef])
 
+  const onTitleChange = useCallback((title: string) => {
+    setDoc((doc) => ({ ...doc, title }))
+  }, [setDoc])
+
   // Load doc from URL
   useEffect(() => {
     const id = getUrlId()
@@ -112,7 +116,12 @@ export function App() {
         onBackgroundColorChange={onBackgroundColorChange}
       />
 
-      <Sidebar onLockChange={onLockChange} isLocked={doc.isLocked} />
+      <Sidebar
+        onLockChange={onLockChange}
+        onTitleChange={onTitleChange}
+        isLocked={doc.isLocked}
+        title={doc.title}
+      />
     </Drop>
   )
 }

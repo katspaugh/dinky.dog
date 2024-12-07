@@ -12,10 +12,12 @@ const fixedLinks = [
 
 type SidebarProps = {
   isLocked: boolean
+  title: string
   onLockChange: (isLocked: boolean) => void
+  onTitleChange: (title: string) => void
 }
 
-export function Sidebar({ isLocked, onLockChange }: SidebarProps) {
+export function Sidebar({ isLocked, title, onLockChange, onTitleChange }: SidebarProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [docs, setDocs] = useState([])
 
@@ -38,6 +40,11 @@ export function Sidebar({ isLocked, onLockChange }: SidebarProps) {
     [],
   )
 
+  const onInput = useCallback((e) => {
+    const value = e.target.value
+    onTitleChange(value)
+  }, [onTitleChange])
+
   const toggleButton = (
     <button className="Sidebar_button" onClick={toggleDrawer}>
       <img src="/images/dinky-small.png" alt="Dinky Dog" />
@@ -58,7 +65,7 @@ export function Sidebar({ isLocked, onLockChange }: SidebarProps) {
 
   return (
     <aside className={`Sidebar${isLocked ? ' Sidebar_locked' : ''}`}>
-      <input />
+      <input onInput={onInput} value={title} />
 
       {toggleButton}
 
@@ -73,7 +80,7 @@ export function Sidebar({ isLocked, onLockChange }: SidebarProps) {
 
         {divider}
 
-        <div className="Sidebar_buttons">
+        <div className="Sidebar_actions">
           <LockButton isLocked={isLocked} onLockChange={onLockChange} />
         </div>
 
