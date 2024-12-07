@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'preact/hooks'
 import { getSavedStates } from '../lib/persist.js'
 import { makeUrl } from '../lib/url.js'
 import { LockButton } from './LockButton.js'
+
 const fixedLinks = [
   { title: 'About', url: makeUrl('about-9315ba924c9d16e632145116d69ae72a') },
   { title: 'Privacy', url: makeUrl('074505b43d5c0b97', 'privacy') },
@@ -37,9 +38,11 @@ export function Sidebar({ isLocked, onLockChange }: SidebarProps) {
     [],
   )
 
-  const toggleButton = <button className="Sidebar_button" onClick={toggleDrawer}>
-    <img src="/images/dinky-small.png" alt="Dinky Dog" />
-  </button>
+  const toggleButton = (
+    <button className="Sidebar_button" onClick={toggleDrawer}>
+      <img src="/images/dinky-small.png" alt="Dinky Dog" />
+    </button>
+  )
 
   const divider = <hr />
 
@@ -55,6 +58,8 @@ export function Sidebar({ isLocked, onLockChange }: SidebarProps) {
 
   return (
     <aside className={`Sidebar${isLocked ? ' Sidebar_locked' : ''}`}>
+      <input />
+
       {toggleButton}
 
       <div

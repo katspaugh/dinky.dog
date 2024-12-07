@@ -22,6 +22,6 @@
     "jsx": "react-jsx",
     "jsxImportSource": "preact"
   },
-  "include": ["src/**/*.ts", "src/components/Card.tsx"],
+  "include": ["src"],
   "exclude": ["node_modules", "dist"]
 }
