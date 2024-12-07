@@ -25,7 +25,7 @@
   },
   "homepage": "https://github.com/katspaugh/dinky.dog#readme",
   "devDependencies": {
-    "@types/dompurify": "^3.0.5",
+    "dompurify": "^3.2.2",
     "preact": "^10.24.0",
     "typescript": "^5.7.2"
   }
