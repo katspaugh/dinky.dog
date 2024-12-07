@@ -36,16 +36,16 @@ export function App() {
   }, [onNodeCreate, onNodeUpdate, onNodeDelete])
 
   const onLockChange = useCallback((isLocked: boolean) => {
+    if (!passwordRef.current) {
+      passwordRef.current = prompt('Enter password')
+    }
     setDoc((doc) => {
       const newDoc = { ...doc, isLocked }
-      saveDoc(newDoc, passwordRef.current).catch(() => {
-        if (!passwordRef.current) {
-          passwordRef.current = prompt('Enter password')
-          saveDoc(newDoc, passwordRef.current).catch((err) => {
-            console.error('Error saving doc', err)
-          })
-        }
-      })
+      saveDoc(newDoc, passwordRef.current)
+        .catch((err) => {
+          setDoc((doc) => ({ ...doc, isLocked: !isLocked }))
+          console.error('Error saving doc', err)
+        })
       return newDoc
     })
   }, [setDoc, passwordRef])
