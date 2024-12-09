@@ -288,6 +288,7 @@ body {
   z-index: 100;
   height: 100vh;
   display: flex;
+  pointer-events: none;
 }
 
 .Sidebar input {
@@ -303,6 +304,7 @@ body {
   width: 12em;
   opacity: 0.7;
   transition: opacity 0.2s;
+  pointer-events: all;
 }
 
 .Sidebar input:focus {
@@ -316,6 +318,7 @@ body {
   padding: 0.5em 1em;
   font-size: 18px;
   cursor: pointer;
+  pointer-events: all;
 }
 
 .Sidebar button[disabled] {
@@ -382,6 +385,7 @@ button.Sidebar_button {
   flex-direction: column;
   gap: 10px;
   padding-bottom: 10px;
+  pointer-events: all;
 }
 
 .Sidebar h1 {
