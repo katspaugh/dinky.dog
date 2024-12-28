@@ -121,7 +121,6 @@ body {
   border: 1px solid var(--border-color);
   border-radius: 6px;
   background-color: var(--card-color);
-  opacity: 0.6;
 }
 
 .DraggableNode_content {
