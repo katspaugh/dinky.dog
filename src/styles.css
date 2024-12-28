@@ -121,6 +121,7 @@ body {
   border: 1px solid var(--border-color);
   border-radius: 6px;
   background-color: var(--card-color);
+  opacity: 0.6;
 }
 
 .DraggableNode_content {
@@ -211,7 +212,6 @@ body {
   text-decoration: underline;
 }
 
-.Edge line,
 .Edge path {
   stroke: var(--edge-color);
   stroke-width: 4;
@@ -220,7 +220,6 @@ body {
   cursor: pointer;
 }
 
-.Edge line:hover,
 .Edge path:hover {
   stroke: var(--accent-color);
   stroke-width: 6;
