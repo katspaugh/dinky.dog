@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'preact/hooks'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { sanitizeHtml } from '../lib/sanitize-html.js'
 import { parseUrl } from '../lib/utils.js'
 import { fetchPreview, type LinkPreview } from '../lib/link-preview.js'
@@ -46,7 +46,7 @@ export const Editable = ({ id, content, width, height, onChange, onHeightChange 
     }
     const timeout = setTimeout(updateHeight, 100)
     return () => clearTimeout(timeout)
-  }, [ref, onChange, updateHeight])
+  }, [onChange, updateHeight])
 
   const allowLinkClick = useCallback((e) => {
     if (e.target instanceof HTMLAnchorElement) {
@@ -81,7 +81,7 @@ export const Editable = ({ id, content, width, height, onChange, onHeightChange 
       ref={ref}
       id={id}
       className="Editable"
-      contenteditable
+      contentEditable
       dangerouslySetInnerHTML={htmlContent}
       onInput={updateHeight}
       onBlur={onBlur}

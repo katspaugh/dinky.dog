@@ -1,27 +1,7 @@
 {
-  "compilerOptions": {
-    "target": "es6",
-    "lib": ["es2017", "dom"],
-    "module": "esnext",
-    "moduleResolution": "node",
-    "allowJs": true,
-    "checkJs": true,
-    "noEmit": false,
-    "strict": false,
-    "noImplicitAny": false,
-    "strictNullChecks": false,
-    "strictFunctionTypes": false,
-    "strictBindCallApply": false,
-    "strictPropertyInitialization": false,
-    "noImplicitThis": true,
-    "alwaysStrict": true,
-    "skipLibCheck": true,
-    "sourceMap": true,
-    "outDir": "./dist",
-    "types": ["./types.d.ts", "preact"],
-    "jsx": "react-jsx",
-    "jsxImportSource": "preact"
-  },
-  "include": ["src"],
-  "exclude": ["node_modules", "dist"]
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.node.json" }
+  ]
 }

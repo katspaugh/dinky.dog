@@ -1,33 +1,13 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=0.8">
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dinky Dog</title>
-
-    <meta http-equiv="Content-Security-Policy" content="
-        default-src 'self';
-        img-src * data: blob:;
-        script-src 'self' 'unsafe-inline' https://esm.sh https://unpkg.com;
-        style-src 'self' 'unsafe-inline';
-        connect-src 'self' ws: wss: https://*.dinky.dog;
-        media-src *;
-        ">
-
-    <link rel="icon" href="/favicon.ico" />
-    <link rel="stylesheet" href="/styles.css" />
   </head>
-
   <body>
-    <script type="importmap">
-      {
-        "imports": {
-          "preact": "https://esm.sh/preact",
-          "preact/hooks": "https://esm.sh/preact/hooks",
-          "preact/jsx-runtime": "https://esm.sh/preact/jsx-runtime"
-        }
-      }
-    </script>
-    <script type="module" src="/dist/index.js"></script>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

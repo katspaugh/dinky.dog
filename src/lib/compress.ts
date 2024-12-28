@@ -1,4 +1,4 @@
-export async function compressObjectToString(obj: Object) {
+export async function compressObjectToString(obj: object) {
   const objString = JSON.stringify(obj)
   if (typeof CompressionStream === 'undefined') {
     return window.btoa(objString)

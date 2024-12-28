@@ -1,11 +1,11 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'preact/hooks'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { draggable } from '../lib/draggable.js'
 
 type SelectionBoxProps = {
   onChange: ({ x1, y1, x2, y2 }: { x1: number, y1: number, x2: number, y2: number }) => void
 }
 
-export function SelectionBox({ onChange }: SelectionBoxProps) {
+function MouseSelectionBox({ onChange }: SelectionBoxProps) {
   const [box, setBox] = useState<{ x1: number, y1: number, x2: number, y2: number }>({ x1: 0, y1: 0, x2: 0, y2: 0 })
   const ref = useRef<HTMLDivElement>(null)
 
@@ -31,9 +31,6 @@ export function SelectionBox({ onChange }: SelectionBoxProps) {
   const onDragEnd = useCallback(() => {
     setBox( { x1: -10000, y1: -10000, x2: -10000, y2: - 10000 })
   }, [setBox])
-
-  const isTouchDevice = matchMedia('(pointer: coarse)').matches
-  if (isTouchDevice) return
 
   useEffect(() => {
     if (!ref.current) return
@@ -70,4 +67,10 @@ export function SelectionBox({ onChange }: SelectionBoxProps) {
   return <div className="SelectionBox" ref={ref}>
     <div style={style} />
   </div>
+}
+
+export function SelectionBox(props: SelectionBoxProps) {
+  const isTouchDevice = matchMedia('(pointer: coarse)').matches
+  if (isTouchDevice) return
+  return <MouseSelectionBox {...props} />
 }

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'preact/hooks'
+import { useCallback, useEffect, useState } from 'react'
 import { getSavedStates } from '../lib/persist.js'
 import { makeUrl } from '../lib/url.js'
 import { LockButton } from './LockButton.js'
@@ -11,8 +11,8 @@ const fixedLinks = [
 ]
 
 type SidebarProps = {
-  isLocked: boolean
-  title: string
+  isLocked?: boolean
+  title?: string
   onLockChange: (isLocked: boolean) => void
   onTitleChange: (title: string) => void
 }
@@ -47,7 +47,7 @@ export function Sidebar({ isLocked, title, onLockChange, onTitleChange }: Sideba
 
   const toggleButton = (
     <button className="Sidebar_button" onClick={toggleDrawer}>
-      <img src="/images/dinky-small.png" alt="Dinky Dog" />
+      <img src="/dinky-small.png" alt="Dinky Dog" />
     </button>
   )
 
@@ -65,7 +65,7 @@ export function Sidebar({ isLocked, title, onLockChange, onTitleChange }: Sideba
 
   return (
     <aside className={`Sidebar${isLocked ? ' Sidebar_locked' : ''}`}>
-      <input onInput={onInput} value={title} />
+      <input onInput={onInput} value={title ?? ''} />
 
       {toggleButton}
 

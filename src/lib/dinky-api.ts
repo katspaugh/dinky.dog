@@ -88,7 +88,7 @@ export async function loadDoc(id: string): Promise<DinkyDataV2> {
   return convertV1ToV2(data)
 }
 
-async function postData(id: string, data: any, password?: string) {
+async function postData(id: string, data: string, password?: string): Promise<{ key: string, status: number }> {
   const res = await fetch(API_URL, {
     method: 'POST',
     body: JSON.stringify({ id, data, password }),
@@ -100,13 +100,13 @@ async function postData(id: string, data: any, password?: string) {
   return json
 }
 
-function sendBeacon(id: string, data: any, password?: string) {
+function sendBeacon(id: string, data: string, password?: string) {
   const res = navigator.sendBeacon(API_URL, JSON.stringify({ id, data, password }))
   if (!res) {
     throw new Error('Beacon failed')
   }
 }
-export async function saveDoc(data: any, password?: string, isUnload = false) {
+export async function saveDoc(data: DinkyDataV2, password?: string, isUnload = false) {
   const encData = await compressObjectToString(data)
   const sendFn = isUnload ? sendBeacon : postData
   return sendFn(data.id, encData, password)

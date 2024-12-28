@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'https://esm.sh/preact/hooks'
+import { useEffect, useState } from 'react'
 
 export function useMousePosition() {
   const [mousePos, setMousePos] = useState<{ x: number; y: number }>({ x: 0, y: 0 })

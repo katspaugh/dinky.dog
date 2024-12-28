@@ -1,6 +1,6 @@
-import { useEffect } from 'https://esm.sh/preact/hooks'
+import { useEffect } from 'react'
 
-export function useOnKey(key: string, callback: () => void, deps?: any[]) {
+export function useOnKey(key: string, callback: () => void, deps = []) {
   useEffect(() => {
     const handle = (e: KeyboardEvent) => {
       if (e.key === key) {

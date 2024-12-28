@@ -5,8 +5,8 @@ export type CanvasNode = {
   type: string
   x: number
   y: number
-  width: number
-  height: number
+  width?: number
+  height?: number
   color?: string
   content?: string
 }

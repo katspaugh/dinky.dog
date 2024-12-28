@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef } from 'preact/hooks'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import type { CanvasNode } from '../types/canvas'
 import { draggable } from '../lib/draggable.js'
 import { Card } from './Card.js'
@@ -31,7 +31,7 @@ export function DraggableNode(props: DraggableNodeProps) {
       props.onNodeUpdate(props.id, newPosition)
       return newPosition
     },
-    [props.onNodeUpdate, position],
+    [props.onNodeUpdate, props.id, position],
   )
 
   const onContentChange = useCallback((content: string) => {
@@ -44,7 +44,7 @@ export function DraggableNode(props: DraggableNodeProps) {
 
   const onConnectStart = useCallback(() => {
     props.onConnectStart(props.id)
-  }, [props.id, props.onNodeUpdate])
+  }, [props.id, props.onConnectStart])
 
   const onClick = useCallback((e) => {
     e.stopPropagation()
@@ -81,7 +81,7 @@ export function DraggableNode(props: DraggableNodeProps) {
   useEffect(() => {
     if (!ref.current) return
     return draggable(ref.current, onDrag)
-  }, [ref, onDrag])
+  }, [onDrag])
 
   const sx = useMemo(() => ({
     transform: `translate(${props.x}px, ${props.y}px)`,
@@ -93,7 +93,7 @@ export function DraggableNode(props: DraggableNodeProps) {
       style={sx}
       ref={ref}
       onClick={onClick}
-      onDblClick={stopPropagation}
+      onDoubleClick={stopPropagation}
     >
       <div className="DraggableNode_content">
         <Card

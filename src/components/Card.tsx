@@ -1,4 +1,4 @@
-import { useMemo } from 'preact/hooks'
+import { useMemo } from 'react'
 import { Editable } from './Editable.js'
 
 type CardProps = {

@@ -1,4 +1,4 @@
-import { useCallback } from 'preact/hooks'
+import { useCallback } from 'react'
 
 type ConnectorProps = {
   onClick: () => void

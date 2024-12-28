@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'https://esm.sh/preact/hooks'
+import { useCallback, useState } from 'react'
 import type { DinkyDataV2 } from '../lib/dinky-api'
 import type { CanvasNode } from '../types/canvas'
 import { randomId } from '../lib/utils.js'
@@ -20,8 +20,7 @@ export function useDocState() {
     }
 
     setDoc((doc) => {
-      doc.nodes.push(node)
-      return { ...doc }
+      return { ...doc, nodes: doc.nodes.concat(node) }
     })
 
     return node

@@ -1,10 +1,9 @@
-import { useCallback, useState } from 'preact/hooks'
-import { ComponentChildren } from 'preact'
+import { useCallback, useState, type ReactNode } from 'react'
 
 type DropProps = {
   fileTypes: RegExp
   onFileDrop: ({ x, y, file }: { x: number; y: number; file: File }) => void
-  children: ComponentChildren
+  children: ReactNode
 }
 
 export const Drop = ({ fileTypes, onFileDrop, children }: DropProps) => {

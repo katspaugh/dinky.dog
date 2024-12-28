@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'preact/hooks'
+import { useCallback, useEffect, useRef } from 'react'
 import { loadDoc, saveDoc } from '../lib/dinky-api.js'
 import { Board } from './Board.js'
 import { Sidebar } from './Sidebar.js'
@@ -60,6 +60,7 @@ export function App() {
 
     if (id) {
       passwordRef.current = loadFromLocalStorage(id)?.password
+      setDoc((doc) => ({ ...doc, id }))
 
       loadDoc(id)
         .then((doc) => {
@@ -74,7 +75,7 @@ export function App() {
       setDoc((doc) => ({ ...doc, id: newId }))
       setUrlId(newId)
     }
-  }, [])
+  }, [setDoc])
 
   // Save doc on unload
   useBeforeUnload(useCallback(() => {
@@ -84,7 +85,7 @@ export function App() {
       }
       return doc
     })
-  }, [setDoc, originalDoc.current, passwordRef]))
+  }, [setDoc, passwordRef]))
 
   // Update title
   useEffect(() => {

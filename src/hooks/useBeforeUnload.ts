@@ -1,4 +1,4 @@
-import { useEffect } from 'https://esm.sh/preact/hooks'
+import { useEffect } from 'react'
 
 export function useBeforeUnload(callback: () => void) {
   useEffect(() => {

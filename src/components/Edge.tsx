@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'preact/hooks'
+import { useCallback, useMemo } from 'react'
 import type { CanvasNode } from '../types/canvas.js'
 import { INITIAL_HEIGHT, INITIAL_WIDTH } from './Editable.js'
 
@@ -22,7 +22,7 @@ export const Edge = ({ fromNode, toNode, nodes, onDisconnect, toPosition }: Edge
 
   // If the nodes are more one under the other than one next to each other, we want to draw the edge vertically
   // from the bottom of the from node to the top of the to node
-  let isVertical = (y2 - y1 > minYDistance) && (x2 < x1)
+  const isVertical = (y2 - y1 > minYDistance) && (x2 < x1)
   if (isVertical && !toPosition) {
     x2 = to.x + (to.width || INITIAL_WIDTH) / 2
     y2 = to.y

@@ -1,7 +1,7 @@
-import { useCallback } from 'preact/hooks'
+import { useCallback } from 'react'
 
 type LockButtonProps = {
-  isLocked: boolean
+  isLocked?: boolean
   onLockChange: (isLocked: boolean) => void
 }
 

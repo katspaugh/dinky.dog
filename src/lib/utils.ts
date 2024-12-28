@@ -1,4 +1,4 @@
-export function debounce<T extends (...args: any[]) => any>(
+export function debounce<T extends (...args: unknown[]) => ReturnType<T> | PromiseLike<ReturnType<T>>>(
   fn: T,
   ms: number,
 ): (...args: Parameters<T>) => Promise<ReturnType<T>> {
@@ -8,14 +8,18 @@ export function debounce<T extends (...args: any[]) => any>(
     return new Promise((resolve) => {
       timer = setTimeout(() => {
         const result = fn(...args)
-        result instanceof Promise ? result.then(resolve) : resolve(result)
+        if (result instanceof Promise) {
+          result.then(resolve)
+        } else {
+          resolve(result)
+        }
       }, ms)
     })
   }
 }
 
 export function randomId(length = 8) {
-  let array = new Uint8Array(length)
+  const array = new Uint8Array(length)
   window.crypto.getRandomValues(array)
 
   let randomId = ''

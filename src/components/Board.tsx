@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'preact/hooks'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import type { CanvasEdge, CanvasNode } from '../types/canvas'
 import { DraggableNode } from './DraggableNode.js'
 import { Edge } from './Edge.js'
@@ -25,32 +25,24 @@ const WIDTH = 5000
 const HEIGHT = 5000
 
 export function Board(props: BoardProps) {
-  const [tempFrom, setTempFrom] = useState<string | null>(null)
+  const tempFrom = useRef<string | null>(null)
   const [selectedNodes, setSelectedNodes] = useState<string[]>([])
   const mousePosition = useMousePosition()
-
-  const tempEdge = useMemo(
-    () => (tempFrom ? { id: Math.random().toString(), fromNode: tempFrom, toNode: tempFrom } : null),
-    [tempFrom],
-  )
 
   const onBackgroundColorChange = useCallback((color: string) => {
     props.onBackgroundColorChange(color)
   }, [props.onBackgroundColorChange])
 
-  const onNodeClick = useCallback(
-    (id: string) => {
-      setTempFrom((oldFrom) => {
-        if (oldFrom && oldFrom !== id) {
-          props.onConnect(oldFrom, id)
-        } else {
-          setSelectedNodes([id])
-        }
-        return null
-      })
-    },
-    [props.onConnect],
-  )
+  const onNodeClick = useCallback((id: string) => {
+    if (tempFrom.current) {
+      if (tempFrom.current !== id) {
+        props.onConnect(tempFrom.current, id)
+      }
+      tempFrom.current = null
+    } else {
+      setSelectedNodes([id])
+    }
+  }, [props.onConnect])
 
   const onNodeCreate = useCallback((nodeProps?: Partial<CanvasNode>) => {
     const node = props.onNodeCreate({
@@ -69,19 +61,17 @@ export function Board(props: BoardProps) {
   const onBoardClick = useCallback(() => {
     setSelectedNodes([])
 
-    setTempFrom((oldFrom) => {
-      if (oldFrom) {
-        const node = onNodeCreate()
-        props.onConnect(oldFrom, node.id)
-      }
-      return null
-    })
-  }, [props.onNodeCreate, props.onConnect, mousePosition.x, mousePosition.y])
+    if (tempFrom.current) {
+      const node = onNodeCreate()
+      props.onConnect(tempFrom.current, node.id)
+      tempFrom.current = null
+    }
+  }, [onNodeCreate, props.onConnect])
 
   const onBoardDblClick = useCallback(() => {
     const node = onNodeCreate()
     setSelectedNodes([node.id])
-  }, [mousePosition.x, mousePosition.y, props.onNodeCreate])
+  }, [onNodeCreate])
 
   const onNodeUpdate = useCallback((id: string, item: Partial<CanvasNode>) => {
     if ((item.x !== undefined || item.y !== undefined) && selectedNodes.length > 1) {
@@ -98,6 +88,10 @@ export function Board(props: BoardProps) {
     props.onNodeUpdate(id, item)
   }, [props.nodes, props.onNodeUpdate, selectedNodes])
 
+  const onConnectStart = useCallback((id: string) => {
+    tempFrom.current = id
+  }, [])
+
   const renderNode = useCallback(
     (node: CanvasNode) => {
       return (
@@ -105,13 +99,13 @@ export function Board(props: BoardProps) {
           {...node}
           key={node.id}
           onNodeUpdate={onNodeUpdate}
-          onConnectStart={setTempFrom}
+          onConnectStart={onConnectStart}
           onClick={onNodeClick}
           selected={selectedNodes.includes(node.id)}
         />
       )
     },
-    [onNodeUpdate, selectedNodes],
+    [onNodeUpdate, selectedNodes, onConnectStart, onNodeClick],
   )
 
   const renderEdge = useCallback(
@@ -142,7 +136,10 @@ export function Board(props: BoardProps) {
   useOnKey(
     'Escape',
     () => {
-      setTempFrom(null)
+      if (tempFrom.current) {
+        tempFrom.current = null
+        return
+      }
 
       setSelectedNodes((oldNodes) => {
         if (oldNodes?.length && confirm(`Delete ${oldNodes.length === 1 ? 'this card' : oldNodes.length + ' cards'}?`)) {
@@ -162,12 +159,13 @@ export function Board(props: BoardProps) {
       className={`Board ${props.isLocked ? 'Board_locked' : ''}`}
       style={sx}
       onClick={onBoardClick}
-      onDblClick={onBoardDblClick}
+      onDoubleClick={onBoardDblClick}
     >
       {props.nodes?.map(renderNode)}
 
       <svg viewBox={`0 0 ${WIDTH} ${HEIGHT}`}>
-        {props.edges?.map(renderEdge)} {tempEdge && renderEdge(tempEdge, undefined, undefined, mousePosition)}
+        {props.edges?.map(renderEdge)}
+        {tempFrom.current && renderEdge({ id: 'temp', fromNode: tempFrom.current, toNode: tempFrom.current }, undefined, undefined, mousePosition)}
       </svg>
 
       <SelectionBox onChange={onSelectionChange} />
