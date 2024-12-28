@@ -1,4 +1,4 @@
-import purify from 'https://unpkg.com/dompurify/dist/purify.es.mjs'
+import purify from 'dompurify'
 
 function markdown(html: string) {
   return html
