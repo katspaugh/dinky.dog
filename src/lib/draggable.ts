@@ -3,8 +3,10 @@ export function draggable(
   onDrag: (dx: number, dy: number, x: number, y: number) => void,
   onStart?: (x: number, y: number) => void,
   onEnd?: (x: number, y: number) => void,
-  threshold = 3,
-  touchDelay = 100,
+  {
+    threshold = 3,
+    touchDelay = 100,
+  } = {},
 ) {
   if (!element) return () => void 0
 

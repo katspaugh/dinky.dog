@@ -1,6 +1,6 @@
 :root {
   --overlay-color: rgba(255, 255, 255, 0.2);
-  --accent-color: #844790;
+  --accent-color: #d81b60;
   --connector-color: #F3AEAC;
   --edge-color: #A9ACF9;
   --button-color: #F1F1F1;
@@ -432,7 +432,6 @@ button.Sidebar_button {
 
 .SelectionBox {
   position: absolute;
-  z-index: 3;
   left: 0;
   top: 0;
   width: 100%;
@@ -442,7 +441,7 @@ button.Sidebar_button {
 
 .SelectionBox div {
   position: absolute;
-  z-index: 3;
+  z-index: 1;
   background-color: rgba(100, 0, 100, 0.1);
   user-select: none;
   border-radius: 4px;
@@ -476,8 +475,13 @@ button.Sidebar_button {
   left: auto;
   bottom: 10px;
   right: 10px;
-  width: 70px;
-  height: 30px;
+}
+/* Mobile */
+@media (min-width: 600px) {
+  .Board > .ColorPicker {
+    width: 70px;
+    height: 30px;
+  }
 }
 
 .Drop__dragover {
