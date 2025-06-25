@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { sanitizeHtml } from '../lib/sanitize-html.js'
 import { parseUrl } from '../lib/utils.js'
 import { fetchPreview, type LinkPreview } from '../lib/link-preview.js'
-import { API_URL } from '../lib/upload-image.js'
 
 type EditableProps = {
   id: string
@@ -18,9 +17,8 @@ export const INITIAL_HEIGHT = 70
 
 const getPreviewHtml = (preview: LinkPreview) => {
   const domain = new URL(preview.url).hostname
-  const crossOrigin = preview.image?.startsWith(API_URL) ? '' : 'anonymous'
   return sanitizeHtml([
-    `<img src=${preview.image} crossorigin=${crossOrigin} />`,
+    `<img src=${preview.image} crossorigin="anonymous" />`,
     `<h4>${preview.title}</h4>`,
     `<a href=${preview.url} target="_blank" nofollow noopener>${domain}</a>`,
   ].join(''))

@@ -1,4 +1,4 @@
-const API_URL = 'https://preview.dinky.dog'
+import { supabase } from './supabase.js'
 
 export type LinkPreview = {
   charset: string
@@ -9,13 +9,13 @@ export type LinkPreview = {
 }
 
 export async function fetchPreview(url: string): Promise<LinkPreview> {
-  const res = await fetch(API_URL + '?q=' + encodeURIComponent(url))
-  if (!res.ok) {
-    throw new Error(`HTTP error! status: ${res.status}`)
+  const { data, error } = await supabase.functions.invoke('link-preview', {
+    body: { url },
+  })
+
+  if (error) {
+    throw error
   }
-  const data = await res.json()
-  if (data.error) {
-    throw new Error(data.error)
-  }
-  return data
+
+  return data as LinkPreview
 }

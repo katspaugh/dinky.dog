@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { getSavedStates } from '../lib/persist.js'
 import { makeUrl } from '../lib/url.js'
 import { LockButton } from './LockButton.js'
+import { supabase } from '../lib/supabase.js'
 
 const fixedLinks = [
   { title: 'About', url: makeUrl('about-9315ba924c9d16e632145116d69ae72a') },
@@ -63,6 +64,10 @@ export function Sidebar({ isLocked, title, onLockChange, onTitleChange }: Sideba
     }
   }, [])
 
+  const onSignOut = useCallback(() => {
+    supabase.auth.signOut()
+  }, [])
+
   return (
     <aside className={`Sidebar${isLocked ? ' Sidebar_locked' : ''}`}>
       <input onInput={onInput} value={title ?? ''} />
@@ -97,6 +102,8 @@ export function Sidebar({ isLocked, title, onLockChange, onTitleChange }: Sideba
         <ul>
           {fixedLinks.map(renderLink)}
         </ul>
+
+        <button className="Sidebar_logout" onClick={onSignOut}>Sign out</button>
       </div>
     </aside>
   )
