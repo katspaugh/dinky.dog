@@ -30,14 +30,18 @@ export const Editable = ({ id, content, width, height, onChange, onHeightChange 
   const ref = useRef<HTMLDivElement>(null)
   const isManualHeight = height && height === Math.round(height)
   const [hasMinHeight, setHasMinHeight] = useState(!content && !isManualHeight)
+  const [isFocused, setIsFocused] = useState(false)
 
+  // Update height based on content changes
   const updateHeight = useCallback(() => {
     if (!isManualHeight && ref.current) {
       onHeightChange(ref.current.offsetHeight + 0.01)
     }
   }, [onHeightChange, isManualHeight])
 
+  // Blur event handler to sanitize content and update height
   const onBlur = useCallback((e) => {
+    setIsFocused(false)
     const { innerHTML = '' } = e.target
     const newContent = sanitizeHtml(innerHTML)
     onChange(newContent)
@@ -48,13 +52,27 @@ export const Editable = ({ id, content, width, height, onChange, onHeightChange 
     return () => clearTimeout(timeout)
   }, [onChange, updateHeight])
 
-  const allowLinkClick = useCallback((e) => {
+  // Allow clicking on links to open them in a new tab
+  const onClick = useCallback((e) => {
     if (e.target instanceof HTMLAnchorElement) {
       e.preventDefault()
       window.open(e.target.href, '_blank')
+    } else {
+      // Set isFocused to true only on click (not on drag)
+      setIsFocused(true)
     }
   }, [])
 
+  // Prevent dragging if it's focused
+  const onPointerMove = useCallback((e) => {
+    if (isFocused) {
+      e.stopPropagation()
+    } else {
+      e.preventDefault()
+    }
+  }, [isFocused])
+
+  // Sanitize content and prepare it for rendering
   const htmlContent = useMemo(() => ({ __html: sanitizeHtml(content) }), [content])
 
   useEffect(() => {
@@ -84,8 +102,9 @@ export const Editable = ({ id, content, width, height, onChange, onHeightChange 
       contentEditable
       dangerouslySetInnerHTML={htmlContent}
       onInput={updateHeight}
+      onPointerMove={onPointerMove}
       onBlur={onBlur}
-      onClick={allowLinkClick}
+      onClick={onClick}
       style={style}
     />
   )
