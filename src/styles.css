@@ -515,7 +515,7 @@ button.Sidebar_button {
   cursor: not-allowed;
 }
 
-.Auth_textButton {
+button.Auth_textButton {
   background: none;
   border: none;
   color: var(--accent-color);
