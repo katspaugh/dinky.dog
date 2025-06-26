@@ -6,7 +6,9 @@ export function SpacesView() {
   return (
     <div className="SpacesView">
       <Header showLogout />
-      <Spaces />
+      <main className="SpacesView_main">
+        <Spaces />
+      </main>
       <Footer />
     </div>
   )
