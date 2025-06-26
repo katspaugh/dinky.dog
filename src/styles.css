@@ -487,3 +487,72 @@ button.Sidebar_button {
 .Drop__dragover {
   background: rgba(100, 0, 100, 0.1);
 }
+
+.Header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+  background: var(--menu-background-color);
+  color: var(--menu-text-color);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.Header h1 {
+  flex: 1;
+  font-size: 24px;
+  margin: 0;
+}
+
+.Header img {
+  width: 32px;
+  height: 32px;
+}
+
+.Header_logout {
+  background: var(--button-color);
+  border: 1px solid var(--button-border-color);
+  border-radius: 8px;
+  padding: 0.5em 1em;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.Footer {
+  background: var(--menu-background-color);
+  color: var(--menu-text-color);
+  padding: 20px;
+  text-align: center;
+  border-top: 1px solid var(--border-color);
+}
+
+.InfoLinks {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: 10px;
+}
+
+.InfoLinks_column {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.InfoLinks_row {
+  flex-direction: row;
+  justify-content: center;
+}
+
+.InfoLinks li a {
+  display: block;
+  padding: 10px;
+  color: var(--menu-text-color);
+  text-decoration: none;
+  border-radius: 6px;
+}
+
+.InfoLinks li a:hover {
+  background: var(--menu-hover-color);
+  color: var(--menu-hover-text-color);
+}
