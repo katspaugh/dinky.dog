@@ -10,7 +10,7 @@ export const LockButton = ({ isLocked, onLockChange }: LockButtonProps) => {
     onLockChange(!isLocked)
   }, [isLocked, onLockChange])
 
-  return <button className="LockButton" onClick={onClick}>
+  return <button className="LockButton btn" onClick={onClick}>
     {isLocked ? '🔒' : '🔓'} {isLocked ? 'Unlock' : 'Lock'}
   </button>
 }

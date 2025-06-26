@@ -15,6 +15,17 @@
   --shadow-color: #555;
   --border-color: #ddd;
   --grid-dot-color: #999;
+  --bg-color: #fafafa;
+  --text-color: #222;
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --link-color: #3b49df;
+  --error-color: #d32f2f;
+  --header-bg: #3b49df;
+  --header-text: #fff;
+  --footer-bg: #f5f5f5;
+  --footer-text: #444;
+  --space-card-bg: #fff;
+  --space-card-hover-bg: #f7f7f7;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -30,6 +41,15 @@
     --card-color: #ddd;
     --border-color: #444;
     --grid-dot-color: #000;
+    --bg-color: #181818;
+    --text-color: #eee;
+    --link-color: #8ab4f8;
+    --header-bg: #222;
+    --header-text: #fff;
+    --footer-bg: #222;
+    --footer-text: #ccc;
+    --space-card-bg: #242424;
+    --space-card-hover-bg: #2c2c2c;
   }
 }
 
@@ -37,9 +57,10 @@ html,
 body {
   margin: 0;
   padding: 0;
-  font-family: Helvetica, Arial, sans-serif;
+  font-family: var(--font-family);
   overscroll-behavior: none;
-  color: #111;
+  color: var(--text-color);
+  background-color: var(--bg-color);
   user-select: none;
   width: 100vw;
   height: 100vh;
@@ -486,4 +507,80 @@ button.Sidebar_button {
 
 .Drop__dragover {
   background: rgba(100, 0, 100, 0.1);
+}
+
+/* Generic themed elements */
+.btn {
+  background: var(--button-color);
+  color: var(--text-color);
+  border: 1px solid var(--button-border-color);
+  border-radius: 6px;
+  padding: 0.5em 1.2em;
+  font-family: var(--font-family);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn:hover {
+  background: var(--menu-hover-color);
+  color: var(--menu-hover-text-color);
+}
+
+.btn:active {
+  background: var(--button-active-color);
+}
+
+.text-input {
+  background: var(--space-card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 0.5em 0.75em;
+  font-family: var(--font-family);
+  font-size: 1rem;
+  color: var(--text-color);
+}
+
+.error-msg {
+  color: var(--error-color);
+  font-size: 0.9rem;
+  margin-top: 4px;
+}
+
+.link {
+  color: var(--link-color);
+  text-decoration: none;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+.header {
+  background: var(--header-bg);
+  color: var(--header-text);
+  padding: 1rem 2rem;
+  font-family: var(--font-family);
+}
+
+.footer {
+  background: var(--footer-bg);
+  color: var(--footer-text);
+  padding: 1rem 2rem;
+  text-align: center;
+  font-family: var(--font-family);
+}
+
+.space-card {
+  background: var(--space-card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: background 0.2s, transform 0.2s;
+}
+
+.space-card:hover {
+  background: var(--space-card-hover-bg);
+  transform: translateY(-2px);
 }

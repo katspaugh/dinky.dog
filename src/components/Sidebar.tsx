@@ -31,8 +31,8 @@ export function Sidebar({ isLocked, title, onLockChange, onTitleChange }: Sideba
 
   const renderLink = useCallback(
     (doc) => (
-      <li key={doc.url}>
-        <a href={doc.url}>
+      <li key={doc.url} className="space-card">
+        <a href={doc.url} className="link">
           {doc.title}
         </a>
       </li>
@@ -46,7 +46,7 @@ export function Sidebar({ isLocked, title, onLockChange, onTitleChange }: Sideba
   }, [onTitleChange])
 
   const toggleButton = (
-    <button className="Sidebar_button" onClick={toggleDrawer}>
+    <button className="Sidebar_button btn" onClick={toggleDrawer}>
       <img src="/dinky-small.png" alt="Dinky Dog" />
     </button>
   )
@@ -65,7 +65,7 @@ export function Sidebar({ isLocked, title, onLockChange, onTitleChange }: Sideba
 
   return (
     <aside className={`Sidebar${isLocked ? ' Sidebar_locked' : ''}`}>
-      <input onInput={onInput} value={title ?? ''} />
+      <input className="text-input" onInput={onInput} value={title ?? ''} />
 
       {toggleButton}
 
