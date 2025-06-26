@@ -45,7 +45,7 @@ export function useInitApp(state: ReturnType<typeof useDocState>) {
   useBeforeUnload(useCallback(() => {
     setDoc((doc) => {
       if (doc.id && doc.title && JSON.stringify(doc) !== originalDoc.current) {
-        saveDoc(doc, password, true)
+        saveDoc(doc, password)
       }
       return doc
     })

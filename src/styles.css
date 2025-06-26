@@ -487,3 +487,37 @@ button.Sidebar_button {
 .Drop__dragover {
   background: rgba(100, 0, 100, 0.1);
 }
+
+.Auth {
+  margin: 100px auto;
+  width: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.Auth input {
+  padding: 0.5em;
+  font-size: 16px;
+}
+
+.Auth button {
+  background: var(--button-color);
+  border: 1px solid var(--button-border-color);
+  border-radius: 8px;
+  padding: 0.5em 1em;
+  cursor: pointer;
+}
+
+.Auth_error {
+  color: red;
+}
+
+.Sidebar_logout {
+  background: var(--button-color);
+  border: 1px solid var(--button-border-color);
+  border-radius: 8px;
+  padding: 0.5em 1em;
+  margin: 0 20px;
+  cursor: pointer;
+}

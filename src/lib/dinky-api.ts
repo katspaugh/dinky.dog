@@ -1,7 +1,5 @@
 import type { CanvasProps } from '../types/canvas.js'
-import { compressObjectToString, decompressStringToObject } from './compress.js'
-
-const API_URL = 'https://state.dinky.dog'
+import { supabase } from './supabase.js'
 
 type CommonDinkyData = {
   id: string
@@ -75,12 +73,16 @@ function convertV1ToV2(data: DinkyDataV1): DinkyDataV2 {
 }
 
 export async function loadDoc(id: string): Promise<DinkyDataV2> {
-  const res = await fetch(API_URL + `?id=${encodeURIComponent(id)}&timestamp=${Date.now()}`)
-  if (!res.ok) {
-    throw new Error(`HTTP error! Status: ${res.status}`)
+  const { data: row, error } = await supabase
+    .from('documents')
+    .select('data')
+    .eq('id', id)
+    .maybeSingle()
+
+  if (error || !row) {
+    throw new Error(error?.message || 'Document not found')
   }
-  const json = await res.json()
-  const data = await decompressStringToObject(json.data)
+  const data = JSON.parse(row.data)
 
   if (data.version === 2) {
     return data
@@ -88,26 +90,15 @@ export async function loadDoc(id: string): Promise<DinkyDataV2> {
   return convertV1ToV2(data)
 }
 
-async function postData(id: string, data: string, password?: string): Promise<{ key: string, status: number }> {
-  const res = await fetch(API_URL, {
-    method: 'POST',
-    body: JSON.stringify({ id, data, password }),
-  })
-  if (!res.ok) {
-    throw new Error(`HTTP error! Status: ${res.status}`)
-  }
-  const json = await res.json()
-  return json
-}
+export async function saveDoc(data: DinkyDataV2, password?: string) {
+  const encData = JSON.stringify(data)
+  const { data: userData } = await supabase.auth.getUser()
+  const { error } = await supabase
+    .from('documents')
+    .upsert({ id: data.id, data: encData, password, user_id: userData?.user?.id })
 
-function sendBeacon(id: string, data: string, password?: string) {
-  const res = navigator.sendBeacon(API_URL, JSON.stringify({ id, data, password }))
-  if (!res) {
-    throw new Error('Beacon failed')
+  if (error) {
+    throw error
   }
-}
-export async function saveDoc(data: DinkyDataV2, password?: string, isUnload = false) {
-  const encData = await compressObjectToString(data)
-  const sendFn = isUnload ? sendBeacon : postData
-  return sendFn(data.id, encData, password)
+  return { status: 200, key: data.id }
 }

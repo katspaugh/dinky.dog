@@ -2,7 +2,7 @@ export function debounce<T extends (...args: unknown[]) => ReturnType<T> | Promi
   fn: T,
   ms: number,
 ): (...args: Parameters<T>) => Promise<ReturnType<T>> {
-  let timer: number
+  let timer: ReturnType<typeof setTimeout>
   return (...args) => {
     clearTimeout(timer)
     return new Promise((resolve) => {

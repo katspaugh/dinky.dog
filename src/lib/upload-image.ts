@@ -1,23 +1,19 @@
-export const API_URL = 'https://images.dinky.dog/'
+import { supabase } from './supabase.js'
 
 const MAX_SIZE = 1 * 1024 * 1024 // 1MB
-
-function getImageUrl(id: string) {
-  return `${API_URL}${id}`
-}
 
 export async function uploadImage(file: File) {
   if (file.size > MAX_SIZE) {
     throw new Error('Max file size is 1MB')
   }
 
-  const formData = new FormData()
-  formData.append('file', file)
+  const fileName = Date.now() + '-' + file.name
+  const { error } = await supabase.storage.from('images').upload(fileName, file)
 
-  const resp = await fetch(API_URL, {
-    method: 'POST',
-    body: formData,
-  })
-  const data = await resp.json()
-  return getImageUrl(data.fileName)
+  if (error) {
+    throw error
+  }
+
+  const { data } = supabase.storage.from('images').getPublicUrl(fileName)
+  return data.publicUrl
 }
