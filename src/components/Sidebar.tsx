@@ -3,13 +3,7 @@ import { makeUrl } from '../lib/url.js'
 import { LockButton } from './LockButton.js'
 import { supabase } from '../lib/supabase.js'
 import { listDocs } from '../lib/dinky-api.js'
-
-const fixedLinks = [
-  { title: 'About', url: makeUrl('about-9315ba924c9d16e632145116d69ae72a') },
-  { title: 'Privacy', url: makeUrl('074505b43d5c0b97', 'privacy') },
-  { title: 'Terms', url: makeUrl('43a7a9fa13bb3d0c', 'terms') },
-  { title: 'GitHub', url: 'https://github.com/katspaugh/dinky.dog' },
-]
+import { Links } from './Links.js'
 
 type SidebarProps = {
   isLocked?: boolean
@@ -102,9 +96,7 @@ export function Sidebar({ isLocked, title, onLockChange, onTitleChange }: Sideba
 
         {divider}
 
-        <ul>
-          {fixedLinks.map(renderLink)}
-        </ul>
+        <Links direction="column" />
 
         <button className="Sidebar_logout" onClick={onSignOut}>Sign out</button>
       </div>
