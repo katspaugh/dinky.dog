@@ -1,4 +1,4 @@
-# Dinky Dog
+# SpaceNotes
 
 Shareable diagrams with real-time collaboration
 

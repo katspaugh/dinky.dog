@@ -7,7 +7,7 @@ import { randomId } from '../lib/utils'
 import { type useDocState } from './useDocState'
 import { usePassword } from './usePassword'
 
-const TITLE = 'Dinky Dog'
+const TITLE = 'SpaceNotes'
 
 export function useInitApp(state: ReturnType<typeof useDocState>) {
   const { doc, setDoc } = state

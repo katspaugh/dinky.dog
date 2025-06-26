@@ -48,7 +48,7 @@ export function Sidebar({ isLocked, title, onLockChange, onTitleChange }: Sideba
 
   const toggleButton = (
     <button className="Sidebar_button" onClick={toggleDrawer}>
-      <img src="/dinky-small.png" alt="Dinky Dog" />
+      <img src="/logo.png" alt="SpaceNotes" />
     </button>
   )
 
@@ -79,7 +79,7 @@ export function Sidebar({ isLocked, title, onLockChange, onTitleChange }: Sideba
         style={{ transform: `translateX(${isOpen ? 0 : '100%'})` }}
         onClick={stopPropagation}
       >
-        <h1>Dinky Dog</h1>
+        <h1>SpaceNotes</h1>
 
         {toggleButton}
 
