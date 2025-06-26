@@ -6,7 +6,9 @@ export function AuthView() {
   return (
     <div className="AuthView">
       <Header />
-      <Auth />
+      <main className="AuthView_main">
+        <Auth />
+      </main>
       <Footer />
     </div>
   )

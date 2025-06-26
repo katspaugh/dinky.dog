@@ -1,34 +1,58 @@
 :root {
-  --overlay-color: rgba(255, 255, 255, 0.2);
-  --accent-color: #d81b60;
-  --connector-color: #F3AEAC;
-  --edge-color: #A9ACF9;
-  --button-color: #F1F1F1;
-  --button-active-color: #E0E0E0;
+  /* Typography */
+  --font-family: 'Inter', Avenir, Helvetica, Arial, sans-serif;
+  --font-size: 16px;
+
+  /* Spacing */
+  --space-s: 0.5rem;
+  --space-m: 1rem;
+  --space-l: 2rem;
+
+  /* Colors */
+  --color-background: #f9fafb;
+  --color-surface: #ffffff;
+  --color-text: #222222;
+  --color-muted: #555555;
+  --color-primary: #6366f1;
+  --color-border: #e5e7eb;
+
+  /* Existing variable mapping */
+  --overlay-color: rgba(255, 255, 255, 0.6);
+  --accent-color: var(--color-primary);
+  --connector-color: #f3aeac;
+  --edge-color: var(--color-primary);
+  --button-color: var(--color-surface);
+  --button-active-color: #ececec;
   --button-border-color: #333;
-  --menu-background-color: #f1f1f1;
-  --menu-text-color: #333;
-  --menu-hover-color: #ECECEC;
-  --menu-hover-text-color: #000;
-  --card-color: #f5f5f5;
-  --card-hover-color: #f0f0f0;
-  --shadow-color: #555;
-  --border-color: #ddd;
-  --grid-dot-color: #999;
+  --menu-background-color: var(--color-surface);
+  --menu-text-color: var(--color-text);
+  --menu-hover-color: #f1f1f1;
+  --menu-hover-text-color: var(--color-text);
+  --card-color: var(--color-surface);
+  --card-hover-color: #f8f8f8;
+  --shadow-color: rgba(0, 0, 0, 0.15);
+  --border-color: var(--color-border);
+  --grid-dot-color: #bdbdbd;
+  --radius: 6px;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --overlay-color: rgba(0, 0, 0, 0.2);
-    --accent-color: #844790;
-    --connector-color: #F3AEAC;
-    --edge-color: #797ded;
-    --menu-background-color: #333;
-    --menu-text-color: #eee;
-    --menu-hover-color: #444;
-    --menu-hover-text-color: #fff;
-    --card-color: #ddd;
-    --border-color: #444;
+    --color-background: #0f172a;
+    --color-surface: #1e293b;
+    --color-text: #f4f4f4;
+    --color-border: #555;
+    --color-primary: #8b5cf6;
+
+    --overlay-color: rgba(0, 0, 0, 0.6);
+    --accent-color: var(--color-primary);
+    --edge-color: var(--color-primary);
+    --menu-background-color: var(--color-surface);
+    --menu-text-color: var(--color-text);
+    --menu-hover-color: #374151;
+    --menu-hover-text-color: var(--color-text);
+    --card-color: var(--color-surface);
+    --border-color: var(--color-border);
     --grid-dot-color: #000;
   }
 }
@@ -37,9 +61,11 @@ html,
 body {
   margin: 0;
   padding: 0;
-  font-family: Helvetica, Arial, sans-serif;
+  font-family: var(--font-family);
+  font-size: var(--font-size);
   overscroll-behavior: none;
-  color: #111;
+  color: var(--color-text);
+  background-color: var(--color-background);
   user-select: none;
   width: 100vw;
   height: 100vh;
@@ -56,6 +82,53 @@ body {
 
 * {
   box-sizing: border-box;
+}
+
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+button,
+input,
+textarea {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+button {
+  background: var(--button-color);
+  border: 1px solid var(--button-border-color);
+  border-radius: var(--radius);
+  padding: var(--space-s) var(--space-m);
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+button:hover:not([disabled]) {
+  background: var(--menu-hover-color);
+  color: var(--menu-hover-text-color);
+}
+
+button:active:not([disabled]) {
+  background: var(--button-active-color);
+}
+
+button[disabled] {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+input,
+textarea {
+  background: var(--color-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: var(--space-s) var(--space-s);
 }
 
 .Board {
@@ -290,17 +363,16 @@ body {
 }
 
 .Sidebar input {
-  background: var(--button-color);
-  border: none;
-  border-bottom: 1px solid var(--grid-dot-color);
-  border-radius: 4px 4px 0 0;
-  padding: 0 0.5em;
-  font-size: 16px;
+  background: var(--color-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: var(--space-s) var(--space-s);
+  font-size: var(--font-size);
   display: block;
   height: 36px;
-  margin-top: 12px;
+  margin: var(--space-s) 0;
   width: 12em;
-  opacity: 0.7;
+  opacity: 0.8;
   transition: opacity 0.2s;
   pointer-events: all;
 }
@@ -310,12 +382,6 @@ body {
 }
 
 .Sidebar button {
-  background: var(--button-color);
-  border: 1px solid var(--button-border-color);
-  border-radius: 8px;
-  padding: 0.5em 1em;
-  font-size: 18px;
-  cursor: pointer;
   pointer-events: all;
 }
 
@@ -338,7 +404,7 @@ button.Sidebar_button {
   padding: 0;
   border: none;
   background: transparent;
-  margin: 10px;
+  margin: var(--space-s);
   transition: transform 0.2s;
 }
 
@@ -358,8 +424,8 @@ button.Sidebar_button {
 .Sidebar_actions {
   display: flex;
   flex-direction: row;
-  gap: 10px;
-  padding: 10px 20px;
+  gap: var(--space-s);
+  padding: var(--space-s) var(--space-l);
 }
 
 .LockButton {
@@ -383,13 +449,13 @@ button.Sidebar_button {
   transition: transform 0.2s;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding-bottom: 10px;
+  gap: var(--space-s);
+  padding-bottom: var(--space-s);
   pointer-events: all;
 }
 
 .Sidebar h1 {
-  margin: 18px 20px 10px;
+  margin: var(--space-m) var(--space-l) var(--space-s);
 }
 
 .Sidebar hr {
@@ -400,7 +466,7 @@ button.Sidebar_button {
 }
 
 .Sidebar ul {
-  padding: 0 10px;
+  padding: 0 var(--space-l);
   margin: 0;
   list-style: none;
 }
@@ -412,10 +478,10 @@ button.Sidebar_button {
 
 .Sidebar li a {
   display: block;
-  padding: 10px;
+  padding: var(--space-s) var(--space-s);
   color: var(--menu-text-color);
   text-decoration: none;
-  border-radius: 6px;
+  border-radius: var(--radius);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -491,24 +557,19 @@ button.Sidebar_button {
 }
 
 .Auth {
-  margin: 100px auto;
-  width: 300px;
+  margin: var(--space-l) auto;
+  width: 320px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--space-s);
 }
 
 .Auth input {
-  padding: 0.5em;
-  font-size: 16px;
+  padding: var(--space-s);
 }
 
 .Auth button {
-  background: var(--button-color);
-  border: 1px solid var(--button-border-color);
-  border-radius: 8px;
-  padding: 0.5em 1em;
-  cursor: pointer;
+  padding: var(--space-s) var(--space-m);
 }
 
 .Auth button[disabled] {
@@ -537,35 +598,34 @@ button.Auth_textButton {
 }
 
 .Sidebar_logout {
-  background: var(--button-color);
-  border: 1px solid var(--button-border-color);
-  border-radius: 8px;
-  padding: 0.5em 1em;
-  margin: 0 20px;
-  cursor: pointer;
+  margin: 0 var(--space-l);
 }
 
 .Spaces {
-  padding: 20px;
+  padding: var(--space-l);
 }
 
 .Spaces_grid {
   margin: 0 auto;
-  max-width: 1000px;
+  max-width: 1200px;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  grid-auto-rows: 160px;
+  gap: var(--space-l);
 }
 
 .SpaceCard {
   background: var(--card-color);
   border: 1px solid var(--border-color);
-  border-radius: 8px;
-  padding: 20px;
+  border-radius: var(--radius);
+  padding: var(--space-m);
   text-align: center;
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: inherit;
   text-decoration: none;
+  transition: background-color 0.2s;
 }
 
 .SpaceCard:hover {
@@ -581,8 +641,10 @@ button.Auth_textButton {
 .Header {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 20px;
+  gap: var(--space-m);
+  padding: var(--space-m) var(--space-l);
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .Header h1 {
@@ -591,16 +653,14 @@ button.Auth_textButton {
 }
 
 .Header_logout {
-  background: var(--button-color);
-  border: 1px solid var(--button-border-color);
-  border-radius: 8px;
-  padding: 0.5em 1em;
-  cursor: pointer;
+  margin-left: auto;
 }
 
 .Footer {
   text-align: center;
-  padding: 20px;
+  padding: var(--space-l) var(--space-m);
+  background: var(--color-surface);
+  border-top: 1px solid var(--border-color);
 }
 
 .Links {
@@ -611,6 +671,18 @@ button.Auth_textButton {
 
 .Links_row {
   display: flex;
-  gap: 20px;
+  gap: var(--space-m);
   justify-content: center;
+}
+
+.AuthView,
+.SpacesView {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  min-height: 100vh;
+}
+
+.AuthView_main,
+.SpacesView_main {
+  padding: var(--space-l) var(--space-l);
 }
