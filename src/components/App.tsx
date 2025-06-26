@@ -1,7 +1,7 @@
 import { useSession } from '@supabase/auth-helpers-react'
-import { Auth } from './Auth.js'
-import { Spaces } from './Spaces.js'
-import { Editor } from './Editor.js'
+import { AuthView } from './AuthView.js'
+import { SpacesView } from './SpacesView.js'
+import { EditorView } from './EditorView.js'
 import { getUrlId } from '../lib/url.js'
 
 export function App() {
@@ -9,12 +9,12 @@ export function App() {
   const id = getUrlId()
 
   if (!session) {
-    return <Auth />
+    return <AuthView />
   }
 
   if (!id) {
-    return <Spaces />
+    return <SpacesView />
   }
 
-  return <Editor />
+  return <EditorView />
 }
