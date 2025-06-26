@@ -511,6 +511,27 @@ button.Sidebar_button {
   cursor: pointer;
 }
 
+.Auth button[disabled] {
+  cursor: not-allowed;
+}
+
+.Auth_textButton {
+  background: none;
+  border: none;
+  color: var(--accent-color);
+  padding: 0;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.Auth_loader {
+  text-align: center;
+}
+
+.Auth_message {
+  color: green;
+}
+
 .Auth_error {
   color: red;
 }
