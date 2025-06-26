@@ -1,7 +1,7 @@
 export const links = [
   { title: 'About', url: '/about.html' },
   { title: 'Privacy', url: '/privacy.html' },
-  { title: 'Terms', url: '/terms.html') },
+  { title: 'Terms', url: '/terms.html' },
   { title: 'GitHub', url: 'https://github.com/katspaugh/dinky.dog' },
 ]
 
