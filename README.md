@@ -30,7 +30,7 @@ Shareable diagrams with real-time collaboration
 
 4. Create a public storage bucket named **images**.
 
-5. Deploy an Edge Function called **link-preview** that accepts `{ url }` in the
+5. Deploy an Edge Function called **generate-link-preview** that accepts `{ url }` in the
    body and returns preview information.
 
 Authentication with email/password is enabled via the Supabase dashboard. The

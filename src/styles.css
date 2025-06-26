@@ -335,7 +335,9 @@ body {
 button.Sidebar_button {
   width: 40px;
   height: 40px;
-  padding: 6px;
+  padding: 0;
+  border: none;
+  background: transparent;
   margin: 10px;
   transition: transform 0.2s;
 }

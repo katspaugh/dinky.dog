@@ -9,7 +9,7 @@ export type LinkPreview = {
 }
 
 export async function fetchPreview(url: string): Promise<LinkPreview> {
-  const { data, error } = await supabase.functions.invoke('link-preview', {
+  const { data, error } = await supabase.functions.invoke('generate-link-preview', {
     body: { url },
   })
 
