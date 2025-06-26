@@ -4,7 +4,6 @@ import { loadDoc, saveDoc } from '../lib/dinky-api'
 import { useBeforeUnload } from './useBeforeUnload'
 import { randomId } from '../lib/utils'
 import { type useDocState } from './useDocState'
-import { usePassword } from './usePassword'
 
 const TITLE = 'SpaceNotes'
 
@@ -12,7 +11,6 @@ export function useInitApp(state: ReturnType<typeof useDocState>) {
   const { doc, setDoc } = state
   const stringDoc = useMemo(() => JSON.stringify(doc), [doc])
   const originalDoc = useRef(stringDoc)
-  const [password, updatePassword] = usePassword()
 
   // Load doc from URL
   useEffect(() => {
@@ -44,11 +42,11 @@ export function useInitApp(state: ReturnType<typeof useDocState>) {
   useBeforeUnload(useCallback(() => {
     setDoc((doc) => {
       if (doc.id && doc.title && JSON.stringify(doc) !== originalDoc.current) {
-        saveDoc(doc, password)
+        saveDoc(doc)
       }
       return doc
     })
-  }, [setDoc, password]))
+  }, [setDoc]))
 
   // Update title
   useEffect(() => {
@@ -64,14 +62,14 @@ export function useInitApp(state: ReturnType<typeof useDocState>) {
   const onLockChange = useCallback((isLocked: boolean) => {
     setDoc((prevDoc) => {
       const newDoc = { ...prevDoc, isLocked }
-      saveDoc(newDoc, updatePassword())
+      saveDoc(newDoc)
         .catch((err) => {
-          setDoc((prevDoc) => ({ ...prevDoc, isLocked: !isLocked }))
+          setDoc(prevDoc) // Revert to previous state on error
           console.error('Error saving doc', err)
         })
       return newDoc
     })
-  }, [setDoc, updatePassword])
+  }, [setDoc])
 
   // On title change handler
   const onTitleChange = useCallback((title: string) => {

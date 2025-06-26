@@ -22,7 +22,6 @@ Shareable diagrams with real-time collaboration
 2. In Supabase, create a table **documents** with the following columns:
    - `id` (text, primary key)
    - `data` (text)
-   - `password` (text)
    - `user_id` (uuid, references `auth.users`)
 
 3. Enable Row Level Security for the table and add a policy:

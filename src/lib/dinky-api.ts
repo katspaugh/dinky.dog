@@ -60,12 +60,12 @@ export async function loadDoc(id: string): Promise<DinkyDataV2> {
   return data
 }
 
-export async function saveDoc(data: DinkyDataV2, password?: string) {
+export async function saveDoc(data: DinkyDataV2) {
   const encData = JSON.stringify(data)
   const { data: userData } = await supabase.auth.getUser()
   const { error } = await supabase
     .from('documents')
-    .upsert({ id: data.id, data: encData, password, user_id: userData?.user?.id })
+    .upsert({ id: data.id, data: encData, user_id: userData?.user?.id })
 
   if (error) {
     throw error
