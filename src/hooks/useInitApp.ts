@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { getUrlId, setUrlId } from '../lib/url'
-import { saveToLocalStorage } from '../lib/persist'
 import { loadDoc, saveDoc } from '../lib/dinky-api'
 import { useBeforeUnload } from './useBeforeUnload'
 import { randomId } from '../lib/utils'
@@ -13,7 +12,7 @@ export function useInitApp(state: ReturnType<typeof useDocState>) {
   const { doc, setDoc } = state
   const stringDoc = useMemo(() => JSON.stringify(doc), [doc])
   const originalDoc = useRef(stringDoc)
-  const [password, updatePassword] = usePassword(doc.id)
+  const [password, updatePassword] = usePassword()
 
   // Load doc from URL
   useEffect(() => {
@@ -60,11 +59,6 @@ export function useInitApp(state: ReturnType<typeof useDocState>) {
   useEffect(() => {
     document.body.style.backgroundColor = doc?.backgroundColor ?? ''
   }, [doc?.backgroundColor])
-
-  // Save doc to local storage
-  useEffect(() => {
-    saveToLocalStorage(doc, password)
-  }, [doc, password])
 
   // On lock change handler
   const onLockChange = useCallback((isLocked: boolean) => {

@@ -45,33 +45,6 @@ export type DinkyDataV1 = CommonDinkyData & {
   >
 }
 
-function convertV1ToV2(data: DinkyDataV1): DinkyDataV2 {
-  const nodes = Object.entries(data.nodes).map(([id, node]) => {
-    return {
-      id,
-      type: 'text',
-      content: node.data.operatorData,
-      x: node.props.x,
-      y: node.props.y,
-      width: node.props.width,
-      height: node.props.height,
-      color: node.props.background,
-    }
-  })
-
-  const edges = Object.entries(data.nodes).reduce<{ id: string; fromNode: string; toNode: string }[]>(
-    (acc, [id, node]) => {
-      node.connections?.forEach((conn) => {
-        acc.push({ id: Math.random().toString(), fromNode: id, toNode: conn.inputId })
-      })
-      return acc
-    },
-    [],
-  )
-
-  return { ...data, nodes, edges, version: 2 }
-}
-
 export async function loadDoc(id: string): Promise<DinkyDataV2> {
   const { data: row, error } = await supabase
     .from('documents')
@@ -84,10 +57,7 @@ export async function loadDoc(id: string): Promise<DinkyDataV2> {
   }
   const data = JSON.parse(row.data)
 
-  if (data.version === 2) {
-    return data
-  }
-  return convertV1ToV2(data)
+  return data
 }
 
 export async function saveDoc(data: DinkyDataV2, password?: string) {

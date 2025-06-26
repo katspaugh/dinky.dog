@@ -1,7 +1,6 @@
-import { useCallback, useEffect, useRef } from 'react'
-import { loadFromLocalStorage } from '../lib/persist'
+import { useCallback, useRef } from 'react'
 
-export function usePassword(id?: string): [string, () => string] {
+export function usePassword(): [string, () => string] {
   const passwordRef = useRef('')
 
   const updatePassword = useCallback(() => {
@@ -10,11 +9,6 @@ export function usePassword(id?: string): [string, () => string] {
     }
     return passwordRef.current
   }, [passwordRef])
-
-  useEffect(() => {
-    if (!id) return
-    passwordRef.current = loadFromLocalStorage(id)?.password
-  }, [id])
 
   return [
     passwordRef.current,

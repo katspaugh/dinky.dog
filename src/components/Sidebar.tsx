@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
-import { getSavedStates } from '../lib/persist.js'
 import { makeUrl } from '../lib/url.js'
 import { LockButton } from './LockButton.js'
 import { supabase } from '../lib/supabase.js'
+import { listDocs } from '../lib/dinky-api.js'
 
 const fixedLinks = [
   { title: 'About', url: makeUrl('about-9315ba924c9d16e632145116d69ae72a') },
@@ -25,7 +25,10 @@ export function Sidebar({ isLocked, title, onLockChange, onTitleChange }: Sideba
   const toggleDrawer = useCallback((e) => {
     e.stopPropagation()
     setIsOpen((open) => !open)
-    setDocs(getSavedStates())
+
+    listDocs()
+      .then((list) => setDocs(list))
+      .catch((err) => console.error('Error loading spaces', err))
   }, [])
 
   const stopPropagation = useCallback((e) => e.stopPropagation(), [])
