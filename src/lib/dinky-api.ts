@@ -1,5 +1,4 @@
 import type { CanvasProps } from '../types/canvas.js'
-import { compressObjectToString, decompressStringToObject } from './compress.js'
 import { supabase } from './supabase.js'
 
 type CommonDinkyData = {
@@ -83,7 +82,7 @@ export async function loadDoc(id: string): Promise<DinkyDataV2> {
   if (error || !row) {
     throw new Error(error?.message || 'Document not found')
   }
-  const data = await decompressStringToObject(row.data)
+  const data = JSON.parse(row.data)
 
   if (data.version === 2) {
     return data
@@ -92,7 +91,7 @@ export async function loadDoc(id: string): Promise<DinkyDataV2> {
 }
 
 export async function saveDoc(data: DinkyDataV2, password?: string) {
-  const encData = await compressObjectToString(data)
+  const encData = JSON.stringify(data)
   const { data: userData } = await supabase.auth.getUser()
   const { error } = await supabase
     .from('documents')
