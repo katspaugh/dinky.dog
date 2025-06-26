@@ -102,3 +102,20 @@ export async function saveDoc(data: DinkyDataV2, password?: string) {
   }
   return { status: 200, key: data.id }
 }
+export type SpaceMeta = { id: string; title?: string }
+
+export async function listDocs(): Promise<SpaceMeta[]> {
+  const { data, error } = await supabase.from('documents').select('id, data')
+
+  if (error || !data) {
+    throw error || new Error('Unable to load documents')
+  }
+  return data.map((row: { id: string; data: string }) => {
+    try {
+      const parsed = JSON.parse(row.data)
+      return { id: row.id, title: parsed.title } as SpaceMeta
+    } catch {
+      return { id: row.id } as SpaceMeta
+    }
+  })
+}
