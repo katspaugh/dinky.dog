@@ -26,3 +26,15 @@ export function setUrlId(id: string, title?: string) {
 export function makeUrl(id: string, title?: string) {
   return `${window.location.origin}/?q=${encodeURIComponent(addPrefix(id, title))}`
 }
+
+export function getUrlPage() {
+  const url = new URL(window.location.href)
+  const p = parseInt(url.searchParams.get('page') || '1', 10)
+  return Number.isFinite(p) && p > 0 ? p : 1
+}
+
+export function setUrlPage(page: number) {
+  const url = new URL(window.location.href)
+  url.searchParams.set('page', String(page))
+  window.history.replaceState({}, '', url.toString())
+}
