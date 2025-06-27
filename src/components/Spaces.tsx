@@ -5,7 +5,7 @@ import { listDocsPage, deleteDoc } from '../lib/dinky-api.js'
 
 export type SpaceInfo = { id: string; title?: string, backgroundColor?: string }
 
-const ITEMS_PER_PAGE = 12
+const ITEMS_PER_PAGE = 11
 
 export function Spaces() {
   const [spaces, setSpaces] = useState<SpaceInfo[]>([])
@@ -68,17 +68,20 @@ export function Spaces() {
           </div>
         ))}
       </div>
-      <div className="Spaces_pagination">
-        <button type="button" onClick={() => setPage(page - 1)} disabled={page <= 1}>
-          Previous
-        </button>
-        <span>
-          Page {page} of {totalPages}
-        </span>
-        <button type="button" onClick={() => setPage(page + 1)} disabled={page >= totalPages}>
-          Next
-        </button>
-      </div>
+
+      {totalPages > 1 && (
+        <div className="Spaces_pagination">
+          <button type="button" onClick={() => setPage(page - 1)} disabled={page <= 1}>
+            Previous
+          </button>
+          <span>
+            Page {page} of {totalPages}
+          </span>
+          <button type="button" onClick={() => setPage(page + 1)} disabled={page >= totalPages}>
+            Next
+          </button>
+        </div>
+      )}
     </div>
   )
 }

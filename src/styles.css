@@ -162,11 +162,11 @@ textarea {
   display: none;
 }
 
-.Sidebar_locked .Sidebar_button::before {
+.Sidebar_locked .Sidebar_toggle::before {
   content: '🔒';
   position: absolute;
-  top: 0;
-  right: 0;
+  top: -5px;
+  right: -5px;
   font-size: 12px;
   background: var(--button-color);
   border: 1px solid var(--button-border-color);
@@ -174,11 +174,6 @@ textarea {
   padding: 2px;
   width: 16px;
   height: 16px;
-}
-
-.Sidebar_locked .Sidebar_drawer .Sidebar_button::before {
-  top: -10px;
-  right: -10px;
 }
 
 .DraggableNode {
@@ -398,23 +393,26 @@ textarea {
   background: var(--button-active-color);
 }
 
-button.Sidebar_button {
+button.Sidebar_toggle {
   width: 40px;
   height: 40px;
   padding: 0;
   border: none;
-  background: transparent;
   margin: var(--space-s);
   transition: transform 0.2s;
+  background: url('/logo.png') 0 0 no-repeat;
+  background-size: 100%;
+  transition: filter 0.2s;
+  filter: brightness(1);
 }
 
-.Sidebar_button img {
-  display: block;
-  width: 100%;
-  height: auto;
+button.Sidebar_toggle:hover {
+  background: url('/logo.png') 0 0 no-repeat !important;
+  background-size: 100% !important;
+  filter: brightness(1.1);
 }
 
-.Sidebar_drawer .Sidebar_button {
+.Sidebar_drawer .Sidebar_toggle {
   position: absolute;
   z-index: 1;
   right: 0;

@@ -12,7 +12,7 @@ type SidebarProps = {
   onTitleChange: (title: string) => void
 }
 
-const ITEMS_PER_PAGE = 12
+const ITEMS_PER_PAGE = 10
 
 export function Sidebar({ isLocked, title, onLockChange, onTitleChange }: SidebarProps) {
   const [isOpen, setIsOpen] = useState(false)
@@ -56,9 +56,7 @@ export function Sidebar({ isLocked, title, onLockChange, onTitleChange }: Sideba
   }, [onTitleChange])
 
   const toggleButton = (
-    <button className="Sidebar_button" onClick={toggleDrawer}>
-      <img src="/logo.png" alt="SpaceNotes" />
-    </button>
+    <button className="Sidebar_toggle" onClick={toggleDrawer} />
   )
 
   const divider = <hr />
@@ -112,15 +110,17 @@ export function Sidebar({ isLocked, title, onLockChange, onTitleChange }: Sideba
           {docs.map((doc) => renderLink({ url: makeUrl(doc.id, doc.title), title: doc.title }))}
         </ul>
 
-        <div className="Sidebar_pagination">
-          <button type="button" onClick={() => setPage(page - 1)} disabled={page <= 1}>
-            Previous
-          </button>
-          <span>Page {page} of {totalPages}</span>
-          <button type="button" onClick={() => setPage(page + 1)} disabled={page >= totalPages}>
-            Next
-          </button>
-        </div>
+        {totalPages > 1 && (
+          <div className="Sidebar_pagination">
+            <button type="button" onClick={() => setPage(page - 1)} disabled={page <= 1}>
+              Previous
+            </button>
+            <span>{page} / {totalPages}</span>
+            <button type="button" onClick={() => setPage(page + 1)} disabled={page >= totalPages}>
+              Next
+            </button>
+          </div>
+        )}
 
         {divider}
 
