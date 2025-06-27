@@ -637,6 +637,27 @@ button.Auth_textButton {
   font-weight: bold;
 }
 
+.SpaceCardWrapper {
+  position: relative;
+}
+
+.SpaceCard_delete {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  border: none;
+  background: transparent;
+  color: var(--color-muted);
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  padding: 0;
+}
+
+.SpaceCard_delete:hover {
+  color: var(--color-text);
+}
+
 /* Layout */
 .Header {
   display: flex;

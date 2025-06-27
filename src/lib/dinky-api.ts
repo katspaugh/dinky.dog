@@ -89,3 +89,10 @@ export async function listDocs(): Promise<SpaceMeta[]> {
     }
   })
 }
+
+export async function deleteDoc(id: string) {
+  const { error } = await supabase.from('documents').delete().eq('id', id)
+  if (error) {
+    throw error
+  }
+}
