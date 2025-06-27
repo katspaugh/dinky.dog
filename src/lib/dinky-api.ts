@@ -94,6 +94,32 @@ export async function listDocs(): Promise<SpaceMeta[]> {
   })
 }
 
+export async function listDocsPage(page = 1, perPage = 12): Promise<{ spaces: SpaceMeta[]; total: number }> {
+  const from = (page - 1) * perPage
+  const to = from + perPage - 1
+  const { data, count, error } = await supabase
+    .from('documents')
+    .select('id, data', { count: 'exact' })
+    .range(from, to)
+
+  if (error || !data) {
+    throw error || new Error('Unable to load documents')
+  }
+  const spaces = data.map((row: { id: string; data: string }) => {
+    try {
+      const parsed = JSON.parse(row.data)
+      return {
+        id: row.id,
+        title: parsed.title || stripHtml(parsed.nodes[0]?.content || ''),
+        backgroundColor: parsed.backgroundColor,
+      } as SpaceMeta
+    } catch {
+      return { id: row.id } as SpaceMeta
+    }
+  })
+  return { spaces, total: count || spaces.length }
+}
+
 export async function deleteDoc(id: string) {
   const { error } = await supabase.from('documents').delete().eq('id', id)
   if (error) {

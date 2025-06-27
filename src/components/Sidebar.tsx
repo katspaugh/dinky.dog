@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { makeUrl } from '../lib/url.js'
 import { LockButton } from './LockButton.js'
 import { supabase } from '../lib/supabase.js'
-import { listDocs } from '../lib/dinky-api.js'
+import { listDocsPage } from '../lib/dinky-api.js'
 import { Links } from './Links.js'
 
 type SidebarProps = {
@@ -12,17 +12,29 @@ type SidebarProps = {
   onTitleChange: (title: string) => void
 }
 
+const ITEMS_PER_PAGE = 12
+
 export function Sidebar({ isLocked, title, onLockChange, onTitleChange }: SidebarProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [docs, setDocs] = useState([])
+  const [page, setPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+
+  const loadDocs = useCallback(async (p: number) => {
+    try {
+      const { spaces, total } = await listDocsPage(p, ITEMS_PER_PAGE)
+      const pages = Math.max(1, Math.ceil(total / ITEMS_PER_PAGE))
+      setDocs(spaces)
+      setTotalPages(pages)
+      if (p > pages) setPage(pages)
+    } catch (err) {
+      console.error('Error loading spaces', err)
+    }
+  }, [])
 
   const toggleDrawer = useCallback((e) => {
     e.stopPropagation()
     setIsOpen((open) => !open)
-
-    listDocs()
-      .then((list) => setDocs(list))
-      .catch((err) => console.error('Error loading spaces', err))
   }, [])
 
   const stopPropagation = useCallback((e) => e.stopPropagation(), [])
@@ -61,6 +73,12 @@ export function Sidebar({ isLocked, title, onLockChange, onTitleChange }: Sideba
     }
   }, [])
 
+  useEffect(() => {
+    if (isOpen) {
+      loadDocs(page)
+    }
+  }, [isOpen, page, loadDocs])
+
   const onSignOut = useCallback(() => {
     supabase.auth.signOut()
   }, [])
@@ -93,6 +111,16 @@ export function Sidebar({ isLocked, title, onLockChange, onTitleChange }: Sideba
         <ul className="Sidebar_links">
           {docs.map((doc) => renderLink({ url: makeUrl(doc.id, doc.title), title: doc.title }))}
         </ul>
+
+        <div className="Sidebar_pagination">
+          <button type="button" onClick={() => setPage(page - 1)} disabled={page <= 1}>
+            Previous
+          </button>
+          <span>Page {page} of {totalPages}</span>
+          <button type="button" onClick={() => setPage(page + 1)} disabled={page >= totalPages}>
+            Next
+          </button>
+        </div>
 
         {divider}
 
