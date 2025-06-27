@@ -54,3 +54,10 @@ export function sanitizeHtml(html = '') {
     ALLOWED_URI_REGEXP: /^(blob:|https?:\/\/)/,
   })
 }
+
+export function stripHtml(html: string) {
+  return purify.sanitize(markdown(html), {
+    ALLOWED_TAGS: [],
+    ALLOWED_ATTR: [],
+  })
+}

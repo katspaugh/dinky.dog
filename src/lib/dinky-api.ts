@@ -1,4 +1,5 @@
 import type { CanvasProps } from '../types/canvas.js'
+import { stripHtml } from './sanitize-html.js'
 import { supabase } from './supabase.js'
 
 type CommonDinkyData = {
@@ -60,12 +61,11 @@ export async function loadDoc(id: string): Promise<DinkyDataV2> {
   return data
 }
 
-export async function saveDoc(data: DinkyDataV2) {
+export async function saveDoc(data: DinkyDataV2, userId: string): Promise<{ status: number; key: string }> {
   const encData = JSON.stringify(data)
-  const { data: userData } = await supabase.auth.getUser()
   const { error } = await supabase
     .from('documents')
-    .upsert({ id: data.id, data: encData, user_id: userData?.user?.id })
+    .upsert({ id: data.id, data: encData, user_id: userId })
 
   if (error) {
     throw error
@@ -83,7 +83,7 @@ export async function listDocs(): Promise<SpaceMeta[]> {
   return data.map((row: { id: string; data: string }) => {
     try {
       const parsed = JSON.parse(row.data)
-      return { id: row.id, title: parsed.title } as SpaceMeta
+      return { id: row.id, title: parsed.title || stripHtml(parsed.nodes[0]?.content || '') } as SpaceMeta
     } catch {
       return { id: row.id } as SpaceMeta
     }

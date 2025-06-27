@@ -4,6 +4,7 @@ import { loadDoc, saveDoc } from '../lib/dinky-api'
 import { useBeforeUnload } from './useBeforeUnload'
 import { randomId } from '../lib/utils'
 import { type useDocState } from './useDocState'
+import { useSession } from '@supabase/auth-helpers-react'
 
 const TITLE = 'SpaceNotes'
 
@@ -11,6 +12,9 @@ export function useInitApp(state: ReturnType<typeof useDocState>) {
   const { doc, setDoc } = state
   const stringDoc = useMemo(() => JSON.stringify(doc), [doc])
   const originalDoc = useRef(stringDoc)
+  // Init user session
+  const session = useSession()
+  const userId = session?.user?.id || ''
 
   // Load doc from URL
   useEffect(() => {
@@ -40,13 +44,14 @@ export function useInitApp(state: ReturnType<typeof useDocState>) {
 
   // Save doc on unload
   useBeforeUnload(useCallback(() => {
+    if (!userId) return
     setDoc((doc) => {
       if (doc.id && doc.title && JSON.stringify(doc) !== originalDoc.current) {
-        saveDoc(doc)
+        saveDoc(doc, userId)
       }
       return doc
     })
-  }, [setDoc]))
+  }, [setDoc, userId]))
 
   // Update title
   useEffect(() => {
@@ -60,16 +65,18 @@ export function useInitApp(state: ReturnType<typeof useDocState>) {
 
   // On lock change handler
   const onLockChange = useCallback((isLocked: boolean) => {
+    if (!userId) return
+
     setDoc((prevDoc) => {
       const newDoc = { ...prevDoc, isLocked }
-      saveDoc(newDoc)
+      saveDoc(newDoc, userId)
         .catch((err) => {
           setDoc(prevDoc) // Revert to previous state on error
           console.error('Error saving doc', err)
         })
       return newDoc
     })
-  }, [setDoc])
+  }, [setDoc, userId])
 
   // On title change handler
   const onTitleChange = useCallback((title: string) => {
