@@ -72,7 +72,7 @@ export async function saveDoc(data: DinkyDataV2, userId: string): Promise<{ stat
   }
   return { status: 200, key: data.id }
 }
-export type SpaceMeta = { id: string; title?: string }
+export type SpaceMeta = { id: string; title?: string, backgroundColor?: string }
 
 export async function listDocs(): Promise<SpaceMeta[]> {
   const { data, error } = await supabase.from('documents').select('id, data')
@@ -83,7 +83,11 @@ export async function listDocs(): Promise<SpaceMeta[]> {
   return data.map((row: { id: string; data: string }) => {
     try {
       const parsed = JSON.parse(row.data)
-      return { id: row.id, title: parsed.title || stripHtml(parsed.nodes[0]?.content || '') } as SpaceMeta
+      return {
+        id: row.id,
+        title: parsed.title || stripHtml(parsed.nodes[0]?.content || ''),
+        backgroundColor: parsed.backgroundColor,
+      } as SpaceMeta
     } catch {
       return { id: row.id } as SpaceMeta
     }

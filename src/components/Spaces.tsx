@@ -3,7 +3,7 @@ import { makeUrl } from '../lib/url.js'
 import { randomId } from '../lib/utils.js'
 import { listDocs, deleteDoc } from '../lib/dinky-api.js'
 
-export type SpaceInfo = { id: string; title?: string }
+export type SpaceInfo = { id: string; title?: string, backgroundColor?: string }
 
 export function Spaces() {
   const [spaces, setSpaces] = useState<SpaceInfo[]>([])
@@ -29,11 +29,14 @@ export function Spaces() {
   return (
     <div className="Spaces">
       <div className="Spaces_grid">
-        <a className="SpaceCard SpaceCard_new" href={makeUrl(newId)}>
-          ＋ New space
-        </a>
+        <div className="SpaceCardWrapper SpaceCardWrapper_new">
+          <a className="SpaceCard" href={makeUrl(newId)}>
+            ＋ New space
+          </a>
+        </div>
+
         {spaces.map((space) => (
-          <div key={space.id} className="SpaceCardWrapper">
+          <div key={space.id} className="SpaceCardWrapper" style={{ backgroundColor: space.backgroundColor }}>
             <a className="SpaceCard" href={makeUrl(space.id, space.title)}>
               {space.title || 'Untitled'}
             </a>
@@ -42,7 +45,7 @@ export function Spaces() {
               className="SpaceCard_delete"
               onClick={() => onDelete(space.id)}
             >
-              ×
+              ╳
             </button>
           </div>
         ))}
