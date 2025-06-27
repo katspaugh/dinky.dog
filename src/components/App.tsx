@@ -8,13 +8,13 @@ export function App() {
   const session = useSession()
   const id = getUrlId()
 
-  if (!session) {
-    return <AuthView />
+  if (id) {
+    return <EditorView />
   }
 
-  if (!id) {
+  if (session && !id) {
     return <SpacesView />
   }
 
-  return <EditorView />
+  return <AuthView />
 }

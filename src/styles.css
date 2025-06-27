@@ -458,6 +458,10 @@ button.Sidebar_button {
   margin: var(--space-m) var(--space-l) var(--space-s);
 }
 
+.Sidebar h1 a {
+  color: inherit;
+}
+
 .Sidebar hr {
   margin: 0;
   padding: 0;

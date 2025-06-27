@@ -76,7 +76,7 @@ export function Sidebar({ isLocked, title, onLockChange, onTitleChange }: Sideba
         style={{ transform: `translateX(${isOpen ? 0 : '100%'})` }}
         onClick={stopPropagation}
       >
-        <h1>SpaceNotes</h1>
+        <h1><a href="/">SpaceNotes</a></h1>
 
         {toggleButton}
 
