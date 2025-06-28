@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useMemo, useRef, useState, useEffect } from 'react'
 import type { CanvasEdge, CanvasNode } from '../types/canvas'
 import { DraggableNode } from './DraggableNode.js'
 import { Edge } from './Edge.js'
@@ -19,6 +19,9 @@ type BoardProps = {
   onConnect: (from: string, to: string) => void
   onDisconnect: (from: string, to: string) => void
   onBackgroundColorChange: (color: string) => void
+  cursors: Record<string, { x: number; y: number; color: string }>
+  clientId: string
+  onCursorMove: (x: number, y: number) => void
 }
 
 const WIDTH = 5000
@@ -28,6 +31,10 @@ export function Board(props: BoardProps) {
   const tempFrom = useRef<string | null>(null)
   const [selectedNodes, setSelectedNodes] = useState<string[]>([])
   const mousePosition = useMousePosition()
+
+  useEffect(() => {
+    props.onCursorMove(mousePosition.x, mousePosition.y)
+  }, [mousePosition.x, mousePosition.y, props.onCursorMove])
 
   const onBackgroundColorChange = useCallback((color: string) => {
     props.onBackgroundColorChange(color)
@@ -180,6 +187,16 @@ export function Board(props: BoardProps) {
         {props.edges?.map(renderEdge)}
         {tempFrom.current && renderEdge({ id: 'temp', fromNode: tempFrom.current, toNode: tempFrom.current }, undefined, undefined, mousePosition)}
       </svg>
+
+      {Object.entries(props.cursors).map(([id, c]) => (
+        id === props.clientId ? null : (
+          <div
+            key={id}
+            className="RemoteCursor"
+            style={{ left: c.x, top: c.y, backgroundColor: c.color }}
+          />
+        )
+      ))}
 
       <SelectionBox onChange={onSelectionChange} />
 

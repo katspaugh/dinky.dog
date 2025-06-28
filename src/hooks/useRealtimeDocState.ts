@@ -1,15 +1,17 @@
-import { useCallback, useRef } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import type { CanvasNode } from '../types/canvas.js'
 import { useDocState } from './useDocState.js'
 import { useRealtimeChannel, type RealtimeAction } from './useRealtimeChannel.js'
-import { debounce, randomId } from '../lib/utils.js'
+import { debounce, randomId, randomBrightColor } from '../lib/utils.js'
 
 export function useRealtimeDocState() {
   const state = useDocState()
   const { doc, setDoc } = state
+  const [cursors, setCursors] = useState<Record<string, { x: number; y: number; color: string }>>({})
+  const cursorColor = useRef(randomBrightColor())
 
   const apply = useCallback(
-    (action: RealtimeAction) => {
+    (action: RealtimeAction, sender: string) => {
       switch (action.type) {
         case 'node:create':
           setDoc((d) => ({ ...d, nodes: d.nodes.concat(action.node) }))
@@ -47,17 +49,26 @@ export function useRealtimeDocState() {
         case 'space:title':
           setDoc((d) => ({ ...d, title: action.title }))
           break
+        case 'cursor:move':
+          setCursors((c) => ({ ...c, [sender]: { x: action.x, y: action.y, color: action.color } }))
+          break
       }
     },
-    [setDoc],
+    [setDoc, setCursors],
   )
 
-  const { send } = useRealtimeChannel(doc.id, { apply })
+  const { send, clientId } = useRealtimeChannel(doc.id, { apply })
 
   const sendUpdate = useRef(
     debounce((id: string, props: Partial<CanvasNode>) => {
       send({ type: 'node:update', id, props })
     }, 50),
+  )
+
+  const sendCursor = useRef(
+    debounce((x: number, y: number) => {
+      send({ type: 'cursor:move', x, y, color: cursorColor.current })
+    }, 20),
   )
 
   const onNodeCreate = useCallback(
@@ -118,8 +129,18 @@ export function useRealtimeDocState() {
     [setDoc, send],
   )
 
+  const onCursorMove = useCallback(
+    (x: number, y: number) => {
+      sendCursor.current(x, y)
+    },
+    [],
+  )
+
   return {
     ...state,
+    clientId,
+    cursorColor: cursorColor.current,
+    cursors,
     onNodeCreate,
     onNodeDelete,
     onNodeUpdate,
@@ -127,5 +148,6 @@ export function useRealtimeDocState() {
     onDisconnect,
     onBackgroundColorChange,
     onTitleChange,
+    onCursorMove,
   }
 }
