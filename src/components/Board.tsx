@@ -133,6 +133,16 @@ export function Board(props: BoardProps) {
     setSelectedNodes(nodes.map((node) => node.id))
   }, [props.nodes])
 
+  const tryDeleteSelectedNodes = useCallback(() => {
+    setSelectedNodes((oldNodes) => {
+      if (oldNodes?.length && confirm(`Delete ${oldNodes.length === 1 ? 'this card' : oldNodes.length + ' cards'}?`)) {
+        oldNodes.forEach(props.onNodeDelete)
+        return []
+      }
+      return oldNodes
+    })
+  }, [props.onNodeDelete])
+
   useOnKey(
     'Escape',
     () => {
@@ -141,15 +151,18 @@ export function Board(props: BoardProps) {
         return
       }
 
-      setSelectedNodes((oldNodes) => {
-        if (oldNodes?.length && confirm(`Delete ${oldNodes.length === 1 ? 'this card' : oldNodes.length + ' cards'}?`)) {
-          oldNodes.forEach(props.onNodeDelete)
-          return []
-        }
-        return oldNodes
-      })
+      tryDeleteSelectedNodes()
     },
-    [],
+    [tryDeleteSelectedNodes],
+  )
+
+  useOnKey(
+    'Delete',
+    () => {
+      if (document.activeElement?.closest('.Editable')) return
+      tryDeleteSelectedNodes()
+    },
+    [tryDeleteSelectedNodes],
   )
 
   const sx = useMemo(() => ({ width: `${WIDTH}px`, height: `${HEIGHT}px` }), [])
