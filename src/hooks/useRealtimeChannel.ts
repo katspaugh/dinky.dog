@@ -4,6 +4,17 @@ import { randomId } from '../lib/utils.js'
 import type { CanvasNode, CanvasEdge } from '../types/canvas.js'
 import type { RealtimeChannel } from '@supabase/supabase-js'
 
+const CLIENT_ID_KEY = 'spacenotes-client-id'
+
+function getClientId() {
+  let id = sessionStorage.getItem(CLIENT_ID_KEY)
+  if (!id) {
+    id = randomId()
+    sessionStorage.setItem(CLIENT_ID_KEY, id)
+  }
+  return id
+}
+
 export type RealtimeAction =
   | { type: 'node:create'; node: CanvasNode }
   | { type: 'node:update'; id: string; props: Partial<CanvasNode> }
@@ -20,7 +31,7 @@ export function useRealtimeChannel(
   handlers: { apply: (action: RealtimeAction, clientId: string) => void },
 ) {
   const channelRef = useRef<RealtimeChannel | null>(null)
-  const clientId = useRef(randomId())
+  const clientId = useRef(getClientId())
 
   useEffect(() => {
     if (!docId) return
