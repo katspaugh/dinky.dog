@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { makeUrl } from '../lib/url.js'
+import { makeUrl, getUrlId } from '../lib/url.js'
 import { ForkButton } from './ForkButton.js'
 import { supabase } from '../lib/supabase.js'
 import { listDocsPage } from '../lib/dinky-api.js'
@@ -22,6 +22,7 @@ export function Sidebar({ isLocked, title, onFork, onTitleChange }: SidebarProps
   const [totalPages, setTotalPages] = useState(1)
   const session = useSession()
   const userId = session?.user?.id || ''
+  const currentId = getUrlId()
 
   const loadDocs = useCallback(async (p: number) => {
     try {
@@ -43,14 +44,18 @@ export function Sidebar({ isLocked, title, onFork, onTitleChange }: SidebarProps
   const stopPropagation = useCallback((e) => e.stopPropagation(), [])
 
   const renderLink = useCallback(
-    (doc) => (
+    (doc: { id?: string; url: string; title?: string }) => (
       <li key={doc.url}>
-        <a href={doc.url}>
-          {doc.title}
-        </a>
+        {doc.id && doc.id === currentId ? (
+          <strong className="Sidebar_current">{doc.title}</strong>
+        ) : (
+          <a href={doc.url}>
+            {doc.title}
+          </a>
+        )}
       </li>
     ),
-    [],
+    [currentId],
   )
 
   const onInput = useCallback((e) => {
@@ -110,7 +115,7 @@ export function Sidebar({ isLocked, title, onFork, onTitleChange }: SidebarProps
         </ul>
 
         <ul className="Sidebar_links">
-          {docs.map((doc) => renderLink({ url: makeUrl(doc.id, doc.title), title: doc.title }))}
+          {docs.map((doc) => renderLink({ id: doc.id, url: makeUrl(doc.id, doc.title), title: doc.title }))}
         </ul>
 
         {totalPages > 1 && (
