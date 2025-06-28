@@ -5,9 +5,11 @@ import { randomId } from '../lib/utils.js'
 
 export function useDocState() {
   const [_doc, setDoc] = useState<DinkyDataV2>({ nodes: [], edges: [], id: '', lastSequence: 0, version: 2 })
+  const [lastColor, setLastColor] = useState<string>()
 
   const onNodeCreate = useCallback((props: Partial<CanvasNode>) => {
     const id = randomId()
+    const color = props.color ?? lastColor
     const node = {
       id,
       type: 'text',
@@ -16,6 +18,7 @@ export function useDocState() {
       x: 0,
       y: 0,
       content: '',
+      color,
       ...props,
     }
 
@@ -24,7 +27,7 @@ export function useDocState() {
     })
 
     return node
-  }, [])
+  }, [lastColor])
 
   const onNodeDelete = useCallback((id: string) => {
     setDoc((doc) => {
@@ -41,6 +44,9 @@ export function useDocState() {
       Object.assign(node, props)
       return { ...doc }
     })
+    if (props.color) {
+      setLastColor(props.color)
+    }
   }, [])
 
   const onConnect = useCallback((from: string, to: string) => {
