@@ -772,3 +772,13 @@ button.Auth_textButton {
 .SpacesView_main {
   padding: var(--space-l) var(--space-l);
 }
+
+.RemoteCursor {
+  position: absolute;
+  z-index: 4;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  pointer-events: none;
+}

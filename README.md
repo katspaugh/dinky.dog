@@ -2,6 +2,9 @@
 
 Shareable diagrams with real-time collaboration
 
+Each participant in a space gets assigned a random bright color.
+Their cursor is shown in that color to everyone else in the room.
+
 <img width="300" src="https://github.com/katspaugh/dinky.dog/assets/381895/daf42772-3058-47b9-9956-7e5bf0291afa">
 
 ## Running locally

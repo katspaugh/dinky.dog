@@ -42,6 +42,13 @@ export function randomEmoji() {
   return emoji
 }
 
+export function randomBrightColor() {
+  const h = Math.floor(Math.random() * 360)
+  const s = 70 + Math.floor(Math.random() * 30)
+  const l = 50 + Math.floor(Math.random() * 10)
+  return `hsl(${h} ${s}% ${l}%)`
+}
+
 export function parseUrl(text = '') {
   const match = text.match(/^((data:|https?:)\/\/\S+)(\s+|<br\s*\/?>)??$/) // match URL followed by space or <br>
   return match ? match[1] || '' : ''

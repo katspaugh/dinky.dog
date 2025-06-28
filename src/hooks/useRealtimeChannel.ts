@@ -12,10 +12,11 @@ export type RealtimeAction =
   | { type: 'edge:delete'; from: string; to: string }
   | { type: 'space:background'; color: string }
   | { type: 'space:title'; title: string }
+  | { type: 'cursor:move'; x: number; y: number; color: string }
 
 export function useRealtimeChannel(
   docId: string,
-  handlers: { apply: (action: RealtimeAction) => void },
+  handlers: { apply: (action: RealtimeAction, clientId: string) => void },
 ) {
   const channelRef = useRef<RealtimeChannel | null>(null)
   const clientId = useRef(randomId())
@@ -29,7 +30,7 @@ export function useRealtimeChannel(
     channel.on('broadcast', { event: 'action' }, ({ payload }) => {
       if (!payload) return
       if (payload.clientId === clientId.current) return
-      handlers.apply(payload.action as RealtimeAction)
+      handlers.apply(payload.action as RealtimeAction, payload.clientId)
     })
 
     channel.subscribe()
@@ -47,5 +48,5 @@ export function useRealtimeChannel(
     })
   }, [])
 
-  return { send }
+  return { send, clientId: clientId.current }
 }

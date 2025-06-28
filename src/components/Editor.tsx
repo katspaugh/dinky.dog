@@ -7,7 +7,7 @@ import { useInitApp } from '../hooks/useInitApp.js'
 
 export function Editor() {
   const state = useRealtimeDocState()
-  const { doc, onNodeCreate, onNodeDelete, onNodeUpdate, onConnect, onDisconnect, onBackgroundColorChange, onTitleChange } = state
+  const { doc, cursors, clientId, onCursorMove, onNodeCreate, onNodeDelete, onNodeUpdate, onConnect, onDisconnect, onBackgroundColorChange, onTitleChange } = state
   const { isLocked, onFork } = useInitApp(state)
 
   return (
@@ -26,6 +26,9 @@ export function Editor() {
         onConnect={onConnect}
         onDisconnect={onDisconnect}
         onBackgroundColorChange={onBackgroundColorChange}
+        cursors={cursors}
+        clientId={clientId}
+        onCursorMove={onCursorMove}
       />
 
       <Sidebar
