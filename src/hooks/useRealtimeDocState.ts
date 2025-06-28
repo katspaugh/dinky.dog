@@ -12,6 +12,7 @@ export function useRealtimeDocState() {
   const [cursors, setCursors] = useState<Record<string, { x: number; y: number; color: string }>>({})
   const [selections, setSelections] = useState<Record<string, string[]>>({})
   const cursorColor = useRef(randomBrightColor())
+  const pendingMoves = useRef<Record<string, { dx: number; dy: number }>>({})
 
   useEffect(() => {
     if (!doc.id) return
@@ -40,7 +41,19 @@ export function useRealtimeDocState() {
     (action: RealtimeAction, sender: string) => {
       switch (action.type) {
         case 'node:create':
-          setDoc((d) => ({ ...d, nodes: d.nodes.concat(action.node) }))
+          setDoc((d) => {
+            const newDoc = { ...d, nodes: d.nodes.concat(action.node) }
+            const pending = pendingMoves.current[action.node.id]
+            if (pending) {
+              const node = newDoc.nodes.find((n) => n.id === action.node.id)
+              if (node) {
+                node.x = Math.round(node.x + pending.dx)
+                node.y = Math.round(node.y + pending.dy)
+              }
+              delete pendingMoves.current[action.node.id]
+            }
+            return newDoc
+          })
           break
         case 'node:update':
           setDoc((d) => {
@@ -55,8 +68,13 @@ export function useRealtimeDocState() {
             if (node) {
               node.x = Math.round(node.x + action.dx)
               node.y = Math.round(node.y + action.dy)
+              return { ...d }
             }
-            return { ...d }
+            const pending = pendingMoves.current[action.id] || { dx: 0, dy: 0 }
+            pending.dx += action.dx
+            pending.dy += action.dy
+            pendingMoves.current[action.id] = pending
+            return d
           })
           break
         case 'node:delete':
