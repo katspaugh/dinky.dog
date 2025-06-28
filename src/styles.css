@@ -776,9 +776,15 @@ button.Auth_textButton {
 .RemoteCursor {
   position: absolute;
   z-index: 4;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  border: 2px solid #fff;
+  width: 24px;
+  height: 24px;
   pointer-events: none;
+  background-color: var(--cursor-color);
+  -webkit-mask-image: url('/cursor-arrow.svg');
+  mask-image: url('/cursor-arrow.svg');
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  transition: left 0.1s linear, top 0.1s linear;
 }
