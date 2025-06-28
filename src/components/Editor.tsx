@@ -29,6 +29,8 @@ export function Editor() {
         cursors={cursors}
         clientId={clientId}
         onCursorMove={onCursorMove}
+        selections={state.selections}
+        onSelectNodes={state.onSelectNodes}
       />
 
       <Sidebar

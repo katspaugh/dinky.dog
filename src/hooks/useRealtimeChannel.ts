@@ -13,6 +13,7 @@ export type RealtimeAction =
   | { type: 'space:background'; color: string }
   | { type: 'space:title'; title: string }
   | { type: 'cursor:move'; x: number; y: number; color: string }
+  | { type: 'node:select'; ids: string[]; color: string }
 
 export function useRealtimeChannel(
   docId: string,
