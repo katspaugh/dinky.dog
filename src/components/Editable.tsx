@@ -61,14 +61,25 @@ export const Editable = ({ id, content, width, height, onChange, onHeightChange 
     }
   }, [])
 
+  // Clear text selection
+  const clearSelection = useCallback(() => {
+    const selection = window.getSelection()
+    selection?.removeAllRanges()
+  }, [])
+
   // Prevent dragging if it's focused
   const onPointerMove = useCallback((e) => {
     if (isFocused) {
       e.stopPropagation()
     } else {
+      clearSelection()
       e.preventDefault()
     }
-  }, [isFocused])
+  }, [isFocused, clearSelection])
+
+  const onPointerDown = useCallback(() => {
+    if (!isFocused) clearSelection()
+  }, [isFocused, clearSelection])
 
   // Sanitize content and prepare it for rendering
   const htmlContent = useMemo(() => ({ __html: sanitizeHtml(content) }), [content])
@@ -101,6 +112,7 @@ export const Editable = ({ id, content, width, height, onChange, onHeightChange 
       dangerouslySetInnerHTML={htmlContent}
       onInput={updateHeight}
       onPointerMove={onPointerMove}
+      onPointerDown={onPointerDown}
       onBlur={onBlur}
       onClick={onClick}
       style={style}
