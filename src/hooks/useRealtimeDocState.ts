@@ -1,14 +1,39 @@
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useRef, useState, useEffect } from 'react'
 import type { CanvasNode } from '../types/canvas.js'
 import { useDocState } from './useDocState.js'
 import { useRealtimeChannel, type RealtimeAction } from './useRealtimeChannel.js'
 import { debounce, randomId, randomBrightColor } from '../lib/utils.js'
+import { supabase } from '../lib/supabase.js'
+import { loadDoc } from '../lib/dinky-api.js'
 
 export function useRealtimeDocState() {
   const state = useDocState()
   const { doc, setDoc } = state
   const [cursors, setCursors] = useState<Record<string, { x: number; y: number; color: string }>>({})
   const cursorColor = useRef(randomBrightColor())
+
+  useEffect(() => {
+    if (!doc.id) return
+
+    const channel = supabase
+      .channel(`space:updates:${doc.id}`)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'documents', filter: `id=eq.${doc.id}` },
+        () => {
+          loadDoc(doc.id)
+            .then((newDoc) => {
+              setDoc(newDoc)
+            })
+            .catch((err) => console.error('Error refreshing doc', err))
+        },
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [doc.id, setDoc])
 
   const apply = useCallback(
     (action: RealtimeAction, sender: string) => {
