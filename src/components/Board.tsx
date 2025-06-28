@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState, useEffect } from 'react'
+import { useCallback, useMemo, useRef, useState, useEffect, type CSSProperties } from 'react'
 import type { CanvasEdge, CanvasNode } from '../types/canvas'
 import { DraggableNode } from './DraggableNode.js'
 import { Edge } from './Edge.js'
@@ -193,7 +193,7 @@ export function Board(props: BoardProps) {
           <div
             key={id}
             className="RemoteCursor"
-            style={{ left: c.x, top: c.y, backgroundColor: c.color }}
+            style={{ left: c.x, top: c.y, '--cursor-color': c.color } as CSSProperties }
           />
         )
       ))}
