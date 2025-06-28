@@ -7,6 +7,7 @@ import type { RealtimeChannel } from '@supabase/supabase-js'
 export type RealtimeAction =
   | { type: 'node:create'; node: CanvasNode }
   | { type: 'node:update'; id: string; props: Partial<CanvasNode> }
+  | { type: 'node:translate'; id: string; dx: number; dy: number }
   | { type: 'node:delete'; id: string }
   | { type: 'edge:create'; edge: CanvasEdge }
   | { type: 'edge:delete'; from: string; to: string }

@@ -48,6 +48,16 @@ export function useRealtimeDocState() {
             return { ...d }
           })
           break
+        case 'node:translate':
+          setDoc((d) => {
+            const node = d.nodes.find((n) => n.id === action.id)
+            if (node) {
+              node.x = Math.round(node.x + action.dx)
+              node.y = Math.round(node.y + action.dy)
+            }
+            return { ...d }
+          })
+          break
         case 'node:delete':
           setDoc((d) => ({
             ...d,
@@ -90,6 +100,12 @@ export function useRealtimeDocState() {
     }, 50),
   )
 
+  const sendMove = useRef(
+    debounce((id: string, dx: number, dy: number) => {
+      send({ type: 'node:translate', id, dx, dy })
+    }, 50),
+  )
+
   const sendCursor = useRef(
     debounce((x: number, y: number) => {
       send({ type: 'cursor:move', x, y, color: cursorColor.current })
@@ -115,10 +131,25 @@ export function useRealtimeDocState() {
 
   const onNodeUpdate = useCallback(
     (id: string, props: Partial<CanvasNode>) => {
+      const node = doc.nodes.find((n) => n.id === id)
+      let dx = 0
+      let dy = 0
+      if (node) {
+        if (props.x !== undefined) dx = props.x - node.x
+        if (props.y !== undefined) dy = props.y - node.y
+      }
       state.onNodeUpdate(id, props)
-      sendUpdate.current(id, props)
+      if (dx || dy) {
+        sendMove.current(id, dx, dy)
+      }
+      const otherProps = { ...props }
+      delete otherProps.x
+      delete otherProps.y
+      if (Object.keys(otherProps).length) {
+        sendUpdate.current(id, otherProps)
+      }
     },
-    [state.onNodeUpdate],
+    [state.onNodeUpdate, doc.nodes],
   )
 
   const onConnect = useCallback(
