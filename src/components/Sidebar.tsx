@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { makeUrl } from '../lib/url.js'
 import { LockButton } from './LockButton.js'
 import { supabase } from '../lib/supabase.js'
@@ -19,20 +19,16 @@ export function Sidebar({ isLocked, title, onLockChange, onTitleChange }: Sideba
   const [docs, setDocs] = useState([])
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
-  const [isLoading, setIsLoading] = useState(false)
-  const listRef = useRef<HTMLUListElement>(null)
 
   const loadDocs = useCallback(async (p: number) => {
     try {
-      setIsLoading(true)
       const { spaces, total } = await listDocsPage(p, ITEMS_PER_PAGE)
       const pages = Math.max(1, Math.ceil(total / ITEMS_PER_PAGE))
-      setDocs((prev) => (p === 1 ? spaces : [...prev, ...spaces]))
+      setDocs(spaces)
       setTotalPages(pages)
+      if (p > pages) setPage(pages)
     } catch (err) {
       console.error('Error loading spaces', err)
-    } finally {
-      setIsLoading(false)
     }
   }, [])
 
@@ -59,18 +55,6 @@ export function Sidebar({ isLocked, title, onLockChange, onTitleChange }: Sideba
     onTitleChange(value)
   }, [onTitleChange])
 
-  const onScroll = useCallback(() => {
-    const list = listRef.current
-    if (
-      list &&
-      !isLoading &&
-      page < totalPages &&
-      list.scrollHeight - list.scrollTop - list.clientHeight < 50
-    ) {
-      setPage((p) => p + 1)
-    }
-  }, [isLoading, page, totalPages])
-
   const toggleButton = (
     <button className="Sidebar_toggle" onClick={toggleDrawer} />
   )
@@ -86,13 +70,6 @@ export function Sidebar({ isLocked, title, onLockChange, onTitleChange }: Sideba
       document.body.removeEventListener('click', onClickOutside)
     }
   }, [])
-
-  useEffect(() => {
-    if (isOpen) {
-      setDocs([])
-      setPage(1)
-    }
-  }, [isOpen])
 
   useEffect(() => {
     if (isOpen) {
@@ -129,10 +106,21 @@ export function Sidebar({ isLocked, title, onLockChange, onTitleChange }: Sideba
           {renderLink({ url: makeUrl(Math.random().toString(36).slice(2)), title: '＋New' })}
         </ul>
 
-        <ul className="Sidebar_links" ref={listRef} onScroll={onScroll}>
+        <ul className="Sidebar_links">
           {docs.map((doc) => renderLink({ url: makeUrl(doc.id, doc.title), title: doc.title }))}
-          {isLoading && <li className="Sidebar_loader">Loading…</li>}
         </ul>
+
+        {totalPages > 1 && (
+          <div className="Sidebar_pagination">
+            <button type="button" onClick={() => setPage(page - 1)} disabled={page <= 1}>
+              Previous
+            </button>
+            <span>{page} / {totalPages}</span>
+            <button type="button" onClick={() => setPage(page + 1)} disabled={page >= totalPages}>
+              Next
+            </button>
+          </div>
+        )}
 
         {divider}
 
