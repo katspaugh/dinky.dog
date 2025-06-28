@@ -56,8 +56,20 @@ export function DraggableNode(props: DraggableNodeProps) {
       const oldSize = size.current
       const newSize = {
         width: Math.round((oldSize.width || INITIAL_WIDTH) + dx),
-          height: Math.round((oldSize.height || INITIAL_HEIGHT) + dy),
-        }
+        height: Math.round((oldSize.height || INITIAL_HEIGHT) + dy),
+      }
+      props.onNodeUpdate(props.id, newSize)
+      return newSize
+    },
+    [props.id, props.onNodeUpdate, size],
+  )
+
+  const onResizeReset = useCallback(
+    () => {
+      const newSize = {
+        width: undefined,
+        height: undefined,
+      }
       props.onNodeUpdate(props.id, newSize)
       return newSize
     },
@@ -108,7 +120,7 @@ export function DraggableNode(props: DraggableNodeProps) {
 
         <Connector onClick={onConnectStart} />
 
-        <Resizer onResize={onResize} />
+        <Resizer onResize={onResize} onReset={onResizeReset} />
 
         <ColorPicker color={props.color} onColorChange={onColorChange} />
       </div>

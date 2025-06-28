@@ -3,9 +3,10 @@ import { draggable } from '../lib/draggable.js'
 
 type ResizerProps = {
   onResize: (width: number, height: number) => void
+  onReset: () => void
 }
 
-export function Resizer({ onResize }: ResizerProps) {
+export function Resizer({ onResize, onReset }: ResizerProps) {
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -13,5 +14,5 @@ export function Resizer({ onResize }: ResizerProps) {
     return draggable(ref.current, onResize)
   }, [ref, onResize])
 
-  return <div className="Resizer" ref={ref} />
+  return <div className="Resizer" ref={ref} onDoubleClick={onReset} />
 }
