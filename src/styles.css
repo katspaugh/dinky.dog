@@ -23,15 +23,15 @@
   --edge-color: var(--color-primary);
   --button-color: var(--color-surface);
   --button-active-color: #ececec;
-  --button-border-color: #333;
+  --button-color-border: #333;
   --menu-background-color: var(--color-surface);
   --menu-text-color: var(--color-text);
   --menu-hover-color: #f1f1f1;
   --menu-hover-text-color: var(--color-text);
   --card-color: var(--color-surface);
   --card-hover-color: #f8f8f8;
+  --card-border: #555;
   --shadow-color: rgba(0, 0, 0, 0.15);
-  --border-color: var(--color-border);
   --grid-dot-color: #bdbdbd;
   --radius: 6px;
 }
@@ -52,7 +52,7 @@
     --menu-hover-color: #374151;
     --menu-hover-text-color: var(--color-text);
     --card-color: var(--color-surface);
-    --border-color: var(--color-border);
+    --color-border: var(--color-border);
     --grid-dot-color: #000;
   }
 }
@@ -102,7 +102,7 @@ textarea {
 
 button {
   background: var(--button-color);
-  border: 1px solid var(--button-border-color);
+  border: 1px solid var(--button-color-border);
   border-radius: var(--radius);
   padding: var(--space-s) var(--space-m);
   cursor: pointer;
@@ -126,7 +126,7 @@ button[disabled] {
 input,
 textarea {
   background: var(--color-surface);
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius);
   padding: var(--space-s) var(--space-s);
 }
@@ -169,7 +169,7 @@ textarea {
   right: -5px;
   font-size: 12px;
   background: var(--button-color);
-  border: 1px solid var(--button-border-color);
+  border: 1px solid var(--button-color-border);
   border-radius: 50%;
   padding: 2px;
   width: 16px;
@@ -187,7 +187,7 @@ textarea {
 }
 
 .Card {
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--card-border);
   border-radius: 6px;
   background-color: var(--card-color);
 }
@@ -337,7 +337,7 @@ textarea {
 .Resizer:after {
   content: '';
   display: block;
-  background: linear-gradient(135deg, transparent 0%, transparent 50%, var(--border-color) 50%, var(--border-color) 100%);
+  background: linear-gradient(135deg, transparent 0%, transparent 50%, var(--color-border) 50%, var(--color-border) 100%);
   width: 10px;
   height: 10px;
   position: absolute;
@@ -360,7 +360,7 @@ textarea {
 
 .Sidebar input {
   background: rgba(255, 255, 255, 0.5);
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius);
   padding: var(--space-s) var(--space-s);
   font-size: var(--font-size);
@@ -429,7 +429,7 @@ button.Sidebar_toggle:hover {
 
 .ForkButton {
   background: var(--button-color);
-  border: 1px solid var(--button-border-color);
+  border: 1px solid var(--button-color-border);
   border-radius: 8px;
   padding: 0.5em 1em;
   cursor: pointer;
@@ -465,7 +465,7 @@ button.Sidebar_toggle:hover {
   margin: 0;
   padding: 0;
   border: none;
-  border-top: 1px solid var(--border-color);
+  border-top: 1px solid var(--color-border);
 }
 
 .Sidebar ul {
@@ -511,7 +511,7 @@ button.Sidebar_toggle:hover {
 
 .Sidebar_pagination button {
   padding: var(--space-s) var(--space-m);
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--color-border);
   background: var(--color-surface);
   border-radius: var(--radius);
   cursor: pointer;
@@ -648,7 +648,7 @@ button.Auth_textButton {
 
 .Spaces_pagination button {
   padding: var(--space-s) var(--space-m);
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--color-border);
   background: var(--color-surface);
   border-radius: var(--radius);
   cursor: pointer;
@@ -681,7 +681,7 @@ button.Auth_textButton {
 .SpaceCardWrapper {
   position: relative;
   background: var(--card-color);
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius);
 }
 
@@ -715,7 +715,7 @@ button.Auth_textButton {
   gap: var(--space-m);
   padding: var(--space-m) var(--space-l);
   background: var(--color-surface);
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .Header h1 {
@@ -731,7 +731,7 @@ button.Auth_textButton {
   text-align: center;
   padding: var(--space-l) var(--space-m);
   background: var(--color-surface);
-  border-top: 1px solid var(--border-color);
+  border-top: 1px solid var(--color-border);
 }
 
 .Links {
