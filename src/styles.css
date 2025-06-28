@@ -500,25 +500,9 @@ button.Sidebar_toggle:hover {
   padding: 0;
 }
 
-.Sidebar_pagination {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: var(--space-s);
+.Sidebar_loader {
+  text-align: center;
   padding: var(--space-s) var(--space-l);
-}
-
-.Sidebar_pagination button {
-  padding: var(--space-s) var(--space-m);
-  border: 1px solid var(--border-color);
-  background: var(--color-surface);
-  border-radius: var(--radius);
-  cursor: pointer;
-}
-
-.Sidebar_pagination button:disabled {
-  opacity: 0.5;
-  cursor: default;
 }
 
 .SelectionBox {
