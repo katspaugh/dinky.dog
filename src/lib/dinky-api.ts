@@ -1,6 +1,6 @@
 import type { CanvasProps } from '../types/canvas.js'
 import { stripHtml } from './sanitize-html.js'
-import { supabase } from './supabase.js'
+import { supabase, SUPABASE_URL, SUPABASE_ANON_KEY } from './supabase.js'
 
 export type DinkyDataV2 = CanvasProps & {
   id: string
@@ -36,6 +36,23 @@ export async function saveDoc(data: DinkyDataV2, userId: string): Promise<{ stat
     throw error
   }
   return { status: 200, key: data.id }
+}
+
+export function saveDocBeacon(data: DinkyDataV2, accessToken: string, userId: string): void {
+  const url = `${SUPABASE_URL}/rest/v1/documents?on_conflict=id`
+  const encData = JSON.stringify(data)
+  const body = JSON.stringify({ id: data.id, data: encData, user_id: userId })
+  void fetch(url, {
+    method: 'POST',
+    headers: {
+      apikey: SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+      Prefer: 'resolution=merge-duplicates',
+    },
+    body,
+    keepalive: true,
+  })
 }
 export type SpaceMeta = { id: string; title?: string, backgroundColor?: string }
 
