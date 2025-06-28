@@ -49,6 +49,32 @@ export function randomBrightColor() {
   return `hsl(${h} ${s}% ${l}%)`
 }
 
+export function throttleTranslate(
+  fn: (id: string, dx: number, dy: number) => void,
+  ms: number,
+) {
+  let timer: ReturnType<typeof setTimeout> | null = null
+  const queue: Record<string, { dx: number; dy: number }> = {}
+
+  return (id: string, dx: number, dy: number) => {
+    if (!queue[id]) {
+      queue[id] = { dx: 0, dy: 0 }
+    }
+    queue[id].dx += dx
+    queue[id].dy += dy
+
+    if (!timer) {
+      timer = setTimeout(() => {
+        Object.entries(queue).forEach(([nid, delta]) => {
+          fn(nid, delta.dx, delta.dy)
+        })
+        timer = null
+        for (const key in queue) delete queue[key]
+      }, ms)
+    }
+  }
+}
+
 export function parseUrl(text = '') {
   const match = text.match(/^((data:|https?:)\/\/\S+)(\s+|<br\s*\/?>)??$/) // match URL followed by space or <br>
   return match ? match[1] || '' : ''
