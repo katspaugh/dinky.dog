@@ -9,6 +9,10 @@ import { loadDoc } from '../lib/dinky-api.js'
 export function useRealtimeDocState() {
   const state = useDocState()
   const { doc, setDoc } = state
+  const docRef = useRef(doc)
+  useEffect(() => {
+    docRef.current = doc
+  }, [doc])
   const [cursors, setCursors] = useState<Record<string, { x: number; y: number; color: string }>>({})
   const [selections, setSelections] = useState<Record<string, string[]>>({})
   const cursorColor = useRef(randomBrightColor())
@@ -149,7 +153,7 @@ export function useRealtimeDocState() {
 
   const onNodeUpdate = useCallback(
     (id: string, props: Partial<CanvasNode>) => {
-      const node = doc.nodes.find((n) => n.id === id)
+      const node = docRef.current.nodes.find((n) => n.id === id)
       let dx = 0
       let dy = 0
       if (node) {
@@ -167,7 +171,7 @@ export function useRealtimeDocState() {
         sendUpdate.current(id, otherProps)
       }
     },
-    [state.onNodeUpdate, doc.nodes],
+    [state.onNodeUpdate],
   )
 
   const onConnect = useCallback(
