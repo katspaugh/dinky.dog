@@ -26,8 +26,13 @@ export function useInitApp(state: ReturnType<typeof useDocState>) {
           loadDoc(id)
             .then((newDoc) => {
               console.log('Loaded doc', id, newDoc)
+              const docOwner = newDoc.user_id
+              const docData = { ...newDoc } as typeof newDoc & { creator?: unknown; user_id?: unknown }
+              delete (docData as { creator?: unknown }).creator
+              delete (docData as { user_id?: unknown }).user_id
+              const locked = !!docOwner && docOwner !== userId
               originalDoc.current = JSON.stringify(newDoc)
-              setDoc(newDoc)
+              setDoc({ ...docData, isLocked: locked })
               setUrlId(newDoc.id, newDoc.title)
             })
             .catch((err) => console.error('Error loading doc', err))
@@ -37,7 +42,7 @@ export function useInitApp(state: ReturnType<typeof useDocState>) {
       })
     } else {
       const newId = randomId()
-      setDoc((newDoc) => ({ ...newDoc, id: newId }))
+      setDoc((newDoc) => ({ ...newDoc, id: newId, isLocked: false }))
       setUrlId(newId)
     }
   }, [setDoc])
@@ -47,7 +52,11 @@ export function useInitApp(state: ReturnType<typeof useDocState>) {
     if (!userId) return
     setDoc((doc) => {
       if (doc.id && doc.title && JSON.stringify(doc) !== originalDoc.current) {
-        saveDoc(doc, userId)
+        const cleanDoc = { ...doc } as typeof doc & { isLocked?: unknown; creator?: unknown; user_id?: unknown }
+        delete cleanDoc.isLocked
+        delete (cleanDoc as { creator?: unknown }).creator
+        delete (cleanDoc as { user_id?: unknown }).user_id
+        saveDoc(cleanDoc as typeof doc, userId)
       }
       return doc
     })
@@ -63,25 +72,31 @@ export function useInitApp(state: ReturnType<typeof useDocState>) {
     document.body.style.backgroundColor = doc?.backgroundColor ?? ''
   }, [doc?.backgroundColor])
 
-  // On lock change handler
-  const onLockChange = useCallback((isLocked: boolean) => {
+  // Fork current space
+  const onFork = useCallback(() => {
     if (!userId) return
 
-    setDoc((prevDoc) => {
-      const newDoc = { ...prevDoc, isLocked }
-      saveDoc(newDoc, userId)
-        .catch((err) => {
-          setDoc(prevDoc) // Revert to previous state on error
-          console.error('Error saving doc', err)
-        })
-      return newDoc
-    })
-  }, [setDoc, userId])
+    const docToFork = { ...doc } as typeof doc & { creator?: unknown; user_id?: unknown }
+    delete (docToFork as { creator?: unknown }).creator
+    delete (docToFork as { user_id?: unknown }).user_id
+    const newDoc = { ...docToFork, id: randomId(), isLocked: false } as typeof doc
+    const cleanDoc = { ...newDoc } as typeof newDoc & { isLocked?: unknown; creator?: unknown; user_id?: unknown }
+    delete cleanDoc.isLocked
+    delete (cleanDoc as { creator?: unknown }).creator
+    delete (cleanDoc as { user_id?: unknown }).user_id
+    saveDoc(cleanDoc as typeof newDoc, userId)
+      .then(() => {
+        originalDoc.current = JSON.stringify(newDoc)
+        setUrlId(newDoc.id, newDoc.title)
+      })
+      .catch((err) => console.error('Error saving doc', err))
+    setDoc(newDoc)
+  }, [doc, setDoc, userId])
 
   // On title change handler
   const onTitleChange = useCallback((title: string) => {
     setDoc((doc) => ({ ...doc, title }))
   }, [setDoc])
 
-  return { onLockChange, onTitleChange }
+  return { onFork, onTitleChange }
 }

@@ -176,6 +176,7 @@ textarea {
   height: 16px;
 }
 
+
 .DraggableNode {
   position: absolute;
   z-index: 3;
@@ -426,7 +427,7 @@ button.Sidebar_toggle:hover {
   padding: var(--space-s) var(--space-l);
 }
 
-.LockButton {
+.ForkButton {
   background: var(--button-color);
   border: 1px solid var(--button-border-color);
   border-radius: 8px;
