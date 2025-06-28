@@ -12,13 +12,13 @@ type EditableProps = {
   onHeightChange: (height: number) => void
 }
 
-export const INITIAL_WIDTH = 150
-export const INITIAL_HEIGHT = 70
+export const INITIAL_WIDTH = 165
+export const INITIAL_HEIGHT = 90
 
 const getPreviewHtml = (preview: LinkPreview) => {
   const domain = new URL(preview.url).hostname
   return sanitizeHtml([
-    `<img src=${preview.image} crossorigin="anonymous" />`,
+    preview.image ? `<img src=${preview.image} crossorigin="anonymous" />` : '',
     `<h4>${preview.title}</h4>`,
     `<a href=${preview.url} target="_blank" nofollow noopener>${domain}</a>`,
   ].join(''))
