@@ -2,7 +2,7 @@ import { useCallback, useRef, useState, useEffect } from 'react'
 import type { CanvasNode } from '../types/canvas.js'
 import { useDocState } from './useDocState.js'
 import { useRealtimeChannel, type RealtimeAction } from './useRealtimeChannel.js'
-import { debounce, randomId, randomBrightColor } from '../lib/utils.js'
+import { debounce, randomId, randomBrightColor, throttleTranslate } from '../lib/utils.js'
 import { supabase } from '../lib/supabase.js'
 import { loadDoc } from '../lib/dinky-api.js'
 
@@ -101,7 +101,7 @@ export function useRealtimeDocState() {
   )
 
   const sendMove = useRef(
-    debounce((id: string, dx: number, dy: number) => {
+    throttleTranslate((id: string, dx: number, dy: number) => {
       send({ type: 'node:translate', id, dx, dy })
     }, 50),
   )
