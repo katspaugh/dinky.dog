@@ -490,6 +490,17 @@ button.Sidebar_toggle:hover {
   text-overflow: ellipsis;
 }
 
+.Sidebar_current {
+  display: block;
+  padding: var(--space-s) var(--space-s);
+  font-weight: bold;
+  color: var(--menu-text-color);
+  border-radius: var(--radius);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .Sidebar li a:hover {
   background: var(--menu-hover-color);
   color: var(--menu-hover-text-color);
