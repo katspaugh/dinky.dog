@@ -2,21 +2,17 @@ import { useCallback, useRef, useState, useEffect } from 'react'
 import type { CanvasNode } from '../types/canvas.js'
 import { useDocState } from './useDocState.js'
 import { useRealtimeChannel, type RealtimeAction } from './useRealtimeChannel.js'
-import { debounce, randomId, randomBrightColor, throttleTranslate } from '../lib/utils.js'
+import { debounce, randomId, randomBrightColor } from '../lib/utils.js'
 import { supabase } from '../lib/supabase.js'
 import { loadDoc } from '../lib/dinky-api.js'
 
 export function useRealtimeDocState() {
   const state = useDocState()
   const { doc, setDoc } = state
-  const docRef = useRef(doc)
-  useEffect(() => {
-    docRef.current = doc
-  }, [doc])
   const [cursors, setCursors] = useState<Record<string, { x: number; y: number; color: string }>>({})
   const [selections, setSelections] = useState<Record<string, string[]>>({})
   const cursorColor = useRef(randomBrightColor())
-  const pendingMoves = useRef<Record<string, { dx: number; dy: number }>>({})
+  const pendingUpdates = useRef<Record<string, Partial<CanvasNode>>>({})
 
   useEffect(() => {
     if (!doc.id) return
@@ -47,14 +43,11 @@ export function useRealtimeDocState() {
         case 'node:create':
           setDoc((d) => {
             const newDoc = { ...d, nodes: d.nodes.concat(action.node) }
-            const pending = pendingMoves.current[action.node.id]
+            const pending = pendingUpdates.current[action.node.id]
             if (pending) {
               const node = newDoc.nodes.find((n) => n.id === action.node.id)
-              if (node) {
-                node.x = Math.round(node.x + pending.dx)
-                node.y = Math.round(node.y + pending.dy)
-              }
-              delete pendingMoves.current[action.node.id]
+              if (node) Object.assign(node, pending)
+              delete pendingUpdates.current[action.node.id]
             }
             return newDoc
           })
@@ -62,22 +55,13 @@ export function useRealtimeDocState() {
         case 'node:update':
           setDoc((d) => {
             const node = d.nodes.find((n) => n.id === action.id)
-            if (node) Object.assign(node, action.props)
-            return { ...d }
-          })
-          break
-        case 'node:translate':
-          setDoc((d) => {
-            const node = d.nodes.find((n) => n.id === action.id)
             if (node) {
-              node.x = Math.round(node.x + action.dx)
-              node.y = Math.round(node.y + action.dy)
+              Object.assign(node, action.props)
               return { ...d }
             }
-            const pending = pendingMoves.current[action.id] || { dx: 0, dy: 0 }
-            pending.dx += action.dx
-            pending.dy += action.dy
-            pendingMoves.current[action.id] = pending
+            const pending = pendingUpdates.current[action.id] || {}
+            Object.assign(pending, action.props)
+            pendingUpdates.current[action.id] = pending
             return d
           })
           break
@@ -89,6 +73,7 @@ export function useRealtimeDocState() {
               (e) => e.fromNode !== action.id && e.toNode !== action.id,
             ),
           }))
+          delete pendingUpdates.current[action.id]
           break
         case 'edge:create':
           setDoc((d) => ({ ...d, edges: d.edges.concat(action.edge) }))
@@ -134,12 +119,6 @@ export function useRealtimeDocState() {
     }, 50),
   )
 
-  const sendMove = useRef(
-    throttleTranslate((id: string, dx: number, dy: number) => {
-      send({ type: 'node:translate', id, dx, dy })
-    }, 50),
-  )
-
   const sendCursor = useRef(
     debounce((x: number, y: number) => {
       send({ type: 'cursor:move', x, y, color: cursorColor.current })
@@ -171,23 +150,8 @@ export function useRealtimeDocState() {
 
   const onNodeUpdate = useCallback(
     (id: string, props: Partial<CanvasNode>) => {
-      const node = docRef.current.nodes.find((n) => n.id === id)
-      let dx = 0
-      let dy = 0
-      if (node) {
-        if (props.x !== undefined) dx = props.x - node.x
-        if (props.y !== undefined) dy = props.y - node.y
-      }
       state.onNodeUpdate(id, props)
-      if (dx || dy) {
-        sendMove.current(id, dx, dy)
-      }
-      const otherProps = { ...props }
-      delete otherProps.x
-      delete otherProps.y
-      if (Object.keys(otherProps).length) {
-        sendUpdate.current(id, otherProps)
-      }
+      sendUpdate.current(id, props)
     },
     [state.onNodeUpdate],
   )
