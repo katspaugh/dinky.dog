@@ -16,7 +16,6 @@ export type DinkyDataV2 = CommonDinkyData &
     title?: string
     backgroundColor?: string
     isLocked?: boolean
-    creator?: string
     version: 2
   }
 
@@ -46,10 +45,10 @@ export type DinkyDataV1 = CommonDinkyData & {
   >
 }
 
-export async function loadDoc(id: string): Promise<DinkyDataV2> {
+export async function loadDoc(id: string): Promise<DinkyDataV2 & { user_id?: string }> {
   const { data: row, error } = await supabase
     .from('documents')
-    .select('data')
+    .select('data, user_id')
     .eq('id', id)
     .maybeSingle()
 
@@ -58,7 +57,7 @@ export async function loadDoc(id: string): Promise<DinkyDataV2> {
   }
   const data = JSON.parse(row.data)
 
-  return data
+  return { ...data, user_id: row.user_id }
 }
 
 export async function saveDoc(data: DinkyDataV2, userId: string): Promise<{ status: number; key: string }> {

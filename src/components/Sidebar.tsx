@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { makeUrl } from '../lib/url.js'
-import { LockButton } from './LockButton.js'
+import { ForkButton } from './ForkButton.js'
 import { supabase } from '../lib/supabase.js'
 import { listDocsPage } from '../lib/dinky-api.js'
 import { Links } from './Links.js'
@@ -8,13 +8,13 @@ import { Links } from './Links.js'
 type SidebarProps = {
   isLocked?: boolean
   title?: string
-  onLockChange: (isLocked: boolean) => void
+  onFork: () => void
   onTitleChange: (title: string) => void
 }
 
 const ITEMS_PER_PAGE = 10
 
-export function Sidebar({ isLocked, title, onLockChange, onTitleChange }: SidebarProps) {
+export function Sidebar({ isLocked, title, onFork, onTitleChange }: SidebarProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [docs, setDocs] = useState([])
   const [page, setPage] = useState(1)
@@ -99,7 +99,7 @@ export function Sidebar({ isLocked, title, onLockChange, onTitleChange }: Sideba
         {divider}
 
         <div className="Sidebar_actions">
-          <LockButton isLocked={isLocked} onLockChange={onLockChange} />
+          <ForkButton onFork={onFork} />
         </div>
 
         <ul>
