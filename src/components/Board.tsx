@@ -22,6 +22,8 @@ type BoardProps = {
   cursors: Record<string, { x: number; y: number; color: string }>
   clientId: string
   onCursorMove: (x: number, y: number) => void
+  selections: Record<string, string[]>
+  onSelectNodes: (ids: string[]) => void
 }
 
 const WIDTH = 5000
@@ -32,6 +34,25 @@ export function Board(props: BoardProps) {
   const [selectedNodes, setSelectedNodes] = useState<string[]>([])
   const mousePosition = useMousePosition()
 
+  const updateSelection = useCallback(
+    (ids: string[]) => {
+      setSelectedNodes(ids)
+      props.onSelectNodes(ids)
+    },
+    [props.onSelectNodes],
+  )
+
+  const remoteSelectionColor = useMemo(() => {
+    const map: Record<string, string> = {}
+    Object.entries(props.selections).forEach(([client, ids]) => {
+      const color = props.cursors[client]?.color
+      if (color) ids.forEach((id) => {
+        if (!map[id]) map[id] = color
+      })
+    })
+    return map
+  }, [props.selections, props.cursors])
+
   useEffect(() => {
     props.onCursorMove(mousePosition.x, mousePosition.y)
   }, [mousePosition.x, mousePosition.y, props.onCursorMove])
@@ -40,16 +61,19 @@ export function Board(props: BoardProps) {
     props.onBackgroundColorChange(color)
   }, [props.onBackgroundColorChange])
 
-  const onNodeClick = useCallback((id: string) => {
-    if (tempFrom.current) {
-      if (tempFrom.current !== id) {
-        props.onConnect(tempFrom.current, id)
+  const onNodeClick = useCallback(
+    (id: string) => {
+      if (tempFrom.current) {
+        if (tempFrom.current !== id) {
+          props.onConnect(tempFrom.current, id)
+        }
+        tempFrom.current = null
+      } else {
+        updateSelection([id])
       }
-      tempFrom.current = null
-    } else {
-      setSelectedNodes([id])
-    }
-  }, [props.onConnect])
+    },
+    [props.onConnect, updateSelection],
+  )
 
   const onNodeCreate = useCallback((nodeProps?: Partial<CanvasNode>) => {
     const node = props.onNodeCreate({
@@ -66,7 +90,7 @@ export function Board(props: BoardProps) {
   }, [props.onNodeCreate, mousePosition.x, mousePosition.y])
 
   const onBoardClick = useCallback(() => {
-    setSelectedNodes([])
+    updateSelection([])
 
     if (tempFrom.current) {
       const node = onNodeCreate()
@@ -77,7 +101,7 @@ export function Board(props: BoardProps) {
 
   const onBoardDblClick = useCallback(() => {
     const node = onNodeCreate()
-    setSelectedNodes([node.id])
+    updateSelection([node.id])
   }, [onNodeCreate])
 
   const onNodeUpdate = useCallback((id: string, item: Partial<CanvasNode>) => {
@@ -109,10 +133,11 @@ export function Board(props: BoardProps) {
           onConnectStart={onConnectStart}
           onClick={onNodeClick}
           selected={selectedNodes.includes(node.id)}
+          selectedByColor={remoteSelectionColor[node.id]}
         />
       )
     },
-    [onNodeUpdate, selectedNodes, onConnectStart, onNodeClick],
+    [onNodeUpdate, selectedNodes, onConnectStart, onNodeClick, remoteSelectionColor],
   )
 
   const renderEdge = useCallback(
@@ -137,18 +162,19 @@ export function Board(props: BoardProps) {
         (node.x <= box.x2 && node.x + width >= box.x1 && node.y <= box.y2 && node.y + height >= box.y1)
       return isOverlapping
     })
-    setSelectedNodes(nodes.map((node) => node.id))
+    updateSelection(nodes.map((node) => node.id))
   }, [props.nodes])
 
   const tryDeleteSelectedNodes = useCallback(() => {
     setSelectedNodes((oldNodes) => {
       if (oldNodes?.length && confirm(`Delete ${oldNodes.length === 1 ? 'this card' : oldNodes.length + ' cards'}?`)) {
         oldNodes.forEach(props.onNodeDelete)
+        updateSelection([])
         return []
       }
       return oldNodes
     })
-  }, [props.onNodeDelete])
+  }, [props.onNodeDelete, updateSelection])
 
   useOnKey(
     'Escape',

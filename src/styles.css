@@ -186,6 +186,10 @@ textarea {
   outline: 2px solid var(--accent-color);
 }
 
+.DraggableNode_remoteSelected .Card {
+  outline: 2px solid var(--remote-selection-color);
+}
+
 .Card {
   border: 1px solid var(--card-border);
   border-radius: 6px;

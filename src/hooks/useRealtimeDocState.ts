@@ -10,6 +10,7 @@ export function useRealtimeDocState() {
   const state = useDocState()
   const { doc, setDoc } = state
   const [cursors, setCursors] = useState<Record<string, { x: number; y: number; color: string }>>({})
+  const [selections, setSelections] = useState<Record<string, string[]>>({})
   const cursorColor = useRef(randomBrightColor())
 
   useEffect(() => {
@@ -87,9 +88,20 @@ export function useRealtimeDocState() {
         case 'cursor:move':
           setCursors((c) => ({ ...c, [sender]: { x: action.x, y: action.y, color: action.color } }))
           break
+        case 'node:select':
+          setSelections((s) => ({ ...s, [sender]: action.ids }))
+          setCursors((c) => ({
+            ...c,
+            [sender]: {
+              x: c[sender]?.x ?? 0,
+              y: c[sender]?.y ?? 0,
+              color: action.color,
+            },
+          }))
+          break
       }
     },
-    [setDoc, setCursors],
+    [setDoc, setCursors, setSelections],
   )
 
   const { send, clientId } = useRealtimeChannel(doc.id, { apply })
@@ -109,6 +121,12 @@ export function useRealtimeDocState() {
   const sendCursor = useRef(
     debounce((x: number, y: number) => {
       send({ type: 'cursor:move', x, y, color: cursorColor.current })
+    }, 20),
+  )
+
+  const sendSelection = useRef(
+    debounce((ids: string[]) => {
+      send({ type: 'node:select', ids, color: cursorColor.current })
     }, 20),
   )
 
@@ -192,6 +210,13 @@ export function useRealtimeDocState() {
     [],
   )
 
+  const onSelectNodes = useCallback(
+    (ids: string[]) => {
+      sendSelection.current(ids)
+    },
+    [],
+  )
+
   return {
     ...state,
     clientId,
@@ -205,5 +230,7 @@ export function useRealtimeDocState() {
     onBackgroundColorChange,
     onTitleChange,
     onCursorMove,
+    selections,
+    onSelectNodes,
   }
 }

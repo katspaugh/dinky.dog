@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef, type CSSProperties } from 'react'
 import type { CanvasNode } from '../types/canvas'
 import { draggable } from '../lib/draggable.js'
 import { Card } from './Card.js'
@@ -12,6 +12,7 @@ type DraggableNodeProps = CanvasNode & {
   onConnectStart: (fromNode: string) => void
   onClick: (id: string) => void
   selected: boolean
+  selectedByColor?: string
 }
 
 const BG_THRESHOLD = 110e3
@@ -99,10 +100,17 @@ export function DraggableNode(props: DraggableNodeProps) {
     transform: `translate(${props.x}px, ${props.y}px)`,
   }), [props.x, props.y])
 
+  const className = `DraggableNode${props.selected ? ' DraggableNode_selected' : ''}${props.selectedByColor ? ' DraggableNode_remoteSelected' : ''}${isBackgroundCard ? ' DraggableNode_background' : ''}`
+
+  const style = useMemo(() => ({
+    ...sx,
+    '--remote-selection-color': props.selectedByColor,
+  }), [sx, props.selectedByColor])
+
   return (
     <div
-      className={`DraggableNode${props.selected ? ' DraggableNode_selected' : ''}${isBackgroundCard ? ' DraggableNode_background' : ''}`}
-      style={sx}
+      className={className}
+      style={style as CSSProperties}
       ref={ref}
       onClick={onClick}
       onDoubleClick={stopPropagation}
