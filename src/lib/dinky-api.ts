@@ -2,50 +2,16 @@ import type { CanvasProps } from '../types/canvas.js'
 import { stripHtml } from './sanitize-html.js'
 import { supabase } from './supabase.js'
 
-type CommonDinkyData = {
+export type DinkyDataV2 = CanvasProps & {
   id: string
   lastSequence: number
   title?: string
   backgroundColor?: string
+  version: 2
+  userId?: string
 }
 
-export type DinkyDataV2 = CommonDinkyData &
-  CanvasProps & {
-    id: string
-    lastSequence: number
-    title?: string
-    backgroundColor?: string
-    isLocked?: boolean
-    version: 2
-  }
-
-export type DinkyDataV1 = CommonDinkyData & {
-  id: string
-  lastSequence: number
-  title?: string
-  backgroundColor?: string
-  isLocked?: boolean
-  creator: string
-  nodes: Record<
-    string,
-    {
-      id: string
-      data: {
-        operatorData: string
-      }
-      props: {
-        x: number
-        y: number
-        width?: number
-        height?: number
-        background?: string
-      }
-      connections: { inputId: string }[]
-    }
-  >
-}
-
-export async function loadDoc(id: string): Promise<DinkyDataV2 & { user_id?: string }> {
+export async function loadDoc(id: string): Promise<DinkyDataV2> {
   const { data: row, error } = await supabase
     .from('documents')
     .select('data, user_id')
@@ -57,7 +23,7 @@ export async function loadDoc(id: string): Promise<DinkyDataV2 & { user_id?: str
   }
   const data = JSON.parse(row.data)
 
-  return { ...data, user_id: row.user_id }
+  return { ...data, userId: row.user_id }
 }
 
 export async function saveDoc(data: DinkyDataV2, userId: string): Promise<{ status: number; key: string }> {
@@ -73,32 +39,13 @@ export async function saveDoc(data: DinkyDataV2, userId: string): Promise<{ stat
 }
 export type SpaceMeta = { id: string; title?: string, backgroundColor?: string }
 
-export async function listDocs(): Promise<SpaceMeta[]> {
-  const { data, error } = await supabase.from('documents').select('id, data')
-
-  if (error || !data) {
-    throw error || new Error('Unable to load documents')
-  }
-  return data.map((row: { id: string; data: string }) => {
-    try {
-      const parsed = JSON.parse(row.data)
-      return {
-        id: row.id,
-        title: parsed.title || stripHtml(parsed.nodes[0]?.content || ''),
-        backgroundColor: parsed.backgroundColor,
-      } as SpaceMeta
-    } catch {
-      return { id: row.id } as SpaceMeta
-    }
-  })
-}
-
-export async function listDocsPage(page = 1, perPage = 12): Promise<{ spaces: SpaceMeta[]; total: number }> {
+export async function listDocsPage(userId: string, page = 1, perPage = 12): Promise<{ spaces: SpaceMeta[]; total: number }> {
   const from = (page - 1) * perPage
   const to = from + perPage - 1
   const { data, count, error } = await supabase
     .from('documents')
     .select('id, data', { count: 'exact' })
+    .eq('user_id', userId)
     .range(from, to)
 
   if (error || !data) {

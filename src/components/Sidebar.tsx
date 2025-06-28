@@ -4,6 +4,7 @@ import { ForkButton } from './ForkButton.js'
 import { supabase } from '../lib/supabase.js'
 import { listDocsPage } from '../lib/dinky-api.js'
 import { Links } from './Links.js'
+import { useSession } from '@supabase/auth-helpers-react'
 
 type SidebarProps = {
   isLocked?: boolean
@@ -19,10 +20,12 @@ export function Sidebar({ isLocked, title, onFork, onTitleChange }: SidebarProps
   const [docs, setDocs] = useState([])
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
+  const session = useSession()
+  const userId = session?.user?.id || ''
 
   const loadDocs = useCallback(async (p: number) => {
     try {
-      const { spaces, total } = await listDocsPage(p, ITEMS_PER_PAGE)
+      const { spaces, total } = await listDocsPage(userId, p, ITEMS_PER_PAGE)
       const pages = Math.max(1, Math.ceil(total / ITEMS_PER_PAGE))
       setDocs(spaces)
       setTotalPages(pages)
@@ -30,7 +33,7 @@ export function Sidebar({ isLocked, title, onFork, onTitleChange }: SidebarProps
     } catch (err) {
       console.error('Error loading spaces', err)
     }
-  }, [])
+  }, [userId])
 
   const toggleDrawer = useCallback((e) => {
     e.stopPropagation()

@@ -8,7 +8,7 @@ import { useInitApp } from '../hooks/useInitApp.js'
 export function Editor() {
   const state = useDocState()
   const { doc, onNodeCreate, onNodeDelete, onNodeUpdate, onConnect, onDisconnect, onBackgroundColorChange } = state
-  const { onFork, onTitleChange } = useInitApp(state)
+  const { isLocked, onFork, onTitleChange } = useInitApp(state)
 
   return (
     <ImageDrop
@@ -19,7 +19,7 @@ export function Editor() {
     >
       <Board
         {...doc}
-        isLocked={doc.isLocked}
+        isLocked={isLocked}
         onNodeCreate={onNodeCreate}
         onNodeDelete={onNodeDelete}
         onNodeUpdate={onNodeUpdate}
@@ -31,7 +31,7 @@ export function Editor() {
       <Sidebar
         onFork={onFork}
         onTitleChange={onTitleChange}
-        isLocked={doc.isLocked}
+        isLocked={isLocked}
         title={doc.title}
       />
     </ImageDrop>

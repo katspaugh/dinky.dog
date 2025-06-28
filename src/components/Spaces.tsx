@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { makeUrl, getUrlPage, setUrlPage } from '../lib/url.js'
 import { randomId } from '../lib/utils.js'
 import { listDocsPage, deleteDoc } from '../lib/dinky-api.js'
+import { useSession } from '@supabase/auth-helpers-react'
 
 export type SpaceInfo = { id: string; title?: string, backgroundColor?: string }
 
@@ -11,10 +12,12 @@ export function Spaces() {
   const [spaces, setSpaces] = useState<SpaceInfo[]>([])
   const [page, setPage] = useState(getUrlPage())
   const [totalPages, setTotalPages] = useState(1)
+  const session = useSession()
+  const userId = session?.user?.id || ''
 
-  const loadSpaces = async (p: number) => {
+  const loadSpaces = useCallback(async (p: number) => {
     try {
-      const { spaces, total } = await listDocsPage(p, ITEMS_PER_PAGE)
+      const { spaces, total } = await listDocsPage(userId, p, ITEMS_PER_PAGE)
       const pages = Math.max(1, Math.ceil(total / ITEMS_PER_PAGE))
       setSpaces(spaces)
       setTotalPages(pages)
@@ -22,9 +25,9 @@ export function Spaces() {
     } catch (err) {
       console.error('Error loading spaces', err)
     }
-  }
+  }, [userId])
 
-  const onDelete = async (id: string) => {
+  const onDelete = useCallback(async (id: string) => {
     if (!confirm('Delete this space?')) return
     try {
       await deleteDoc(id)
@@ -32,11 +35,11 @@ export function Spaces() {
     } catch (err) {
       console.error('Error deleting space', err)
     }
-  }
+  }, [page, loadSpaces])
 
   useEffect(() => {
     loadSpaces(page)
-  }, [page])
+  }, [page, loadSpaces])
 
   useEffect(() => {
     setUrlPage(page)
