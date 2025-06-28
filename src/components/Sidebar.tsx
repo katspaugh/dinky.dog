@@ -84,6 +84,10 @@ export function Sidebar({ isLocked, title, onFork, onTitleChange }: SidebarProps
     supabase.auth.signOut()
   }, [])
 
+  const onSignIn = useCallback(() => {
+    window.location.href = '/'
+  }, [])
+
   return (
     <aside className={`Sidebar${isLocked ? ' Sidebar_locked' : ''}`}>
       <input onInput={onInput} value={title ?? ''} />
@@ -102,7 +106,13 @@ export function Sidebar({ isLocked, title, onFork, onTitleChange }: SidebarProps
         {divider}
 
         <div className="Sidebar_actions">
-          <ForkButton onFork={onFork} />
+          {userId ? (
+            <ForkButton onFork={onFork} />
+          ) : (
+            <button className="Sidebar_signin" onClick={onSignIn}>
+              Sign in / Sign up
+            </button>
+          )}
         </div>
 
         <ul>
@@ -129,7 +139,11 @@ export function Sidebar({ isLocked, title, onFork, onTitleChange }: SidebarProps
 
         <Links direction="column" />
 
-        <button className="Sidebar_logout" onClick={onSignOut}>Sign out</button>
+        {userId && (
+          <button className="Sidebar_logout" onClick={onSignOut}>
+            Sign out
+          </button>
+        )}
       </div>
     </aside>
   )
