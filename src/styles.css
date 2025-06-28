@@ -625,6 +625,10 @@ button.Auth_textButton {
   margin: 0 var(--space-l);
 }
 
+.Sidebar_signin {
+  margin: 0 var(--space-l);
+}
+
 .Spaces {
   padding: var(--space-l);
 }
