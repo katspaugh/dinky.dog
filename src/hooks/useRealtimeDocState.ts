@@ -2,13 +2,17 @@ import { useCallback, useRef, useState, useEffect } from 'react'
 import type { CanvasNode } from '../types/canvas.js'
 import { useDocState } from './useDocState.js'
 import { useRealtimeChannel, type RealtimeAction } from './useRealtimeChannel.js'
-import { debounce, randomId, randomBrightColor } from '../lib/utils.js'
+import { debounce, randomId, randomBrightColor, throttleTranslate } from '../lib/utils.js'
 import { supabase } from '../lib/supabase.js'
 import { loadDoc } from '../lib/dinky-api.js'
 
 export function useRealtimeDocState() {
   const state = useDocState()
   const { doc, setDoc } = state
+  const docRef = useRef(doc)
+  useEffect(() => {
+    docRef.current = doc
+  }, [doc])
   const [cursors, setCursors] = useState<Record<string, { x: number; y: number; color: string }>>({})
   const cursorColor = useRef(randomBrightColor())
 
@@ -101,7 +105,7 @@ export function useRealtimeDocState() {
   )
 
   const sendMove = useRef(
-    debounce((id: string, dx: number, dy: number) => {
+    throttleTranslate((id: string, dx: number, dy: number) => {
       send({ type: 'node:translate', id, dx, dy })
     }, 50),
   )
@@ -131,7 +135,7 @@ export function useRealtimeDocState() {
 
   const onNodeUpdate = useCallback(
     (id: string, props: Partial<CanvasNode>) => {
-      const node = doc.nodes.find((n) => n.id === id)
+      const node = docRef.current.nodes.find((n) => n.id === id)
       let dx = 0
       let dy = 0
       if (node) {
@@ -149,7 +153,7 @@ export function useRealtimeDocState() {
         sendUpdate.current(id, otherProps)
       }
     },
-    [state.onNodeUpdate, doc.nodes],
+    [state.onNodeUpdate],
   )
 
   const onConnect = useCallback(
