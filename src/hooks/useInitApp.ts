@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { getUrlId, setUrlId } from '../lib/url'
-import { loadDoc, saveDoc } from '../lib/dinky-api'
+import { loadDoc, saveDoc, saveDocBeacon } from '../lib/dinky-api'
 import { useBeforeUnload } from './useBeforeUnload'
 import { randomId } from '../lib/utils'
 import { type useDocState } from './useDocState'
@@ -48,11 +48,15 @@ export function useInitApp(state: ReturnType<typeof useDocState>) {
     if (!userId) return
     setDoc((prevDoc) => {
       if ((prevDoc.userId === userId) && prevDoc.id && prevDoc.title && JSON.stringify(prevDoc) !== originalDoc.current) {
-        saveDoc(prevDoc, userId)
+        if (session?.access_token) {
+          saveDocBeacon(prevDoc, session.access_token, userId)
+        } else {
+          saveDoc(prevDoc, userId)
+        }
       }
       return prevDoc
     })
-  }, [setDoc, userId]))
+  }, [setDoc, userId, session]))
 
   // Update title
   useEffect(() => {
