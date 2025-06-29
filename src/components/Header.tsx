@@ -11,7 +11,7 @@ export function Header({ showLogout = false }: { showLogout?: boolean }) {
       <h1>SpaceNotes</h1>
       {showLogout && (
         <button className="Header_logout" onClick={onSignOut}>
-          Log out
+          Sign out
         </button>
       )}
     </header>

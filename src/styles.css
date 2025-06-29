@@ -428,7 +428,7 @@ button.Sidebar_toggle:hover {
   display: flex;
   flex-direction: row;
   gap: var(--space-s);
-  padding: var(--space-s) var(--space-l);
+  padding: var(--space-s) var(--space-m);
 }
 
 .ForkButton {
@@ -436,6 +436,7 @@ button.Sidebar_toggle:hover {
   border: 1px solid var(--button-color-border);
   border-radius: 8px;
   padding: 0.5em 1em;
+  margin: 0 var(--space-s);
   cursor: pointer;
   font-size: 18px;
 }
@@ -458,7 +459,7 @@ button.Sidebar_toggle:hover {
 }
 
 .Sidebar h1 {
-  margin: var(--space-m) var(--space-l) var(--space-s);
+  margin: var(--space-m) var(--space-m) var(--space-s);
 }
 
 .Sidebar h1 a {
@@ -473,7 +474,7 @@ button.Sidebar_toggle:hover {
 }
 
 .Sidebar ul {
-  padding: 0 var(--space-l);
+  padding: 0 var(--space-m);
   margin: 0;
   list-style: none;
 }
@@ -510,9 +511,19 @@ button.Sidebar_toggle:hover {
   color: var(--menu-hover-text-color);
 }
 
+.Sidebar_scrollable {
+  overflow: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.Sidebar_empty {
+  flex: 1;
+}
+
 .Sidebar_links {
   flex: 1;
-  overflow: auto;
   padding: 0;
 }
 
@@ -521,7 +532,7 @@ button.Sidebar_toggle:hover {
   justify-content: center;
   align-items: center;
   gap: var(--space-s);
-  padding: var(--space-s) var(--space-l);
+  padding: var(--space-s) var(--space-m);
 }
 
 .Sidebar_pagination button {

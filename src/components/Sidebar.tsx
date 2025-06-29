@@ -110,43 +110,46 @@ export function Sidebar({ isLocked, title, onFork, onTitleChange }: SidebarProps
 
         {divider}
 
-        <div className="Sidebar_actions">
-          {userId ? (
-            <ForkButton onFork={onFork} />
-          ) : (
-            <button className="Sidebar_signin" onClick={onSignIn}>
-              Sign in / Sign up
-            </button>
-          )}
-        </div>
-
-        <ul>
-          {renderLink({ url: makeUrl(Math.random().toString(36).slice(2)), title: '＋New' })}
-        </ul>
-
-        <ul className="Sidebar_links">
-          {docs.map((doc) => renderLink({ id: doc.id, url: makeUrl(doc.id, doc.title), title: doc.title }))}
-        </ul>
-
-        {totalPages > 1 && (
-          <div className="Sidebar_pagination">
-            <button type="button" onClick={() => setPage(page - 1)} disabled={page <= 1}>
-              Previous
-            </button>
-            <span>{page} / {totalPages}</span>
-            <button type="button" onClick={() => setPage(page + 1)} disabled={page >= totalPages}>
-              Next
-            </button>
+        {userId && (
+          <div className="Sidebar_actions">
+            <a href={makeUrl(Math.random().toString(36).slice(2))}>
+              <button>＋New space</button>
+            </a>
+            {isLocked && <ForkButton onFork={onFork} />}
           </div>
         )}
+
+        <div className="Sidebar_scrollable">
+          <ul className="Sidebar_links">
+            {docs.map((doc) => renderLink({ id: doc.id, url: makeUrl(doc.id, doc.title), title: doc.title }))}
+          </ul>
+
+          <div className="Sidebar_empty" />
+
+          {totalPages > 1 && (
+            <div className="Sidebar_pagination">
+              <button type="button" onClick={() => setPage(page - 1)} disabled={page <= 1}>
+                Previous
+              </button>
+              <span>{page} / {totalPages}</span>
+              <button type="button" onClick={() => setPage(page + 1)} disabled={page >= totalPages}>
+                Next
+              </button>
+            </div>
+          )}
+        </div>
 
         {divider}
 
         <Links direction="column" />
 
-        {userId && (
+        {userId ? (
           <button className="Sidebar_logout" onClick={onSignOut}>
             Sign out
+          </button>
+        ) : (
+          <button className="Sidebar_signin" onClick={onSignIn}>
+            Sign in / Sign up
           </button>
         )}
       </div>
