@@ -14,11 +14,17 @@ type SidebarProps = {
 }
 
 const ITEMS_PER_PAGE = 10
+const SIDEBAR_PAGE_KEY = 'spacenotes-sidebar-page'
+
+function getSavedPage() {
+  const p = parseInt(sessionStorage.getItem(SIDEBAR_PAGE_KEY) || '1', 10)
+  return Number.isFinite(p) && p > 0 ? p : 1
+}
 
 export function Sidebar({ isLocked, title, onFork, onTitleChange }: SidebarProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [docs, setDocs] = useState([])
-  const [page, setPage] = useState(1)
+  const [page, setPage] = useState(getSavedPage())
   const [totalPages, setTotalPages] = useState(1)
   const session = useSession()
   const userId = session?.user?.id || ''
@@ -84,6 +90,10 @@ export function Sidebar({ isLocked, title, onFork, onTitleChange }: SidebarProps
       loadDocs(page)
     }
   }, [isOpen, page, loadDocs])
+
+  useEffect(() => {
+    sessionStorage.setItem(SIDEBAR_PAGE_KEY, String(page))
+  }, [page])
 
   const onSignOut = useCallback(() => {
     supabase.auth.signOut()
