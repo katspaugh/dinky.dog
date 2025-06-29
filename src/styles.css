@@ -748,9 +748,13 @@ button.Auth_textButton {
 
 .Footer {
   text-align: center;
-  padding: var(--space-l) var(--space-m);
+  padding: var(--space-m) var(--space-m);
   background: var(--color-surface);
   border-top: 1px solid var(--color-border);
+}
+
+.Footer a {
+  color: var(--color-text);
 }
 
 .Links {
