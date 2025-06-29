@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { draggable } from '../lib/draggable.js'
+import { draggable } from '../../lib/draggable.js'
 
 type ResizerProps = {
   onResize: (width: number, height: number) => void

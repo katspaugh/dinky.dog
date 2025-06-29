@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from 'react'
-import type { CanvasNode } from '../types/canvas.js'
+import type { CanvasNode } from '../../types/canvas.js'
 import { INITIAL_HEIGHT, INITIAL_WIDTH } from './Editable.js'
 
 type EdgeProps = {

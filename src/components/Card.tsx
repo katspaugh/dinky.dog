@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { Editable } from './Editable.js'
+import { Editable } from './board/Editable.js'
 
 type CardProps = {
   id: string

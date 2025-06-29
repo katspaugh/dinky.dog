@@ -1,8 +1,8 @@
-import { Spaces } from './Spaces.js'
-import { Header } from './Header.js'
-import { Footer } from './Footer.js'
+import { Spaces } from '../components/Spaces.js'
+import { Header } from '../components/Header.js'
+import { Footer } from '../components/Footer.js'
 
-export function SpacesView() {
+export function SpacesPage() {
   return (
     <div className="SpacesView">
       <Header showLogout />

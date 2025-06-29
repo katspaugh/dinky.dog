@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, type CSSProperties } from 'react'
-import type { CanvasNode } from '../types/canvas'
-import { draggable } from '../lib/draggable.js'
-import { Card } from './Card.js'
+import type { CanvasNode } from '../../types/canvas'
+import { draggable } from '../../lib/draggable.js'
+import { Card } from '../Card.js'
 import { Connector } from './Connector.js'
 import { Resizer } from './Resizer.js'
 import { INITIAL_HEIGHT, INITIAL_WIDTH } from './Editable.js'
-import { ColorPicker } from './ColorPicker.js'
+import { ColorPicker } from '../ColorPicker.js'
 
 type DraggableNodeProps = CanvasNode & {
   onNodeUpdate: (id: string, props: Partial<CanvasNode>) => void

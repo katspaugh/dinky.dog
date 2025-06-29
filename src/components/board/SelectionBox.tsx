@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { draggable } from '../lib/draggable.js'
+import { draggable } from '../../lib/draggable.js'
 
 type SelectionBoxProps = {
   onChange: ({ x1, y1, x2, y2 }: { x1: number, y1: number, x2: number, y2: number }) => void

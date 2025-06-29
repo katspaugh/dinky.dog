@@ -1,12 +1,12 @@
 import { useCallback, useMemo, useRef, useState, useEffect, type CSSProperties } from 'react'
-import type { CanvasEdge, CanvasNode } from '../types/canvas'
+import type { CanvasEdge, CanvasNode } from '../../types/canvas'
 import { DraggableNode } from './DraggableNode.js'
 import { Edge } from './Edge.js'
-import { useMousePosition } from '../hooks/useMousePosition.js'
-import { useOnKey } from '../hooks/useOnKey.js'
+import { useMousePosition } from '../../hooks/useMousePosition.js'
+import { useOnKey } from '../../hooks/useOnKey.js'
 import { SelectionBox } from './SelectionBox.js'
 import { INITIAL_HEIGHT, INITIAL_WIDTH } from './Editable.js'
-import { ColorPicker } from './ColorPicker.js'
+import { ColorPicker } from '../ColorPicker.js'
 
 type BoardProps = {
   nodes: CanvasNode[]

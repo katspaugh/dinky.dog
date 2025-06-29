@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { sanitizeHtml } from '../lib/sanitize-html.js'
-import { parseUrl } from '../lib/utils.js'
-import { fetchPreview, type LinkPreview } from '../lib/link-preview.js'
+import { sanitizeHtml } from '../../lib/sanitize-html.js'
+import { parseUrl } from '../../lib/utils.js'
+import { fetchPreview, type LinkPreview } from '../../lib/link-preview.js'
 
 type EditableProps = {
   id: string
