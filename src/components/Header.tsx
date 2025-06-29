@@ -1,8 +1,8 @@
-import { supabase } from '../lib/supabase.js'
+import { signOut } from '../services/supabaseService.js'
 
 export function Header({ showLogout = false }: { showLogout?: boolean }) {
   const onSignOut = () => {
-    supabase.auth.signOut()
+    signOut()
   }
 
   return (

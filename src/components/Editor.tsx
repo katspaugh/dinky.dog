@@ -1,14 +1,12 @@
-import { Board } from './Board.js'
+import { Board } from './board/Board.js'
 import { Sidebar } from './Sidebar.js'
 import { uploadImage } from '../lib/upload-image.js'
-import { useRealtimeDocState } from '../hooks/useRealtimeDocState.js'
 import { ImageDrop } from './ImageDrop.js'
-import { useInitApp } from '../hooks/useInitApp.js'
+import { useDocument } from '../context/DocumentContext.js'
 
 export function Editor() {
-  const state = useRealtimeDocState()
-  const { doc, cursors, clientId, onCursorMove, onNodeCreate, onNodeDelete, onNodeUpdate, onConnect, onDisconnect, onBackgroundColorChange, onTitleChange } = state
-  const { isLocked, onFork } = useInitApp(state)
+  const state = useDocument()
+  const { doc, cursors, clientId, onCursorMove, onNodeCreate, onNodeDelete, onNodeUpdate, onConnect, onDisconnect, onBackgroundColorChange, onTitleChange, onFork, isLocked } = state
 
   return (
     <ImageDrop

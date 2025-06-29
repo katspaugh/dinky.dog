@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { makeUrl, getUrlId } from '../lib/url.js'
 import { ForkButton } from './ForkButton.js'
-import { supabase } from '../lib/supabase.js'
+import { signOut } from '../services/supabaseService.js'
 import { listDocsPage } from '../lib/dinky-api.js'
 import { Links } from './Links.js'
 import { useSession } from '@supabase/auth-helpers-react'
@@ -86,7 +86,7 @@ export function Sidebar({ isLocked, title, onFork, onTitleChange }: SidebarProps
   }, [isOpen, page, loadDocs])
 
   const onSignOut = useCallback(() => {
-    supabase.auth.signOut()
+    signOut()
   }, [])
 
   const onSignIn = useCallback(() => {
