@@ -12,7 +12,7 @@
   --color-background: #f9fafb;
   --color-surface: #ffffff;
   --color-text: #222222;
-  --color-muted: #555555;
+  --color-muted: #666666;
   --color-primary: #6366f1;
   --color-border: #e5e7eb;
 
@@ -42,9 +42,10 @@
     --color-surface: #1e293b;
     --color-text: #f4f4f4;
     --color-border: #555;
+    --color-muted: #9ca3af;
     --color-primary: #8b5cf6;
 
-    --overlay-color: rgba(0, 0, 0, 0.6);
+    --overlay-color: rgba(0, 0, 0, 0.3);
     --accent-color: var(--color-primary);
     --edge-color: var(--color-primary);
     --menu-background-color: var(--color-surface);
@@ -52,8 +53,11 @@
     --menu-hover-color: #374151;
     --menu-hover-text-color: var(--color-text);
     --card-color: var(--color-surface);
+    --button-color: #334155;
+    --button-active-color: #475569;
+    --button-color-border: #475569;
     --color-border: var(--color-border);
-    --grid-dot-color: #000;
+    --grid-dot-color: #334155;
   }
 }
 
