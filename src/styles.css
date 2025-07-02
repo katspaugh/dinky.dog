@@ -29,6 +29,7 @@
   --menu-hover-color: #f1f1f1;
   --menu-hover-text-color: var(--color-text);
   --card-color: var(--color-surface);
+  --card-text-color: #333;
   --card-hover-color: #f8f8f8;
   --card-border: #555;
   --shadow-color: rgba(0, 0, 0, 0.15);
@@ -52,7 +53,7 @@
     --menu-text-color: var(--color-text);
     --menu-hover-color: #374151;
     --menu-hover-text-color: var(--color-text);
-    --card-color: var(--color-surface);
+    --card-color: #dadada;
     --button-color: #334155;
     --button-active-color: #475569;
     --button-color-border: #475569;
@@ -239,6 +240,7 @@ textarea {
   padding: 8px;
   overflow: auto;
   outline: none;
+  color: var(--card-text-color);
 }
 
 .Editable:focus {
@@ -409,16 +411,24 @@ button.Sidebar_toggle {
   border: none;
   margin: var(--space-s);
   transition: transform 0.2s;
-  background: url('/logo.png') 0 0 no-repeat;
+  background: url('/logo.png') center center no-repeat;
   background-size: 100%;
   transition: filter 0.2s;
   filter: brightness(1);
 }
 
 button.Sidebar_toggle:hover {
-  background: url('/logo.png') 0 0 no-repeat !important;
+  background: url('/logo.png') center center no-repeat !important;
   background-size: 100% !important;
-  filter: brightness(1.1);
+  filter: brightness(1.2);
+}
+
+@media (prefers-color-scheme: dark) {
+  button.Sidebar_toggle:hover,
+  button.Sidebar_toggle {
+    background-color: #fff !important;
+    background-size: 107% !important;
+  }
 }
 
 .Sidebar_drawer .Sidebar_toggle {
@@ -543,6 +553,7 @@ button.Sidebar_toggle:hover {
   padding: var(--space-s) var(--space-m);
   border: 1px solid var(--color-border);
   background: var(--color-surface);
+  color: var(--color-text);
   border-radius: var(--radius);
   cursor: pointer;
 }
@@ -709,14 +720,15 @@ button.Auth_textButton {
 }
 
 .SpaceCard:hover {
-  background: rgba(0, 0, 0, 0.05);
+  background: rgba(255, 255, 255, 0.8);
 }
 
 .SpaceCardWrapper {
   position: relative;
-  background: var(--card-color);
   border: 1px solid var(--color-border);
   border-radius: var(--radius);
+  overflow: hidden;
+  color: var(--card-text-color);
 }
 
 .SpaceCardWrapper_new {

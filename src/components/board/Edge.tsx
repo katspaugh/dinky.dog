@@ -51,6 +51,11 @@ export const Edge = ({ fromNode, toNode, nodes, onDisconnect, toPosition }: Edge
   const from = useMemo(() => nodes.find((node) => node.id === fromNode), [fromNode, nodes])!
   const to = useMemo(() => nodes.find((node) => node.id === toNode), [toNode, nodes])!
 
+  if (!from || !to) {
+    console.warn(`Edge from "${fromNode}" to "${toNode}" not found in nodes`, { from, to, nodes })
+    return null
+  }
+
   // The edges must always start in the middle of the closes side of the node
   // If the nodes are one on top of the other, the edge must be vertical
   // If the nodes are one next to the other, the edge must be horizontal
