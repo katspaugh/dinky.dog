@@ -769,6 +769,11 @@ button.Auth_textButton {
   flex: 1;
 }
 
+.Header_logo {
+  background-color: #fff;
+  border-radius: var(--radius);
+}
+
 .Header_logout {
   margin-left: auto;
 }
