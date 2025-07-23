@@ -5,6 +5,7 @@ import { useBeforeUnload } from './useBeforeUnload'
 import { randomId } from '../lib/utils'
 import { type useDocState } from './useDocState'
 import { useSession } from '@supabase/auth-helpers-react'
+import { addRecentSpace } from '../lib/recent-spaces.js'
 
 const TITLE = 'SpaceNotes'
 
@@ -67,6 +68,13 @@ export function useInitApp(state: ReturnType<typeof useDocState>) {
   useEffect(() => {
     document.body.style.backgroundColor = doc?.backgroundColor ?? ''
   }, [doc?.backgroundColor])
+
+  // Update recent spaces
+  useEffect(() => {
+    if (doc.id) {
+      addRecentSpace({ id: doc.id, title: doc.title, backgroundColor: doc.backgroundColor })
+    }
+  }, [doc.id, doc.title, doc.backgroundColor])
 
   // Fork current space
   const onFork = useCallback(() => {

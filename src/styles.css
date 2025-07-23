@@ -674,6 +674,15 @@ button.Auth_textButton {
   padding: var(--space-l);
 }
 
+.RecentSpaces {
+  padding: var(--space-l);
+  padding-bottom: 0;
+}
+
+.RecentSpaces h2 {
+  margin-top: 0;
+}
+
 .Spaces_grid {
   margin: 0 auto;
   max-width: 1200px;
